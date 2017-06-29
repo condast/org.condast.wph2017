@@ -10,16 +10,19 @@ import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
 import org.condast.wph.core.definition.IModel;
 import org.condast.wph.core.xml.XMLFactoryBuilder;
+import org.condast.wph.ui.design.ModelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.GridData;
 
 public class WPHFrontend extends Composite {
 	private static final long serialVersionUID = 1L;
 
 	private GeoCoderController controller; 
 	private IEvaluationListener<Object[]> listener;
+	private ModelTableViewer viewer;
+	
 	/**
 	 * Create the composite.
 	 * @param parent
@@ -35,22 +38,21 @@ public class WPHFrontend extends Composite {
 		controller = new GeoCoderController(browser);
 		listener = new EvaluationListener();
 		controller.addEvaluationListener(listener);
-		Composite composite_1 = new Composite(sashForm, SWT.NONE);
-		composite_1.setLayout( new GridLayout(1,false));
-		new ModelTableViewer(composite_1, SWT.BORDER);
+		
+		viewer = new ModelTableViewer(sashForm, SWT.BORDER);
+		viewer.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
 		sashForm.setWeights(new int[] {2, 1});
-
 	}
 
 	public void setupFrontEnd(){
 		TilesAndPixelsModel tpm = new TilesAndPixelsModel(controller);
 		tpm.setLocation( new LngLat( 51.8926f, 4.4205f), 11);
 		MarkerModel mkm = new MarkerModel( controller );
-		XMLFactoryBuilder builder = new XMLFactoryBuilder( this.getClass() ); 
-		builder.build();
-		for( IModel model: builder.getUnits() )
+		ModelProvider provider = ModelProvider.getInstance();
+		for( IModel model: provider.getModels() )
 			mkm.addMarker(model.getLnglat(), model.getType().getImage());
 		tpm.synchronize();
+		viewer.setInput(provider.getModels());
 	}
 	
 	@Override

@@ -5,10 +5,14 @@ Bundle-SymbolicName: org.condast.wph.core
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Condast
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.condast.commons.i18n,
+Import-Package: org.condast.commons.graph,
+ org.condast.commons.i18n,
  org.condast.commons.lnglat,
+ org.condast.commons.range,
  org.condast.commons.strings,
  org.condast.commons.xml,
+ org.condast.symbiotic.core,
  org.google.geo.mapping.ui.images
 Export-Package: org.condast.wph.core.definition,
+ org.condast.wph.core.symbiot,
  org.condast.wph.core.xml
