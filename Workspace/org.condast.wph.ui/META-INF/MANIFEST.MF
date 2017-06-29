@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: World Port Hackathon 2017 UI
+Bundle-SymbolicName: org.condast.wph.ui
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Condast
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.condast.commons.lnglat,
+ org.condast.commons.xml,
+ org.condast.js.commons.controller,
+ org.condast.js.commons.eval,
+ org.condast.wph.core.definition,
+ org.condast.wph.core.xml,
+ org.eclipse.jface.layout,
+ org.eclipse.jface.viewers,
+ org.eclipse.swt,
+ org.eclipse.swt.browser,
+ org.eclipse.swt.custom,
+ org.eclipse.swt.layout,
+ org.eclipse.swt.widgets,
+ org.google.geo.mapping.ui.controller,
+ org.google.geo.mapping.ui.model
+Export-Package: org.condast.wph.ui.swt

@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: world port Hackathon 2017 Core Bundle
+Bundle-SymbolicName: org.condast.wph.core
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Condast
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.condast.commons.i18n,
+ org.condast.commons.lnglat,
+ org.condast.commons.strings,
+ org.condast.commons.xml,
+ org.google.geo.mapping.ui.images
+Export-Package: org.condast.wph.core.definition,
+ org.condast.wph.core.xml
