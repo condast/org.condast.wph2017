@@ -6,23 +6,56 @@ import org.google.geo.mapping.ui.model.MarkerModel;
 import org.google.geo.mapping.ui.model.TilesAndPixelsModel;
 import org.eclipse.swt.custom.SashForm;
 import org.condast.commons.lnglat.LngLat;
+import org.condast.commons.strings.StringStyler;
 import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
 import org.condast.wph.core.definition.IModel;
-import org.condast.wph.core.xml.XMLFactoryBuilder;
 import org.condast.wph.ui.design.ModelProvider;
+import org.condast.wph.ui.eco.ContainerEnvironment;
+import org.condast.wph.ui.eco.EnvironmentEvent;
+import org.condast.wph.ui.eco.IEnvironmentListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.custom.CTabItem;
 
 public class WPHFrontend extends Composite {
 	private static final long serialVersionUID = 1L;
 
 	private GeoCoderController controller; 
 	private IEvaluationListener<Object[]> listener;
-	private ModelTableViewer viewer;
+	private ModelTableViewer modelViewer;
+	private JourneyTableViewer journeyViewer;
+	private Browser browser;
 	
+	private ContainerEnvironment ce;
+	
+	private enum Tabs{
+		OVERVIEW,
+		JOURNEY;
+
+		@Override
+		public String toString() {
+			return StringStyler.prettyString( super.toString());
+		}
+	}
+	
+	private IEnvironmentListener elistener = new IEnvironmentListener() {
+		
+		@Override
+		public void notifyEnvironmentChanged(EnvironmentEvent event) {
+			Display.getDefault().asyncExec( new Runnable() {
+				
+				@Override
+				public void run() {
+					journeyViewer.setInput( ce.getJourneys());				}
+			});
+			
+		}
+	};
 	/**
 	 * Create the composite.
 	 * @param parent
@@ -31,20 +64,42 @@ public class WPHFrontend extends Composite {
 	public WPHFrontend(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
-		
-		SashForm sashForm = new SashForm(this, SWT.VERTICAL);
-		
-		Browser browser = new Browser(sashForm, SWT.BORDER);
-		controller = new GeoCoderController(browser);
+		this.createComposite(parent, style);
 		listener = new EvaluationListener();
-		controller.addEvaluationListener(listener);
+		controller = new GeoCoderController(browser);
+		controller.addEvaluationListener(listener);		
+	}
+	
+	protected void createComposite( Composite parent, int style ){
+		CTabFolder tabFolder = new CTabFolder(this, SWT.BORDER);
+		tabFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
 		
-		viewer = new ModelTableViewer(sashForm, SWT.BORDER);
-		viewer.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
+		CTabItem tbtmOverview = new CTabItem(tabFolder, SWT.NONE);
+		tbtmOverview.setText( Tabs.OVERVIEW.toString());
+		
+		SashForm sashForm = new SashForm(tabFolder, SWT.VERTICAL);
+		tbtmOverview.setControl(sashForm);
+		
+		browser = new Browser(sashForm, SWT.BORDER);
+		controller = new GeoCoderController(browser);
+		
+		modelViewer = new ModelTableViewer(sashForm, SWT.BORDER);
+		modelViewer.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
 		sashForm.setWeights(new int[] {2, 1});
+		
+		CTabItem tbtmJourneyItem = new CTabItem(tabFolder, SWT.NONE);
+		tbtmJourneyItem.setText( Tabs.JOURNEY.toString());
+		journeyViewer = new JourneyTableViewer(tabFolder, SWT.BORDER);
+		journeyViewer.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
+		tbtmJourneyItem.setControl( journeyViewer);	
+		tabFolder.setSelection(0);
 	}
 
 	public void setupFrontEnd(){
+		ce = new ContainerEnvironment();
+		ce.addListener( elistener);
+		ce.start();
+		
 		TilesAndPixelsModel tpm = new TilesAndPixelsModel(controller);
 		tpm.setLocation( new LngLat( 51.8926f, 4.4205f), 11);
 		MarkerModel mkm = new MarkerModel( controller );
@@ -52,7 +107,7 @@ public class WPHFrontend extends Composite {
 		for( IModel model: provider.getModels() )
 			mkm.addMarker(model.getLnglat(), model.getType().getImage());
 		tpm.synchronize();
-		viewer.setInput(provider.getModels());
+		modelViewer.setInput(provider.getModels());
 	}
 	
 	@Override
@@ -60,6 +115,11 @@ public class WPHFrontend extends Composite {
 		// Disable the check that prevents subclassing of SWT components
 	}
 
+	@Override
+	public void dispose(){
+		ce.removeListener( elistener);
+	}
+	
 	private class EvaluationListener implements IEvaluationListener<Object[]>{
 
 		@Override

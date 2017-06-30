@@ -7,6 +7,7 @@ Bundle-Vendor: Condast
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.condast.commons.lnglat,
  org.condast.commons.strings,
+ org.condast.commons.thread,
  org.condast.commons.xml,
  org.condast.js.commons.controller,
  org.condast.js.commons.eval,

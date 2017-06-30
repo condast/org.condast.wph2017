@@ -1,9 +1,9 @@
 package org.condast.wph.ui.design;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.List;
 
 import org.condast.symbiotic.core.AbstractNeighbourhood;
 import org.condast.symbiotic.core.environment.Environment;
@@ -12,71 +12,88 @@ import org.condast.wph.core.definition.IModel;
 import org.condast.wph.core.symbiot.Symbiot;
 
 public class Journey {
-
-	private Map<IModel.ModelTypes, Symbiot> stakeholders;
-	private Date departure;
-	private Date eta;
+	
 	private Environment environment;
-	private ISymbiot transport;
-
+	private ISymbiot<IModel> transport;
+	private Container container;
+	private List<ISymbiot<IModel>> chain;
+	private int index;
 	
 	private static ModelProvider provider = ModelProvider.getInstance();
 
-	public Journey( Date departure, Date eta ) {
-		this.departure = departure;
-		this.eta = eta;
-		stakeholders = new TreeMap<IModel.ModelTypes, Symbiot>();
-		environment = new Environment();
+	public Journey( Container container, Environment environment) {
+		this.container = container;
+		this.environment = environment;
+		chain = new ArrayList<ISymbiot<IModel>>();
+		this.index = 0;
 		createDependencies();
 	}
 	
 	private void createDependencies(){
 		int index = 0;
-		ISymbiot client = create( IModel.ModelTypes.CLIENT );
-		ISymbiot supplier = create( IModel.ModelTypes.SUPPLIER );
+		ISymbiot<IModel> client = create( IModel.ModelTypes.CLIENT );
+		chain.add( client );
+		ISymbiot<IModel> supplier = create( IModel.ModelTypes.SUPPLIER );
+		container.setLnglat( supplier.getModel().getLnglat());
+		chain.add( supplier );
 		environment.addNeighbourhood(client, supplier, new Neighbourhood(index++));
-		ISymbiot shipagent = create( IModel.ModelTypes.SHIPPING_AGENT );
+		ISymbiot<IModel> shipagent = create( IModel.ModelTypes.SHIPPING_AGENT );
+		chain.add( shipagent );
 		index = createJourney(shipagent, environment, index, false);
 		index = createJourney(shipagent, environment, index, false);
 		environment.addNeighbourhood(transport, client, new Neighbourhood( index ));
 	}
 
-	private int createJourney( ISymbiot shipagent, Environment environment, int index, boolean destination){
+	private int createJourney( ISymbiot<IModel> shipagent, Environment environment, int index, boolean destination){
 		transport = create( IModel.ModelTypes.LOGISTICS );
+		chain.add( transport );
 		environment.addNeighbourhood(shipagent, transport, new Neighbourhood( index ));
 		index = getIndex( destination, index);
-		ISymbiot terminal = create( IModel.ModelTypes.TERMINAL );
+		ISymbiot<IModel> terminal = create( IModel.ModelTypes.TERMINAL );
+		chain.add( terminal );
 		environment.addNeighbourhood(transport, terminal, new Neighbourhood( index ));
 		index = getIndex( destination, index);
-		ISymbiot shipowner = create( IModel.ModelTypes.SHIP_OWNER );
+		ISymbiot<IModel> shipowner = create( IModel.ModelTypes.SHIP_OWNER );
+		chain.add( shipowner );
 		environment.addNeighbourhood(terminal, shipowner, new Neighbourhood( index ));
 		index = getIndex( destination, index);
-		ISymbiot port = create( IModel.ModelTypes.PORT_AUTHORITY );
+		ISymbiot<IModel> port = create( IModel.ModelTypes.PORT_AUTHORITY );
+		chain.add( port );
 		environment.addNeighbourhood(shipowner, port, new Neighbourhood( index ));
 		index = getIndex( destination, index);
-		ISymbiot tug = create( IModel.ModelTypes.TUG_BOAT );
+		ISymbiot<IModel> tug = create( IModel.ModelTypes.TUG_BOAT );
+		chain.add( tug );
 		environment.addNeighbourhood(port, tug, new Neighbourhood( index ));
 		index = getIndex( destination, index);
-		ISymbiot pilot = create( IModel.ModelTypes.PILOT );
+		ISymbiot<IModel> pilot = create( IModel.ModelTypes.PILOT );
+		chain.add( pilot );
 		environment.addNeighbourhood(port, pilot, new Neighbourhood( index ));
 		return getIndex( destination, index);
+	}
+	
+	public Container getContainer() {
+		return container;
+	}
+	
+	public ISymbiot<IModel> next(){
+		if( index < chain.size()-1 )
+			this.index += 1;
+		ISymbiot<IModel> symbiot = chain.get(index);
+		container.setLnglat( symbiot.getModel().getLnglat() );
+		return symbiot;
+	}
+	
+	public boolean isCompleted(){
+		return this.index >= chain.size();
 	}
 	
 	private int getIndex( boolean direction, int current ){
 		return direction? current++: current--;
 	}
 
-	protected Date getDeparture() {
-		return departure;
-	}
-	
-	private static ISymbiot create( IModel.ModelTypes type ){
+	private static ISymbiot<IModel> create( IModel.ModelTypes type ){
 		IModel model = provider.getModel( IModel.ModelTypes.CLIENT );
 		return new Symbiot( model, 4 );
-	}
-
-	protected Date getEta() {
-		return eta;
 	}
 
 	/**

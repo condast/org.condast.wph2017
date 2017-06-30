@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <design>
 	<models name="Port Logistics" id="org.wph-2017.models">
-		<model id="APM-T" type="TERMINAL" longitude="51.936914" latitude="4.055972"/>
+		<model id="Customer" type="CLIENT" longitude="51.936914" latitude="4.055972"/>
+		<model id="Supplier" type="SUPPLIER" longitude="51.936914" latitude="4.055972"/>
+		<model id="Trucker" type="LOGISTICS" longitude="51.936914" latitude="4.055972"/>
+		<model id="Barge" type="LOGISTICS" longitude="51.936914" latitude="4.095972"/>
+		<model id="APM-T" type="TERMINAL" longitude="51.936914" latitude="4.085972"/>
 		<model id="ECT" type="TERMINAL" longitude="51.942014" latitude="4.04375"/>
 		<model id="PILOT_1" type="PILOT" longitude="51.992014" latitude="4.02375"/>
 		<model id="PILOT_2" type="PILOT" longitude="51.992014" latitude="4.05375"/>
