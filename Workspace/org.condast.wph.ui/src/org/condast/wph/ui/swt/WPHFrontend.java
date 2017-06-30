@@ -52,7 +52,7 @@ public class WPHFrontend extends Composite {
 		for( IModel model: provider.getModels() )
 			mkm.addMarker(model.getLnglat(), model.getType().getImage());
 		tpm.synchronize();
-		viewer.setInput(provider.getModels());
+		viewer.setInput( provider.getModels());
 	}
 	
 	@Override
