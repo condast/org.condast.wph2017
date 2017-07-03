@@ -6,7 +6,11 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.condast.wph.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.rap.rwt;bundle-version="[2.0.0,4.0.0)"
 Import-Package: org.condast.wph.ui.swt,
+ org.eclipse.rap.rwt.application;version="3.1.0",
+ org.eclipse.rap.rwt.client;version="3.1.0",
+ org.eclipse.swt,
+ org.eclipse.swt.layout,
+ org.eclipse.swt.widgets,
  org.osgi.framework
 Service-Component: OSGI-INF/contribution.xml

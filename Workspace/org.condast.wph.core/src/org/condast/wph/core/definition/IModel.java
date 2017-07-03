@@ -4,7 +4,7 @@ import org.condast.commons.lnglat.LngLat;
 import org.condast.commons.strings.StringStyler;
 import org.google.geo.mapping.ui.images.IGoogleMapsImages;
 
-public interface IModel {
+public interface IModel<E extends Enum<E>> {
 
 	public enum ModelTypes{
 		CLIENT,
@@ -48,5 +48,5 @@ public interface IModel {
 
 	LngLat getLnglat();
 
-	ModelTypes getType();
+	E getType();
 }

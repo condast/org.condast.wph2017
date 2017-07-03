@@ -9,11 +9,11 @@ import org.condast.commons.lnglat.LngLat;
 import org.condast.commons.strings.StringStyler;
 import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
+import org.condast.symbiotic.core.environment.EnvironmentEvent;
+import org.condast.symbiotic.core.environment.IEnvironmentListener;
 import org.condast.wph.core.definition.IModel;
 import org.condast.wph.ui.design.ModelProvider;
 import org.condast.wph.ui.eco.ContainerEnvironment;
-import org.condast.wph.ui.eco.EnvironmentEvent;
-import org.condast.wph.ui.eco.IEnvironmentListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.FillLayout;
@@ -104,8 +104,8 @@ public class WPHFrontend extends Composite {
 		tpm.setLocation( new LngLat( 51.8926f, 4.4205f), 11);
 		MarkerModel mkm = new MarkerModel( controller );
 		ModelProvider provider = ModelProvider.getInstance();
-		for( IModel model: provider.getModels() )
-			mkm.addMarker(model.getLnglat(), model.getType().getImage());
+		//for( IModel model: provider.getModels() )
+		//	mkm.addMarker(model.getLnglat(), model.getType().getImage());
 		tpm.synchronize();
 		modelViewer.setInput(provider.getModels());
 	}
