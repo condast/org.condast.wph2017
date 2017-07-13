@@ -5,7 +5,7 @@ import org.google.geo.mapping.ui.controller.GeoCoderController;
 import org.google.geo.mapping.ui.model.MarkerModel;
 import org.google.geo.mapping.ui.model.TilesAndPixelsModel;
 import org.eclipse.swt.custom.SashForm;
-import org.condast.commons.lnglat.LngLat;
+import org.condast.commons.latlng.LatLng;
 import org.condast.commons.strings.StringStyler;
 import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
@@ -100,7 +100,7 @@ public class WPHFrontend extends Composite {
 		ce.start();
 		
 		TilesAndPixelsModel tpm = new TilesAndPixelsModel(controller);
-		tpm.setLocation( new LngLat( 51.8926f, 4.4205f), 11);
+		tpm.setLocation( new LatLng( 51.8926f, 4.4205f), 11);
 		MarkerModel mkm = new MarkerModel( controller );
 		ModelProvider provider = ModelProvider.getInstance();
 		//for( IModel model: provider.getModels() )

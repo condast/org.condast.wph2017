@@ -12,7 +12,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.EnumSet;
 
-import org.condast.commons.lnglat.LngLat;
+import org.condast.commons.latlng.LatLng;
 import org.condast.commons.strings.StringStyler;
 import org.condast.commons.strings.StringUtils;
 import org.condast.commons.xml.AbstractXMLBuilder;
@@ -116,7 +116,7 @@ public class XMLFactoryBuilder extends AbstractXMLBuilder<IModel, XMLFactoryBuil
 			case MODEL:
 				float lng = Float.parseFloat( lng_str );
 				float lat = Float.parseFloat( lat_str );				
-				model = new Model( id, IModel.ModelTypes.valueOf( type_str ), new LngLat( lng, lat ));
+				model = new Model( id, IModel.ModelTypes.valueOf( type_str ), new LatLng( lng, lat ));
 				break;
 			default:
 				break;

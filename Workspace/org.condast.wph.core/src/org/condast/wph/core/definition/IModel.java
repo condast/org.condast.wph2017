@@ -1,6 +1,6 @@
 package org.condast.wph.core.definition;
 
-import org.condast.commons.lnglat.LngLat;
+import org.condast.commons.latlng.LatLng;
 import org.condast.commons.strings.StringStyler;
 import org.google.geo.mapping.ui.images.IGoogleMapsImages;
 
@@ -46,7 +46,7 @@ public interface IModel<E extends Enum<E>> {
 
 	String getId();
 
-	LngLat getLnglat();
+	LatLng getLnglat();
 
 	E getType();
 }
