@@ -1,15 +1,15 @@
 package org.condast.wph.core.model;
 
-import org.condast.commons.lnglat.LngLat;
+import org.condast.commons.latlng.LatLng;
 import org.condast.wph.core.definition.IModel;
 
 public abstract class AbstractModel implements IModel{
 
 	private String id;
-	private LngLat lnglat;
+	private LatLng lnglat;
 	private ModelTypes type;
 	
-	protected AbstractModel( String id, ModelTypes type, LngLat lnglat ) {
+	protected AbstractModel( String id, ModelTypes type, LatLng lnglat ) {
 		this.id = id;
 		this.type = type;
 		this.lnglat = lnglat;
@@ -26,7 +26,7 @@ public abstract class AbstractModel implements IModel{
 	}
 
 	@Override
-	public LngLat getLnglat() {
+	public LatLng getLnglat() {
 		return lnglat;
 	}
 

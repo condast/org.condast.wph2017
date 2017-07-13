@@ -7,7 +7,7 @@ Bundle-Vendor: Condast
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.condast.commons.graph,
  org.condast.commons.i18n,
- org.condast.commons.lnglat,
+ org.condast.commons.latlng,
  org.condast.commons.range,
  org.condast.commons.strings,
  org.condast.commons.xml,

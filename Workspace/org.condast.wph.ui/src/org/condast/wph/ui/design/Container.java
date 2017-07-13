@@ -2,14 +2,14 @@ package org.condast.wph.ui.design;
 
 import java.util.Date;
 
-import org.condast.commons.lnglat.LngLat;
+import org.condast.commons.latlng.LatLng;
 
 public class Container {
 
 	private String tag;
 	private Date departure;
 	private Date eta;
-	private LngLat lnglat;
+	private LatLng lnglat;
 
 	public Container( String tag, Date departure, Date eta) {
 		this.tag = tag;
@@ -29,11 +29,11 @@ public class Container {
 		return eta;
 	}
 
-	public LngLat getLngLat() {
+	public LatLng getLngLat() {
 		return lnglat;
 	}
 
-	public void setLnglat(LngLat lnglat) {
+	public void setLnglat(LatLng lnglat) {
 		this.lnglat = lnglat;
 	}
 }
