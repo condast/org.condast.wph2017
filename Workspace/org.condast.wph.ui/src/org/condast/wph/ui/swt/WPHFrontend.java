@@ -11,7 +11,6 @@ import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
 import org.condast.symbiotic.core.environment.EnvironmentEvent;
 import org.condast.symbiotic.core.environment.IEnvironmentListener;
-import org.condast.wph.core.definition.IModel;
 import org.condast.wph.ui.design.ModelProvider;
 import org.condast.wph.ui.eco.ContainerEnvironment;
 import org.eclipse.swt.SWT;
