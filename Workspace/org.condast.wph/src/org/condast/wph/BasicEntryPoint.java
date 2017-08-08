@@ -1,5 +1,6 @@
 package org.condast.wph;
 
+import org.condast.wph.service.Dispatcher;
 import org.condast.wph.ui.swt.WPHFrontend;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.swt.SWT;
@@ -16,5 +17,6 @@ public class BasicEntryPoint extends AbstractEntryPoint {
         parent.setLayout(new GridLayout(1, false));
         WPHFrontend frontend = new WPHFrontend(parent, SWT.CHECK);
         frontend.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ));
+        Dispatcher.getInstance().startApplication(frontend);
     }
 }

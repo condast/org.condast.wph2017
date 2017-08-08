@@ -1,17 +1,28 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: world port Hackathon 2017 Core Bundle
-Bundle-SymbolicName: org.condast.wph.core
+Bundle-SymbolicName: org.condast.wph.core;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Condast
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.condast.commons.i18n,
+Import-Package: javax.servlet;version="3.1.0.20150414",
+ javax.servlet.http;version="3.1.0.20150414",
+ javax.ws.rs;version="2.0.99",
+ javax.ws.rs.core;version="2.0.99",
+ org.condast.commons.i18n,
  org.condast.commons.latlng,
- org.condast.commons.range,
  org.condast.commons.strings,
  org.condast.commons.xml,
  org.condast.symbiotic.core,
- org.google.geo.mapping.ui.images
+ org.condast.symbiotic.core.environment,
+ org.condast.symbiotic.def,
+ org.glassfish.jersey.server;version="2.8.0",
+ org.glassfish.jersey.servlet;version="2.8.0",
+ org.google.geo.mapping.ui.images,
+ org.osgi.framework;version="1.8.0",
+ org.osgi.service.component.annotations;version="1.2.0"
 Export-Package: org.condast.wph.core.definition,
  org.condast.wph.core.symbiot,
  org.condast.wph.core.xml
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.condast.wph.core.Activator

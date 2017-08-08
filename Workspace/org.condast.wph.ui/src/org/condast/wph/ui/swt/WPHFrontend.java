@@ -11,8 +11,7 @@ import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
 import org.condast.symbiotic.core.environment.EnvironmentEvent;
 import org.condast.symbiotic.core.environment.IEnvironmentListener;
-import org.condast.wph.ui.design.ModelProvider;
-import org.condast.wph.ui.eco.ContainerEnvironment;
+import org.condast.wph.core.definition.IContainerEnvironment;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.FillLayout;
@@ -30,7 +29,7 @@ public class WPHFrontend extends Composite {
 	private JourneyTableViewer journeyViewer;
 	private Browser browser;
 	
-	private ContainerEnvironment ce;
+	private IContainerEnvironment ce;
 	
 	private enum Tabs{
 		OVERVIEW,
@@ -93,20 +92,22 @@ public class WPHFrontend extends Composite {
 		tbtmJourneyItem.setControl( journeyViewer);	
 		tabFolder.setSelection(0);
 	}
+	
+	public void setEnvironment(  IContainerEnvironment ce ){
+		this.ce = ce;		
+	}
 
 	public void setupFrontEnd(){
-		ce = new ContainerEnvironment();
 		ce.addListener( elistener);
 		ce.start();
 		
 		TilesAndPixelsModel tpm = new TilesAndPixelsModel(controller);
 		tpm.setLocation( new LatLng( 51.8926f, 4.4205f), 11);
 		MarkerModel mkm = new MarkerModel( controller );
-		ModelProvider provider = ModelProvider.getInstance();
 		//for( IModel model: provider.getModels() )
 		//	mkm.addMarker(model.getLnglat(), model.getType().getImage());
 		tpm.synchronize();
-		modelViewer.setInput(provider.getModels());
+		modelViewer.setInput(ce.getModels());
 	}
 	
 	@Override

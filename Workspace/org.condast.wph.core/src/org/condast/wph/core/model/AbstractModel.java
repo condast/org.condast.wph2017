@@ -3,13 +3,13 @@ package org.condast.wph.core.model;
 import org.condast.commons.latlng.LatLng;
 import org.condast.wph.core.definition.IModel;
 
-public abstract class AbstractModel implements IModel{
+public abstract class AbstractModel<E extends Enum<E>> implements IModel<E>{
 
 	private String id;
 	private LatLng lnglat;
-	private ModelTypes type;
+	private E type;
 	
-	protected AbstractModel( String id, ModelTypes type, LatLng lnglat ) {
+	protected AbstractModel( String id, E type, LatLng lnglat ) {
 		this.id = id;
 		this.type = type;
 		this.lnglat = lnglat;
@@ -21,7 +21,7 @@ public abstract class AbstractModel implements IModel{
 	}
 
 	@Override
-	public ModelTypes getType() {
+	public E getType() {
 		return type;
 	}
 

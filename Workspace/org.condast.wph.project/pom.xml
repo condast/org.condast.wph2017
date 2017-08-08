@@ -62,6 +62,7 @@
   <modules>
     <module>../org.condast.wph</module>
     <module>../org.condast.wph.core</module>
+    <module>../org.condast.wph.builder</module>
     <module>../org.condast.wph.ui</module>
     <module>../org.condast.wph.feature</module>
     <module>../org.condast.wph.update</module>
