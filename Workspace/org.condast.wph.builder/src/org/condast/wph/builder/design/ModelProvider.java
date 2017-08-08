@@ -1,4 +1,4 @@
-package org.condast.wph.ui.design;
+package org.condast.wph.builder.design;
 
 import org.condast.wph.core.definition.IModel;
 import org.condast.wph.core.xml.XMLFactoryBuilder;
@@ -18,12 +18,12 @@ public class ModelProvider {
 		return provider;
 	}
 	
-	public IModel[] getModels(){
+	public IModel<IModel.ModelTypes>[] getModels(){
 		return builder.getUnits();
 	}
 
-	public IModel getModel( IModel.ModelTypes type ){
-		for( IModel model: builder.getUnits()){
+	public IModel<IModel.ModelTypes> getModel( IModel.ModelTypes type ){
+		for( IModel<IModel.ModelTypes> model: builder.getUnits()){
 			if( model.getType().equals( type ))
 				return model;
 		}

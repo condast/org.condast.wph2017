@@ -6,8 +6,8 @@ import org.eclipse.swt.widgets.Table;
 import java.text.SimpleDateFormat;
 
 import org.condast.commons.strings.StringStyler;
-import org.condast.wph.ui.design.Container;
-import org.condast.wph.ui.design.Journey;
+import org.condast.wph.core.definition.IContainer;
+import org.condast.wph.core.definition.IJourney;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -81,7 +81,7 @@ public class JourneyTableViewer extends Composite {
 	    setColumnData(colFirstName.getColumn(), new ColumnWeightData( column.weight()));
 	}
 
-	public void setInput( Journey[] journey ){
+	public void setInput( IJourney[] journey ){
         viewer.setInput(  journey );
 	}
 
@@ -93,8 +93,8 @@ public class JourneyTableViewer extends Composite {
 		public String getColumnText(Object element, int columnIndex) {
 			Columns column = Columns.values()[columnIndex];
 			String text = super.getText(element);
-			Journey journey = (Journey) element;
-		    Container container = journey.getContainer();
+			IJourney journey = (IJourney) element;
+		    IContainer container = journey.getContainer();
 			String pattern = "MM-dd-yyyy";
 		    SimpleDateFormat format = new SimpleDateFormat(pattern);
 		 	switch( column ){

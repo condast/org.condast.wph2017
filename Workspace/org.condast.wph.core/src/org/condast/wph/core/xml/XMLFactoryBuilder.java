@@ -22,7 +22,7 @@ import org.condast.wph.core.lang.WPHLanguage;
 import org.condast.wph.core.model.Model;
 import org.xml.sax.Attributes;
 
-public class XMLFactoryBuilder extends AbstractXMLBuilder<IModel, XMLFactoryBuilder.Selection> {
+public class XMLFactoryBuilder extends AbstractXMLBuilder<IModel<IModel.ModelTypes>, XMLFactoryBuilder.Selection> {
 
 	public static String S_DEFAULT_FOLDER = "/model";
 	public static String S_DEFAULT_DESIGN_FILE = "model.xml";
@@ -92,19 +92,19 @@ public class XMLFactoryBuilder extends AbstractXMLBuilder<IModel, XMLFactoryBuil
 	}
 
 	@Override
-	public IModel[] getUnits() {
+	public IModel<IModel.ModelTypes>[] getUnits() {
 		return getHandler().getUnits();
 	}
 	
-	private static class XMLHandler extends AbstractXmlHandler<IModel,XMLFactoryBuilder.Selection>{
+	private static class XMLHandler extends AbstractXmlHandler<IModel<IModel.ModelTypes>,XMLFactoryBuilder.Selection>{
 		
 		public XMLHandler() {
 			super( EnumSet.allOf( XMLFactoryBuilder.Selection.class));
 		}
 
 		@Override
-		protected IModel parseNode( Selection node, Attributes attributes) {
-			IModel model = null;
+		protected IModel<IModel.ModelTypes> parseNode( Selection node, Attributes attributes) {
+			IModel<IModel.ModelTypes> model = null;
 			String id = getAttribute( attributes, AttributeNames.ID );
 			//String name = getAttribute( attributes, AttributeNames.NAME );
 			String lat_str = getAttribute( attributes, AttributeNames.LATITUDE );
@@ -134,15 +134,16 @@ public class XMLFactoryBuilder extends AbstractXMLBuilder<IModel, XMLFactoryBuil
 			// TODO Auto-generated method stub		
 		}
 	
+		@SuppressWarnings("unchecked")
 		@Override
-		public IModel[] getUnits() {
-			Collection<IModel> results = super.getResults();
+		public IModel<IModel.ModelTypes>[] getUnits() {
+			Collection<IModel<IModel.ModelTypes>> results = super.getResults();
 			return results.toArray( new IModel[ results.size() ]);
 		}
 
 		@Override
-		public IModel getUnit(String id) {
-			for( IModel model: super.getResults()){
+		public IModel<IModel.ModelTypes> getUnit(String id) {
+			for( IModel<IModel.ModelTypes> model: super.getResults()){
 				if( model.getId().equals(id))
 					return model;
 			}

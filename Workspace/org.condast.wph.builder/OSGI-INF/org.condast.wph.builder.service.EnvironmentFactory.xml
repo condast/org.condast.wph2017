@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.condast.wph.builder.service.EnvironmentFactory">
+   <service>
+      <provide interface="org.condast.wph.core.definition.IEnvironmentFactory"/>
+   </service>
+   <implementation class="org.condast.wph.builder.service.EnvironmentFactory"/>
+</scr:component>

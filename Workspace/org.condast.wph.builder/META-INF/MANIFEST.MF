@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Builder of the Environment
+Bundle-SymbolicName: org.condast.wph.builder
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.condast.wph.builder.Activator
+Bundle-Vendor: Condast
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.condast.commons.latlng,
+ org.condast.commons.thread,
+ org.condast.commons.xml,
+ org.condast.symbiotic.core,
+ org.condast.symbiotic.core.environment,
+ org.condast.symbiotic.def,
+ org.condast.wph.core.definition,
+ org.condast.wph.core.symbiot,
+ org.condast.wph.core.xml,
+ org.miip.waterway.model.def,
+ org.osgi.framework;version="1.3.0",
+ org.osgi.service.component.annotations;version="1.2.0"
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/org.condast.wph.builder.service.EnvironmentFactory.xml
