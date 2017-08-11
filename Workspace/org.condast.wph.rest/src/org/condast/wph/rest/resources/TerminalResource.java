@@ -19,28 +19,19 @@ import javax.ws.rs.core.MediaType;
 public class TerminalResource{
 
 	
-  public TerminalResource() {
-		super();
-	}
-
-// This method is called if TEXT_PLAIN is request
+  // This method is called if TEXT_PLAIN is request
   @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  public String sayJsonHello() {
-    return "Hello Terminal";
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("/requestSlot")
+  public String requestSlot() {
+	  return "Hello Terminal";
   }
 
   // This method is called if XML is request
   @GET
-  @Produces(MediaType.TEXT_XML)
-  public String sayXMLHello() {
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("/requestDockLater")
+  public String requestLater() {
     return "<?xml version=\"1.0\"?>" + "<hello> Hello Jersey" + "</hello>";
   }
-
-  // This method is called if HTML is request
-  @GET
-  @Produces(MediaType.TEXT_HTML)
-  public String sayHtmlHello() {
-    return "<html> " + "<title>" + "Hello Jersey" + "</title>"
-        + "<body><h1>" + "Hello Jersey" + "</body></h1>" + "</html> ";
-  }}
+}

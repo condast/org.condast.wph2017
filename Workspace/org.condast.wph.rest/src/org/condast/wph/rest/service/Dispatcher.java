@@ -14,11 +14,14 @@ public class Dispatcher {
 		return dispatcher;
 	}
 
-
 	public void startApplication( IContainerEnvironment cenv ){
 		this.cenv = cenv;
 	}
-	
+		
+	public IContainerEnvironment getEnvironment() {
+		return cenv;
+	}
+
 	public void dispose(){
 	}
 

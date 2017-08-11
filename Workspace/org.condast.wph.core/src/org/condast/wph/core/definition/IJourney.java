@@ -6,7 +6,7 @@ public interface IJourney {
 
 	IContainer getContainer();
 
-	ISymbiot<IModel<IModel.ModelTypes>> next();
+	ISymbiot next();
 
 	boolean isCompleted();
 

@@ -4,6 +4,7 @@ import javax.servlet.Servlet;
 import javax.ws.rs.ApplicationPath;
 
 import org.condast.commons.http.AbstractServletWrapper;
+import org.condast.wph.rest.resources.ControlResource;
 import org.condast.wph.rest.resources.HelloResource;
 import org.condast.wph.rest.resources.TerminalResource;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -31,7 +32,7 @@ public class RestServlet extends AbstractServletWrapper {
 		private RestApplication() {
 			register( HelloResource.class );
 			register( TerminalResource.class );
+			register( ControlResource.class );
 		}
 	}
-
 }
