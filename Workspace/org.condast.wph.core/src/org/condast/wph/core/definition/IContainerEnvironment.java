@@ -13,6 +13,12 @@ public interface IContainerEnvironment {
 	
 	public void stop();
 
+	public void pause();
+
+	public boolean isRunning();
+	
+	public boolean isPaused();
+
 	IJourney[] getJourneys();
 
 	IModel<ModelTypes>[] getModels();
