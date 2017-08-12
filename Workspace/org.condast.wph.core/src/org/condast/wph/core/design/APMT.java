@@ -11,6 +11,6 @@ public class APMT extends Terminal {
 	public static final float LATITUDE = 4.055672f;
 
 	public APMT(LatLng lnglat) {
-		super( S_ID, lnglat);
+		super( S_ID, lnglat, 400);
 	}
 }

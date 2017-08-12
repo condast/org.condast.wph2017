@@ -3,47 +3,63 @@ package org.condast.wph.core.model;
 import java.util.Collection;
 
 import org.condast.commons.latlng.LatLng;
-import org.condast.symbiotic.core.AbstractSymbiot;
-import org.condast.symbiotic.core.AbstractTransformation;
-import org.condast.symbiotic.def.ITransformation;
 import org.condast.wph.core.definition.IModel;
+import org.condast.wph.core.design.AbstractJobShopAgent;
+import org.condast.wph.core.design.TimedNode;
 
 public class Terminal extends AbstractModel<IModel.ModelTypes> {
 
+	public static final int DEFAULT_UNLOAD_TIME = 3;//minutes per container
+	
 	public enum Strategies{
 		ALLOW_ENTRY,
 		ALLOW_DELAY
 	}
 	
-	private ITransformation<Strategies, Boolean> transformation;
+	private int maxDocks;
+	private int unloadTime;
+	private JobShop jobs;
+
+	public Terminal( String id, LatLng lnglat, int maxDocks) {
+		this( id, lnglat, maxDocks, DEFAULT_UNLOAD_TIME );
+	}
 	
-	public Terminal(String id, LatLng lnglat) {
+	public Terminal( String id, LatLng lnglat, int maxDocks, int unloadTime) {
 		super(id, ModelTypes.TERMINAL, lnglat);
-		transformation = new Transformation( id );
+		this.maxDocks = maxDocks;
+		this.unloadTime = unloadTime;
+		this.jobs = new JobShop( maxDocks);
 	}
 
-	private class Transformation extends AbstractTransformation<Strategies, Boolean, Terminal>{
+	public int getMaxDocks() {
+		return maxDocks;
+	}
 
-		protected Transformation(String name) {
-			super(name);
-		}
-
-		@Override
-		protected Boolean onTransform(Collection<Strategies> inputs) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+	public int getUnloadTime() {
+		return unloadTime;
 	}
 	
-	private class Symbiot extends AbstractSymbiot<Strategies, Boolean, IModel<IModel.ModelTypes>> {
+	public boolean addJob( String name, int time ){
+		return this.jobs.addJob( name, time );	
+	}
+	
+	public boolean update( int interval ){
+		return this.jobs.update(interval);
+	}
+	
+	public boolean isAvailable(){
+		return this.jobs.isAvailable();
+	}
+	
+	private class JobShop extends AbstractJobShopAgent{
 
-		public Symbiot(ITransformation<Strategies, Boolean> transformation, int maxStrategy) {
-			super(transformation, getId(), maxStrategy);
+		JobShop(int maxJobs) {
+			super(maxJobs);
 		}
 
 		@Override
-		protected void onSetStrategy(int strategy) {
-			
+		protected void setupJobs(Collection<TimedNode> data, int maxJobs) {
+			// NOTHING
 		}
 	}
 
