@@ -10,6 +10,7 @@ public interface IModel<E extends Enum<E>> {
 		CLIENT,
 		SHIP,
 		SHIPPING_AGENT,
+		ANCHORAGE,
 		TERMINAL,
 		PILOT,
 		BOAT_MEN,

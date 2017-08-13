@@ -62,5 +62,4 @@ public class Terminal extends AbstractModel<IModel.ModelTypes> {
 			// NOTHING
 		}
 	}
-
 }

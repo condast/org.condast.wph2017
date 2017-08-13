@@ -1,4 +1,4 @@
-package org.condast.wph.core.design;
+package org.condast.wph.core.symbiot;
 
 import java.util.Collection;
 
@@ -17,43 +17,33 @@ public class TerminalBot extends AbstractSymbiot<Terminal,IShip, Boolean> {
 	}
 	
 	private Terminal terminal;
-	private Transformation transformation;
 	
-	public TerminalBot( Terminal terminal) {
+	public TerminalBot( Terminal terminal ) {
 		super(terminal.getId(), 5);
 		this.terminal = terminal;
 	}
 	
-	
 	@Override
 	protected ITransformation<IShip, Boolean> createTransformation() {
-		transformation = new Transformation( this, terminal );
-		return transformation;
+		return new Transformation( this, terminal );
 	}
-
 
 	public boolean dockShip( IShip ship ){
-		return this.transformation.addInput( ship );
+		return super.getTransformation().addInput( ship );
 	}
-	
-	
-	@Override
-	protected void onSetStrategy(int strategy) {
-		// TODO Auto-generated method stub
 		
-	}
-
 	public void update( int interval ){
-		this.transformation.update(interval);
+		Transformation transformation = (Transformation) super.getTransformation();
+		transformation.update(interval);
 	}
 
 	private static class Transformation extends AbstractModelTransformation<IShip, Boolean, Terminal>{
 
 		private int interval;
 		private Terminal terminal;
-		private ISymbiot symbiot;
+		private ISymbiot<IShip, Boolean> symbiot;
 
-		protected Transformation(ISymbiot symbiot, Terminal terminal ) {
+		protected Transformation(ISymbiot<IShip, Boolean> symbiot, Terminal terminal ) {
 			super(symbiot.getName(), terminal);
 			this.symbiot = symbiot;
 			this.terminal = terminal;
@@ -82,4 +72,11 @@ public class TerminalBot extends AbstractSymbiot<Terminal,IShip, Boolean> {
 
 	}
 
+	@Override
+	protected float onChangeLevel(ISymbiot<?, ?> symbiot, float current) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	
 }
