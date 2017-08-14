@@ -1,7 +1,9 @@
 package org.condast.wph.builder.design;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,35 +15,58 @@ import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.Symbiot;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
 import org.condast.symbiotic.core.environment.Environment;
+import org.condast.symbiotic.core.transformation.ITransformListener;
+import org.condast.symbiotic.core.transformation.TransformEvent;
 import org.condast.symbiotic.def.ISymbiot;
 import org.condast.symbiotic.def.ITransformation;
+import org.condast.wph.core.def.IIntervalTransformation;
 import org.condast.wph.core.def.IShip;
-import org.condast.wph.core.definition.IContainer;
-import org.condast.wph.core.definition.IJourney;
+import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.design.TAnchorage;
 import org.condast.wph.core.design.TTerminal;
 import org.condast.wph.core.design.TimedNode;
 import org.condast.wph.core.model.Anchorage;
 import org.condast.wph.core.model.Terminal;
 
-public class Journey implements IJourney {
+public class ShipEntry {
+	
+	public static final int DEFAULT_INTERVAL = 15*60*1000; //15 min
 	
 	private Collection<ISymbiot> symbiots;
+	private Map<ModelTypes, IIntervalTransformation<?,?>> models;
 	
 	private Environment environment;
 	private ISymbiot transport;
-	private IContainer container;
 	private List<ISymbiot> chain;
 	private int index;
+	private Date startTime;
+	private int interval;
+
+	private Collection<ITransformListener<Boolean>> listeners;
 	
+	private ITransformListener<Boolean> listener = new ITransformListener<Boolean>(){
+
+		@Override
+		public void notifyChange(TransformEvent<Boolean> event) {
+			for( ITransformListener<Boolean> listener: listeners )
+				listener.notifyChange(event);
+			
+		}
+	};
+
+
 	private static ModelProvider provider = ModelProvider.getInstance();
 
-	public Journey( IContainer container, Environment environment) {
+	public ShipEntry( Environment environment) {
 		this.symbiots = new SymbiotCollection();
-		this.container = container;
+		this.models = new HashMap<ModelTypes, IIntervalTransformation<?,?>>();
+		
 		this.environment = environment;
 		chain = new ArrayList<ISymbiot>();
 		this.index = 0;
+		startTime = Calendar.getInstance().getTime();
+		this.interval = DEFAULT_INTERVAL;
+		this.listeners = new ArrayList<ITransformListener<Boolean>>();
 		createDependencies();
 	}
 	
@@ -50,14 +75,17 @@ public class Journey implements IJourney {
 		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
 		ISymbiot symbiot = new Symbiot<IShip, Integer>( behaviour, 5 );
 		symbiots.add(symbiot);
-		ITransformation<IShip,Boolean> anch = new TAnchorage( symbiot, behaviour, 
+		IIntervalTransformation<IShip,Boolean> anch = new TAnchorage( symbiot, behaviour, 
 				new Anchorage( "Hoek van Holland", new LatLng(4.2f, 51.8f), 3));
-
+		this.models.put(ModelTypes.ANCHORAGE, anch);
+		anch.addTransformationListener(listener);
+		
 		behaviour = new DefaultBehaviour<>(5);
 		symbiot = new Symbiot<IShip, Integer>( behaviour, 5 );
 		symbiots.add(symbiot);
-		ITransformation<IShip,Boolean> term = new TTerminal( symbiot, behaviour, 
+		IIntervalTransformation term = new TTerminal( symbiot, behaviour, 
 				new Terminal( "APM-T", new LatLng(4.2f, 51.8f), 3));
+		this.models.put(ModelTypes.TERMINAL, term);
 		/*				
 				create( IModel.ModelTypes.CLIENT );
 		chain.add( client );
@@ -74,6 +102,7 @@ public class Journey implements IJourney {
 		*/
 	}
 
+	
 	/*
 	private int createJourney( ISymbiot<?,?> shipagent, Environment environment, int index, boolean destination){
 		transport = create( IModel.ModelTypes.LOGISTICS );
@@ -103,21 +132,24 @@ public class Journey implements IJourney {
 	}
 	*/
 	
-	@Override
-	public IContainer getContainer() {
-		return container;
+	public ITransformation<?,?> getTransformation( ModelTypes type ){
+		return models.get( type );
 	}
-	
-	@Override
+
+	public void addTransformListener( ITransformListener<Boolean> listener ){
+		this.listeners.add( listener );
+	}
+
+	public void removeTransformListener( ITransformListener<?> listener ){
+		this.listeners.remove( listener );
+	}
+
 	public ISymbiot next(){
-		if( index < chain.size()-1 )
-			this.index += 1;
-		ISymbiot symbiot = chain.get(index);
-		//container.setLnglat( symbiot.getModel().getLnglat() );
-		return symbiot;
+		for( IIntervalTransformation<?,?> trf: models.values() )
+			trf.next(interval);
+		return null;
 	}
 	
-	@Override
 	public boolean isCompleted(){
 		return this.index >= chain.size();
 	}

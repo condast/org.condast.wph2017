@@ -3,7 +3,7 @@ package org.condast.wph.core.design;
 import java.util.Collection;
 import java.util.Date;
 
-import org.condast.symbiotic.core.AbstractTransformation;
+import org.condast.symbiotic.core.transformation.AbstractTransformation;
 
 public class TimedNode extends AbstractTransformation<Date, Boolean>{
 
