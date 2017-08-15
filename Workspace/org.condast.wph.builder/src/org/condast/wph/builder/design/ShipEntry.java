@@ -16,14 +16,16 @@ import org.condast.symbiotic.core.collection.SymbiotCollection;
 import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.transformation.ITransformListener;
 import org.condast.symbiotic.core.transformation.TransformEvent;
+import org.condast.symbiotic.core.transformation.Transformation;
+import org.condast.symbiotic.core.utils.TimedNode;
 import org.condast.symbiotic.def.ISymbiot;
 import org.condast.symbiotic.def.ITransformation;
+import org.condast.symbiotic.def.ITransformer;
 import org.condast.wph.core.def.IIntervalTransformation;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.design.TAnchorage;
 import org.condast.wph.core.design.TTerminal;
-import org.condast.wph.core.design.TimedNode;
 import org.condast.wph.core.model.Anchorage;
 import org.condast.wph.core.model.Terminal;
 
@@ -73,15 +75,15 @@ public class ShipEntry {
 		int index = 0;
 		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
 		symbiots.add(behaviour);
-		IIntervalTransformation<IShip,Boolean> anch = new TAnchorage( behaviour, 
-				new Anchorage( "Hoek van Holland", new LatLng(4.2f, 51.8f), 3));
+		IIntervalTransformation<IShip,Boolean> anch = new IntervalTransformation( ModelTypes.ANCHORAGE.toString(), 
+				new TAnchorage( new Anchorage( "Hoek van Holland", new LatLng(4.2f, 51.8f), 3), behaviour));
 		this.models.put(ModelTypes.ANCHORAGE, anch);
 		anch.addTransformationListener(listener);
 		
 		behaviour = new DefaultBehaviour<>(5);
 		symbiots.add(behaviour);
-		IIntervalTransformation<?,?> term = new TTerminal( behaviour, 
-				new Terminal( "APM-T", new LatLng(4.2f, 51.8f), 3));
+		IIntervalTransformation<?,?> term = new IntervalTransformation( ModelTypes.TERMINAL.toString(),
+				new TTerminal( new Terminal( "APM-T", new LatLng(4.2f, 51.8f), 3), behaviour ));
 		this.models.put(ModelTypes.TERMINAL, term);
 		/*				
 				create( IModel.ModelTypes.CLIENT );
@@ -173,12 +175,19 @@ public class ShipEntry {
 			return super.addInput(input);
 		}
 
+		
+	}
+	
+	private class IntervalTransformation extends Transformation<IShip, Boolean> implements IIntervalTransformation<IShip, Boolean>{
+
+		public IntervalTransformation(String name, ITransformer<IShip, Boolean> transformer) {
+			super(name, transformer);
+		}
 
 		@Override
-		protected Boolean onTransform(Collection<IShip> inputs) {
+		public void next(int interval) {
 			// TODO Auto-generated method stub
-			return null;
-		}
-		
+			
+		}		
 	}
 }

@@ -3,6 +3,8 @@ package org.condast.wph.core.design;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.condast.symbiotic.core.utils.TimedNode;
+
 public abstract class AbstractJobShopAgent {
 
 	private int maxJobs;

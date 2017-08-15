@@ -47,7 +47,11 @@ public class Anchorage extends AbstractModel<IModel.ModelTypes> {
 	public void addShip( IShip ship ){
 		this.ships.put( Calendar.getInstance().getTime(), ship );	
 	}
-	
+
+	public void removeShip( IShip ship ){
+		this.ships.remove( Calendar.getInstance().getTime(), ship );	
+	}
+
 	public IShip getFirst(){
 		return this.ships.firstEntry().getValue();
 	}

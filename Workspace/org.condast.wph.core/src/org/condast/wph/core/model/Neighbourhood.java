@@ -1,6 +1,6 @@
 package org.condast.wph.core.model;
 
-import org.condast.wph.core.design.TimedNode;
+import org.condast.symbiotic.core.utils.TimedNode;
 
 public class Neighbourhood extends TimedNode {
 
@@ -16,7 +16,7 @@ public class Neighbourhood extends TimedNode {
 	}
 
 	public Neighbourhood(String id, long time) {
-		super(id, time);
+		super( time);
 	}
 
 	protected Direction getDirection() {

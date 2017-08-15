@@ -3,9 +3,9 @@ package org.condast.wph.core.model;
 import java.util.Collection;
 
 import org.condast.commons.latlng.LatLng;
+import org.condast.symbiotic.core.utils.TimedNode;
 import org.condast.wph.core.definition.IModel;
 import org.condast.wph.core.design.AbstractJobShopAgent;
-import org.condast.wph.core.design.TimedNode;
 
 public class Terminal extends AbstractModel<IModel.ModelTypes> {
 

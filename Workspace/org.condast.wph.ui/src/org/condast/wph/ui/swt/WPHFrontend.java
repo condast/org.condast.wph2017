@@ -5,6 +5,8 @@ import org.google.geo.mapping.ui.controller.GeoCoderController;
 import org.google.geo.mapping.ui.model.MarkerModel;
 import org.google.geo.mapping.ui.model.TilesAndPixelsModel;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.condast.commons.latlng.LatLng;
 import org.condast.commons.strings.StringStyler;
 import org.condast.js.commons.eval.EvaluationEvent;
@@ -12,6 +14,8 @@ import org.condast.js.commons.eval.IEvaluationListener;
 import org.condast.symbiotic.core.environment.EnvironmentEvent;
 import org.condast.symbiotic.core.environment.IEnvironmentListener;
 import org.condast.wph.core.definition.IContainerEnvironment;
+import org.condast.wph.ui.rest.RestController;
+import org.condast.wph.ui.rest.RestController.Pages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.FillLayout;
@@ -23,17 +27,19 @@ import org.eclipse.swt.custom.CTabItem;
 public class WPHFrontend extends Composite {
 	private static final long serialVersionUID = 1L;
 
-	private GeoCoderController controller; 
 	private IEvaluationListener<Object[]> listener;
 	private ModelTableViewer modelViewer;
 	private JourneyTableViewer journeyViewer;
 	private Browser browser;
-	
+	private GeoCoderController controller; 
+	private RestController restController; 
+		
 	private IContainerEnvironment ce;
 	
 	private enum Tabs{
 		OVERVIEW,
-		JOURNEY;
+		JOURNEY,
+		REST;
 
 		@Override
 		public String toString() {
@@ -62,24 +68,50 @@ public class WPHFrontend extends Composite {
 	public WPHFrontend(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
-		this.createComposite(parent, style);
 		listener = new EvaluationListener();
-		controller = new GeoCoderController(browser);
-		controller.addEvaluationListener(listener);		
+		this.createComposite(parent, style);
 	}
 	
 	protected void createComposite( Composite parent, int style ){
 		CTabFolder tabFolder = new CTabFolder(this, SWT.BORDER);
 		tabFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
-		
+		tabFolder.addSelectionListener( new SelectionAdapter(){
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				changeTab( (CTabFolder) e.getSource());
+				super.widgetDefaultSelected(e);
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				changeTab( (CTabFolder) e.getSource());
+				super.widgetSelected(e);
+			}	
+			
+			private void changeTab( CTabFolder folder ){
+				CTabItem item = folder.getSelection();
+				Tabs tab = (Tabs) item.getData();
+				switch( tab ){
+				case REST:
+					restController.setBrowser( Pages.INDEX );
+					break;
+				default:
+					break;
+				}
+			}
+		});
 		CTabItem tbtmOverview = new CTabItem(tabFolder, SWT.NONE);
 		tbtmOverview.setText( Tabs.OVERVIEW.toString());
+		tbtmOverview.setData( Tabs.OVERVIEW);
 		
 		SashForm sashForm = new SashForm(tabFolder, SWT.VERTICAL);
 		tbtmOverview.setControl(sashForm);
 		
 		browser = new Browser(sashForm, SWT.BORDER);
 		controller = new GeoCoderController(browser);
+		controller.addEvaluationListener(listener);		
 		
 		modelViewer = new ModelTableViewer(sashForm, SWT.BORDER);
 		modelViewer.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
@@ -87,10 +119,19 @@ public class WPHFrontend extends Composite {
 		
 		CTabItem tbtmJourneyItem = new CTabItem(tabFolder, SWT.NONE);
 		tbtmJourneyItem.setText( Tabs.JOURNEY.toString());
+		tbtmJourneyItem.setData( Tabs.JOURNEY);
 		journeyViewer = new JourneyTableViewer(tabFolder, SWT.BORDER);
 		journeyViewer.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
 		tbtmJourneyItem.setControl( journeyViewer);	
-		tabFolder.setSelection(0);
+
+		CTabItem tbtmRestItem = new CTabItem(tabFolder, SWT.NONE);
+		tbtmRestItem.setText( Tabs.REST.toString());
+		tbtmRestItem.setData( Tabs.REST);
+		browser = new Browser(tabFolder, SWT.BORDER);
+		restController = new RestController(browser);
+		tbtmRestItem.setControl( browser);	
+
+		tabFolder.setSelection(Tabs.REST.ordinal());
 	}
 	
 	public void setEnvironment(  IContainerEnvironment ce ){

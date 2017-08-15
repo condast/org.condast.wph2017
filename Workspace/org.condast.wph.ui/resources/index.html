@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>I'm in a Rest App!</title>
+		<script src="/wph/js/jquery-3.1.1.min.js" type="text/javascript"></script>
+	</head>
+<body>
+	<div>
+		<input type="button" id="ok_button" value="OK"
+			onclick="changeClass(this.id)" /> <input type="button"
+			id="deny_button" value="DENY" onclick="changeClass(this.id)" />
+	</div>
+	<div>
+		<input type="button" id="start_button" value="START"
+			onclick="changeClass(this.id)" />
+	</div>
+	<script>
+		function changeClass(id) {
+			switch (id) {
+			case "start_button":
+				queryRest('localhost:8081/rest/control/activate');
+				break;
+			default:
+				alert('Invalid id: ' + id);
+				break;
+			}
+		}
+
+		function queryRest(path) {
+			var result = $.get(path, function() {
+				alert("success");
+			}).done(function() {
+				alert("second success");
+			}).fail(function() {
+				alert("error");
+			}).always(function() {
+				alert("finished");
+			});
+			alert(result);
+		}
+	</script>
+</body>
+</html>

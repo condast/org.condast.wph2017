@@ -1,46 +1,47 @@
 package org.condast.wph.core.design;
 
-import java.util.Collection;
+import java.util.Iterator;
 
 import org.condast.symbiotic.core.IBehaviour;
-import org.condast.symbiotic.core.transformation.AbstractBehavedTransformation;
+import org.condast.symbiotic.core.transformation.AbstractModelTransformer;
 import org.condast.symbiotic.def.ISymbiot;
-import org.condast.wph.core.def.IIntervalTransformation;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.model.Anchorage;
-import org.condast.wph.core.model.Ship;
 
-public class TAnchorage extends AbstractBehavedTransformation<IShip, Boolean, Anchorage, Integer> implements IIntervalTransformation<IShip, Boolean>{
+public class TAnchorage extends AbstractModelTransformer<Anchorage, IShip, Boolean, Integer>{
 
 	private Anchorage anchorage;
 
-	public TAnchorage( IBehaviour<IShip, Integer> behaviour, Anchorage anchorage ) {
-		super(ModelTypes.ANCHORAGE.toString(), behaviour, anchorage );
+	public TAnchorage( Anchorage anchorage, IBehaviour<IShip, Integer> behaviour ) {
+		super( ModelTypes.ANCHORAGE.toString(), anchorage, behaviour );
 		this.anchorage = anchorage;
 	}
 
 	@Override
-	public boolean addInput(IShip ship) {
-		super.addInput(ship);
+	public boolean addInput( IShip ship ) {
+		boolean retval = super.addInput(ship);
 		this.anchorage.addShip( ship );
-		return true;
-	}
-
-	@Override
-	protected Boolean onTransform(Collection<IShip> inputs) {
-		boolean retval = !this.anchorage.isEmpty();
-		ISymbiot symbiot = super.getBehaviour().getOwner();
-		if( retval)
-			symbiot.clearStress();
-		else
-			symbiot.increaseStress();
 		return retval;
 	}
 
 	@Override
-	public void next(int interval) {
-		super.addInput( new Ship( ));
-		super.transform();
+	public boolean removeInput(IShip input) {
+		boolean retval = super.removeInput( input );
+		this.anchorage.removeShip( input );
+		return retval;
+	}
+
+	@Override
+	protected Boolean onTransform( Iterator<IShip> inputs) {
+		return !this.anchorage.isEmpty();
+	}
+
+	@Override
+	protected void onUpdateStress( Iterator<IShip> inputs, ISymbiot symbiot) {
+		if( !this.anchorage.isEmpty())
+			symbiot.clearStress();
+		else
+			symbiot.increaseStress();
 	}
 }

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: World Port Hackathon 2017 UI
-Bundle-SymbolicName: org.condast.wph.ui
+Bundle-SymbolicName: org.condast.wph.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Condast
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
@@ -22,6 +22,7 @@ Import-Package: org.condast.commons.latlng,
  org.eclipse.swt,
  org.eclipse.swt.browser,
  org.eclipse.swt.custom,
+ org.eclipse.swt.events,
  org.eclipse.swt.graphics,
  org.eclipse.swt.layout,
  org.eclipse.swt.widgets,
