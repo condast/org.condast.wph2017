@@ -12,7 +12,6 @@ import org.condast.commons.latlng.LatLng;
 import org.condast.symbiotic.core.AbstractNeighbourhood;
 import org.condast.symbiotic.core.DefaultBehaviour;
 import org.condast.symbiotic.core.IBehaviour;
-import org.condast.symbiotic.core.Symbiot;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
 import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.transformation.ITransformListener;
@@ -32,7 +31,7 @@ public class ShipEntry {
 	
 	public static final int DEFAULT_INTERVAL = 15*60*1000; //15 min
 	
-	private Collection<ISymbiot> symbiots;
+	private SymbiotCollection symbiots;
 	private Map<ModelTypes, IIntervalTransformation<?,?>> models;
 	
 	private Environment environment;
@@ -73,17 +72,15 @@ public class ShipEntry {
 	private void createDependencies(){
 		int index = 0;
 		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
-		ISymbiot symbiot = new Symbiot<IShip, Integer>( behaviour, 5 );
-		symbiots.add(symbiot);
-		IIntervalTransformation<IShip,Boolean> anch = new TAnchorage( symbiot, behaviour, 
+		symbiots.add(behaviour);
+		IIntervalTransformation<IShip,Boolean> anch = new TAnchorage( behaviour, 
 				new Anchorage( "Hoek van Holland", new LatLng(4.2f, 51.8f), 3));
 		this.models.put(ModelTypes.ANCHORAGE, anch);
 		anch.addTransformationListener(listener);
 		
 		behaviour = new DefaultBehaviour<>(5);
-		symbiot = new Symbiot<IShip, Integer>( behaviour, 5 );
-		symbiots.add(symbiot);
-		IIntervalTransformation term = new TTerminal( symbiot, behaviour, 
+		symbiots.add(behaviour);
+		IIntervalTransformation<?,?> term = new TTerminal( behaviour, 
 				new Terminal( "APM-T", new LatLng(4.2f, 51.8f), 3));
 		this.models.put(ModelTypes.TERMINAL, term);
 		/*				

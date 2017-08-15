@@ -10,7 +10,6 @@ import org.condast.commons.latlng.LatLng;
 import org.condast.symbiotic.core.AbstractNeighbourhood;
 import org.condast.symbiotic.core.DefaultBehaviour;
 import org.condast.symbiotic.core.IBehaviour;
-import org.condast.symbiotic.core.Symbiot;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
 import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.def.ISymbiot;
@@ -26,7 +25,7 @@ import org.condast.wph.core.model.Terminal;
 
 public class Journey implements IJourney {
 	
-	private Collection<ISymbiot> symbiots;
+	private SymbiotCollection symbiots;
 	
 	private Environment environment;
 	private ISymbiot transport;
@@ -48,15 +47,13 @@ public class Journey implements IJourney {
 	private void createDependencies(){
 		int index = 0;
 		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
-		ISymbiot symbiot = new Symbiot<IShip, Integer>( behaviour, 5 );
-		symbiots.add(symbiot);
-		ITransformation<IShip,Boolean> anch = new TAnchorage( symbiot, behaviour, 
+		symbiots.add(behaviour);
+		ITransformation<IShip,Boolean> anch = new TAnchorage( behaviour, 
 				new Anchorage( "Hoek van Holland", new LatLng(4.2f, 51.8f), 3));
 
 		behaviour = new DefaultBehaviour<>(5);
-		symbiot = new Symbiot<IShip, Integer>( behaviour, 5 );
-		symbiots.add(symbiot);
-		ITransformation<IShip,Boolean> term = new TTerminal( symbiot, behaviour, 
+		symbiots.add(behaviour);
+		ITransformation<IShip,Boolean> term = new TTerminal( behaviour, 
 				new Terminal( "APM-T", new LatLng(4.2f, 51.8f), 3));
 		/*				
 				create( IModel.ModelTypes.CLIENT );

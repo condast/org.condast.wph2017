@@ -3,14 +3,14 @@ package org.condast.wph.core.design;
 import java.util.Collection;
 
 import org.condast.symbiotic.core.IBehaviour;
-import org.condast.symbiotic.core.transformation.AbstractSymbiotTransformation;
+import org.condast.symbiotic.core.transformation.AbstractBehavedTransformation;
 import org.condast.symbiotic.def.ISymbiot;
 import org.condast.wph.core.def.IIntervalTransformation;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.model.Terminal;
 
-public class TTerminal extends AbstractSymbiotTransformation<IShip, Boolean, Terminal, Integer> 
+public class TTerminal extends AbstractBehavedTransformation<IShip, Boolean, Terminal, Integer> 
 implements IIntervalTransformation<IShip, Boolean>{
 
 	public enum Strategies{
@@ -21,8 +21,8 @@ implements IIntervalTransformation<IShip, Boolean>{
 	private int interval;
 	private Terminal terminal;
 
-	public TTerminal( ISymbiot symbiot, IBehaviour<IShip,Integer> behaviour, Terminal terminal ) {
-		super( ModelTypes.TERMINAL.toString(), symbiot, behaviour, terminal);
+	public TTerminal( IBehaviour<IShip,Integer> behaviour, Terminal terminal ) {
+		super( ModelTypes.TERMINAL.toString(), behaviour, terminal);
 		this.terminal = terminal;
 	}
 
@@ -40,7 +40,7 @@ implements IIntervalTransformation<IShip, Boolean>{
 	@Override
 	protected Boolean onTransform(Collection<IShip> inputs) {
 		boolean retval = this.terminal.update( interval );
-		ISymbiot symbiot = super.getSymbiot();
+		ISymbiot symbiot = super.getBehaviour().getOwner();
 		if( this.terminal.isAvailable())
 			symbiot.clearStress();
 		else

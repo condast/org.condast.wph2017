@@ -3,7 +3,7 @@ package org.condast.wph.core.design;
 import java.util.Collection;
 
 import org.condast.symbiotic.core.IBehaviour;
-import org.condast.symbiotic.core.transformation.AbstractSymbiotTransformation;
+import org.condast.symbiotic.core.transformation.AbstractBehavedTransformation;
 import org.condast.symbiotic.def.ISymbiot;
 import org.condast.wph.core.def.IIntervalTransformation;
 import org.condast.wph.core.def.IShip;
@@ -11,12 +11,12 @@ import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.model.Anchorage;
 import org.condast.wph.core.model.Ship;
 
-public class TAnchorage extends AbstractSymbiotTransformation<IShip, Boolean, Anchorage, Integer> implements IIntervalTransformation<IShip, Boolean>{
+public class TAnchorage extends AbstractBehavedTransformation<IShip, Boolean, Anchorage, Integer> implements IIntervalTransformation<IShip, Boolean>{
 
 	private Anchorage anchorage;
 
-	public TAnchorage( ISymbiot symbiot, IBehaviour<IShip, Integer> behaviour, Anchorage anchorage ) {
-		super(ModelTypes.ANCHORAGE.toString(), symbiot, behaviour, anchorage );
+	public TAnchorage( IBehaviour<IShip, Integer> behaviour, Anchorage anchorage ) {
+		super(ModelTypes.ANCHORAGE.toString(), behaviour, anchorage );
 		this.anchorage = anchorage;
 	}
 
@@ -30,7 +30,7 @@ public class TAnchorage extends AbstractSymbiotTransformation<IShip, Boolean, An
 	@Override
 	protected Boolean onTransform(Collection<IShip> inputs) {
 		boolean retval = !this.anchorage.isEmpty();
-		ISymbiot symbiot = super.getSymbiot();
+		ISymbiot symbiot = super.getBehaviour().getOwner();
 		if( retval)
 			symbiot.clearStress();
 		else
