@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>I'm in a Rest App!</title>
-		<script src="/wph/js/jquery-3.1.1.min.js" type="text/javascript"></script>
+		<script src="/wph/js/jquery-3.2.1.min.js" type="text/javascript"></script>
 	</head>
 <body>
 	<div>
@@ -19,7 +19,7 @@
 		function changeClass(id) {
 			switch (id) {
 			case "start_button":
-				queryRest('localhost:8081/rest/control/activate');
+				queryRest("http://localhost:8081/rest/control/activate");
 				break;
 			default:
 				alert('Invalid id: ' + id);
@@ -27,17 +27,42 @@
 			}
 		}
 
-		function queryRest(path) {
-			var result = $.get(path, function() {
+		function getPath(path) {
+
+			$.ajaxSetup({
+				error: function(xhr, status, error) {
+				alert("An AJAX error occured: " + status + "\nError: " + error + "\nError detail: " + xhr.responseText);
+			} 
+			});
+			alert(path);
+			var result = $.get(path, function( result ) {
 				alert("success");
 			}).done(function() {
 				alert("second success");
-			}).fail(function() {
-				alert("error");
+			}).fail(function( result, status ) {
+				alert( status + " extra");				
 			}).always(function() {
 				alert("finished");
 			});
 			alert(result);
+		}
+		
+		function queryRest( path ){
+			$.ajaxSetup({
+				error: function(xhr, status, error) {
+				alert("An AJAX error occured: " + status + "\nError: " + error + "\nError detail: " + xhr.responseText);
+			} 
+			});
+			$.ajax({
+		        url: path
+		    }).done(function(data) {
+		       alert(data);
+		    	$('start_button').append(data.id);
+		       $('start_button').append(data.content);
+			}).fail(function( result, status ) {
+				alert( status + " extra");				
+		    });
+			alert("done");
 		}
 	</script>
 </body>
