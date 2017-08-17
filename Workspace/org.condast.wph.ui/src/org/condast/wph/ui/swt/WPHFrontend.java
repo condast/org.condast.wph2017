@@ -1,14 +1,21 @@
 package org.condast.wph.ui.swt;
 
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.google.geo.mapping.ui.controller.GeoCoderController;
 import org.google.geo.mapping.ui.model.MarkerModel;
-import org.google.geo.mapping.ui.model.TilesAndPixelsModel;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.condast.commons.latlng.LatLng;
+
+import java.text.SimpleDateFormat;
+import java.util.EnumSet;
+
 import org.condast.commons.strings.StringStyler;
+import org.condast.commons.ui.player.PlayerImages;
+import org.condast.commons.ui.player.PlayerImages.Images;
+import org.condast.commons.ui.widgets.AbstractButtonBar;
 import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
 import org.condast.symbiotic.core.environment.EnvironmentEvent;
@@ -18,10 +25,11 @@ import org.condast.wph.ui.rest.RestController;
 import org.condast.wph.ui.rest.RestController.Pages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.custom.CTabItem;
 
 public class WPHFrontend extends Composite {
@@ -33,13 +41,18 @@ public class WPHFrontend extends Composite {
 	private Browser browser;
 	private GeoCoderController controller; 
 	private RestController restController; 
+	private SymbiotGroup sg;
+	private PlayerComposite<IContainerEnvironment> buttonbar;
+	private Label timeLabel;
+	private Label dateLabel;
 		
 	private IContainerEnvironment ce;
 	
 	private enum Tabs{
 		OVERVIEW,
 		JOURNEY,
-		REST;
+		REST,
+		SYMBIOT;
 
 		@Override
 		public String toString() {
@@ -51,13 +64,24 @@ public class WPHFrontend extends Composite {
 		
 		@Override
 		public void notifyEnvironmentChanged(EnvironmentEvent event) {
-			Display.getDefault().asyncExec( new Runnable() {
-				
-				@Override
-				public void run() {
-					journeyViewer.setInput( ce.getJourneys());				}
-			});
-			
+			while( ce.isRunning() ){
+				if( ce.isPaused() )
+					Display.getDefault().asyncExec( new Runnable() {
+
+						@Override
+						public void run() {
+							journeyViewer.setInput( ce.getJourneys());
+							timeLabel.setText( String.valueOf( ce.getElapsedTime()));								
+						}
+					});
+				try{
+					Thread.sleep(5000);
+					Thread.yield();
+				}
+				catch( InterruptedException ex ){
+					ex.printStackTrace();
+				}
+			}
 		}
 	};
 	/**
@@ -67,13 +91,14 @@ public class WPHFrontend extends Composite {
 	 */
 	public WPHFrontend(Composite parent, int style) {
 		super(parent, style);
-		setLayout(new FillLayout(SWT.HORIZONTAL));
+		setLayout(new GridLayout(1, false ));
 		listener = new EvaluationListener();
 		this.createComposite(parent, style);
 	}
 	
 	protected void createComposite( Composite parent, int style ){
 		CTabFolder tabFolder = new CTabFolder(this, SWT.BORDER);
+		tabFolder.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ));
 		tabFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
 		tabFolder.addSelectionListener( new SelectionAdapter(){
 			private static final long serialVersionUID = 1L;
@@ -97,6 +122,8 @@ public class WPHFrontend extends Composite {
 				case REST:
 					restController.setBrowser( Pages.INDEX );
 					break;
+				case SYMBIOT:
+					sg.redraw();
 				default:
 					break;
 				}
@@ -131,7 +158,30 @@ public class WPHFrontend extends Composite {
 		restController = new RestController(browser);
 		tbtmRestItem.setControl( browser);	
 
-		tabFolder.setSelection(Tabs.REST.ordinal());
+		CTabItem tbtmSymbiotItem = new CTabItem(tabFolder, SWT.NONE);
+		tbtmSymbiotItem.setText( Tabs.SYMBIOT.toString());
+		tbtmSymbiotItem.setData( Tabs.SYMBIOT);
+		sg = new SymbiotGroup(tabFolder, SWT.BORDER);
+		sg.setText( Tabs.SYMBIOT.toString());
+		sg.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
+		tbtmSymbiotItem.setControl( sg);	
+
+		tabFolder.setSelection(Tabs.SYMBIOT.ordinal());
+		
+		Composite statusBar = new Composite( this, SWT.BORDER );
+		statusBar.setLayout( new GridLayout( 3, false ));
+		GridData gd_status = new GridData( SWT.FILL, SWT.FILL, true, false );
+		gd_status.widthHint = 100;
+		statusBar.setLayoutData( gd_status);
+		buttonbar = new PlayerComposite<IContainerEnvironment>( statusBar, SWT.BORDER );
+		buttonbar.setLayoutData( new GridData( SWT.FILL, SWT.FILL, false, true));
+		
+		timeLabel = new Label( statusBar, SWT.BORDER );
+		timeLabel.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
+
+		dateLabel = new Label( statusBar, SWT.BORDER );
+		dateLabel.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
+
 	}
 	
 	public void setEnvironment(  IContainerEnvironment ce ){
@@ -141,14 +191,17 @@ public class WPHFrontend extends Composite {
 	public void setupFrontEnd(){
 		ce.addListener( elistener);
 		ce.start();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		String formattedDate = formatter.format(ce.getStartDate());
+		dateLabel.setText( formattedDate );
+		buttonbar.setInput( ce );
+		sg.setInput(ce.getSymbiots());
 		
-		TilesAndPixelsModel tpm = new TilesAndPixelsModel(controller);
-		tpm.setLocation( new LatLng( 51.8926f, 4.4205f), 11);
-		MarkerModel mkm = new MarkerModel( controller );
-		//for( IModel model: provider.getModels() )
-		//	mkm.addMarker(model.getLnglat(), model.getType().getImage());
-		tpm.synchronize();
 		modelViewer.setInput(ce.getModels());
+	}
+	
+	public IContainerEnvironment getInput(){
+		return this.ce;
 	}
 	
 	@Override
@@ -177,19 +230,61 @@ public class WPHFrontend extends Composite {
 			MarkerModel.Functions mf = MarkerModel.Functions.valueOf( event.getData()[0].toString() );
 			switch( mf ){
 			
-			case MARKER_CLICKED:
-				String name = event.getData()[1].toString();
-				//LngLat lnglat = paddress.getLocation();
-				//if( !name.equals( lnglat.getId()))
-				//	continue;
-				//selectMarker(input );
-				//EvaluationEvent<IParticipant> nevent = new EvaluationEvent<IParticipant> ( matchBrowser, name, EvaluationEvents.EVENT, input );  
-				//for( IEvaluationListener<IParticipant> el: listeners )
-				//	el.notifyEvaluation(nevent);
-				break;
 			default:
 				break;
 			}
 		}	
+	}
+	
+	private class PlayerComposite<I extends Object> extends AbstractButtonBar<PlayerImages.Images, I> {
+		private static final long serialVersionUID = 1L;
+
+		public PlayerComposite(Composite parent, int style) {
+			super(parent, style);
+		}
+
+		@Override
+		protected EnumSet<PlayerImages.Images> setupButtonBar() {
+			return EnumSet.of(PlayerImages.Images.START, PlayerImages.Images.STOP, PlayerImages.Images.RESET);
+		}
+
+		@Override
+		protected Control createButton(PlayerImages.Images type) {
+			Button button = new Button( this, SWT.FLAT );
+			switch( type ){
+			case STOP:
+				button.setEnabled(false);
+				break;
+			default:
+				break;
+			}
+			button.setData(type);
+			button.addSelectionListener( new SelectionAdapter() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					Button button = (Button) e.getSource();
+					PlayerImages.Images image = (Images) button.getData();
+					switch( image ){
+					case START:
+						ce.start();
+						getButton( PlayerImages.Images.STOP).setEnabled(true);
+						button.setEnabled(false);
+						break;
+					case STOP:
+						getButton( PlayerImages.Images.START).setEnabled(true);
+						button.setEnabled(false);
+						ce.stop();
+						break;
+					default:
+						break;
+					}
+					
+				}		
+			});
+			button.setImage( PlayerImages.getInstance().getImage(type));
+			return button;
+		}
 	}
 }

@@ -1,7 +1,10 @@
 package org.condast.wph.core.definition;
 
+import java.util.Date;
+
+import org.condast.symbiotic.core.collection.SymbiotCollection;
+import org.condast.symbiotic.core.def.ITransformation;
 import org.condast.symbiotic.core.environment.IEnvironmentListener;
-import org.condast.symbiotic.def.ITransformation;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 
 public interface IContainerEnvironment {
@@ -25,5 +28,11 @@ public interface IContainerEnvironment {
 	IModel<ModelTypes>[] getModels();
 
 	ITransformation<?, ?> getTransformation(ModelTypes type);
+
+	SymbiotCollection getSymbiots();
+
+	long getElapsedTime();
+
+	Date getStartDate();
 
 }

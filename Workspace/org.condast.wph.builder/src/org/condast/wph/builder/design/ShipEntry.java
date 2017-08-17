@@ -13,14 +13,14 @@ import org.condast.symbiotic.core.AbstractNeighbourhood;
 import org.condast.symbiotic.core.DefaultBehaviour;
 import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
+import org.condast.symbiotic.core.def.ISymbiot;
+import org.condast.symbiotic.core.def.ITransformation;
+import org.condast.symbiotic.core.def.ITransformer;
 import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.transformation.ITransformListener;
 import org.condast.symbiotic.core.transformation.TransformEvent;
 import org.condast.symbiotic.core.transformation.Transformation;
 import org.condast.symbiotic.core.utils.TimedNode;
-import org.condast.symbiotic.def.ISymbiot;
-import org.condast.symbiotic.def.ITransformation;
-import org.condast.symbiotic.def.ITransformer;
 import org.condast.wph.core.def.IIntervalTransformation;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
@@ -74,15 +74,20 @@ public class ShipEntry {
 	private void createDependencies(){
 		int index = 0;
 		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
-		symbiots.add(behaviour);
+		
+		ModelTypes type = ModelTypes.ANCHORAGE;
+		String name = "Hoek van Holland";
+		symbiots.add( createId(type, name), behaviour);
 		IIntervalTransformation<IShip,Boolean> anch = new IntervalTransformation( ModelTypes.ANCHORAGE.toString(), 
-				new TAnchorage( new Anchorage( "Hoek van Holland", new LatLng(4.2f, 51.8f), 3), behaviour));
+				new TAnchorage( new Anchorage( name, new LatLng(4.2f, 51.8f), 3), behaviour));
 		this.models.put(ModelTypes.ANCHORAGE, anch);
 		anch.addTransformationListener(listener);
 		
+		type = ModelTypes.TERMINAL;
+		name = "APM-T";
 		behaviour = new DefaultBehaviour<>(5);
-		symbiots.add(behaviour);
-		IIntervalTransformation<?,?> term = new IntervalTransformation( ModelTypes.TERMINAL.toString(),
+		symbiots.add(createId(type, name), behaviour);
+		IIntervalTransformation<?,?> term = new IntervalTransformation( type.toString(),
 				new TTerminal( new Terminal( "APM-T", new LatLng(4.2f, 51.8f), 3), behaviour ));
 		this.models.put(ModelTypes.TERMINAL, term);
 		/*				
@@ -135,6 +140,14 @@ public class ShipEntry {
 		return models.get( type );
 	}
 
+	/**
+	 * Get the collection of symbiots
+	 * @return
+	 */
+	public SymbiotCollection getSymbiots() {
+		return symbiots;
+	}
+
 	public void addTransformListener( ITransformListener<Boolean> listener ){
 		this.listeners.add( listener );
 	}
@@ -155,6 +168,10 @@ public class ShipEntry {
 	
 	private int getIndex( boolean direction, int current ){
 		return direction? current++: current--;
+	}
+	
+	private String createId( ModelTypes type, String name ){
+		return type.toString() + ": " + name;
 	}
 	
 	private class ShipNeighbourhood extends AbstractNeighbourhood< Boolean, IShip>{

@@ -5,7 +5,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.condast.symbiotic.def.ITransformation;
+import org.condast.symbiotic.core.def.ITransformation;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.rest.service.Dispatcher;
 

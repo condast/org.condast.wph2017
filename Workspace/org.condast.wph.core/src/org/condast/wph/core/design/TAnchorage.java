@@ -3,8 +3,8 @@ package org.condast.wph.core.design;
 import java.util.Iterator;
 
 import org.condast.symbiotic.core.IBehaviour;
+import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.transformation.AbstractModelTransformer;
-import org.condast.symbiotic.def.ISymbiot;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.model.Anchorage;

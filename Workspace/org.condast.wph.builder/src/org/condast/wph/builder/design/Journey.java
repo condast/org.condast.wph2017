@@ -11,12 +11,12 @@ import org.condast.symbiotic.core.AbstractNeighbourhood;
 import org.condast.symbiotic.core.DefaultBehaviour;
 import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
+import org.condast.symbiotic.core.def.ISymbiot;
+import org.condast.symbiotic.core.def.ITransformation;
+import org.condast.symbiotic.core.def.ITransformer;
 import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.transformation.Transformation;
 import org.condast.symbiotic.core.utils.TimedNode;
-import org.condast.symbiotic.def.ISymbiot;
-import org.condast.symbiotic.def.ITransformation;
-import org.condast.symbiotic.def.ITransformer;
 import org.condast.wph.core.def.IIntervalTransformation;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IContainer;
@@ -51,12 +51,16 @@ public class Journey implements IJourney {
 	private void createDependencies(){
 		int index = 0;
 		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
-		symbiots.add(behaviour);
+		ModelTypes type = ModelTypes.ANCHORAGE;
+		String name = "Hoek van Holland";
+		symbiots.add( createId(type, name), behaviour);
 		IIntervalTransformation<IShip,Boolean> anch = new IntervalTransformation( ModelTypes.ANCHORAGE.toString(), 
 				new TAnchorage( new Anchorage( "Hoek van Holland", new LatLng(4.2f, 51.8f), 3), behaviour));
 
 		behaviour = new DefaultBehaviour<>(5);
-		symbiots.add(behaviour);
+		type = ModelTypes.TERMINAL;
+		name = "APM-T";
+		symbiots.add(createId(type, name), behaviour);
 		IIntervalTransformation<?,?> term = new IntervalTransformation( ModelTypes.TERMINAL.toString(),
 				new TTerminal( new Terminal( "APM-T", new LatLng(4.2f, 51.8f), 3), behaviour ));
 		/*				
@@ -104,6 +108,10 @@ public class Journey implements IJourney {
 	}
 	*/
 	
+	private String createId( ModelTypes type, String name ){
+		return type.toString() + ": " + name;
+	}
+
 	@Override
 	public IContainer getContainer() {
 		return container;

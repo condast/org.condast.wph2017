@@ -77,7 +77,7 @@ public class ModelTableViewer extends Composite {
 	    setColumnData(colFirstName.getColumn(), new ColumnWeightData( column.weight()));
 	}
 
-	public void setInput( IModel[] models ){
+	public void setInput( IModel<?>[] models ){
         viewer.setInput( models );
 	}
 
@@ -89,7 +89,7 @@ public class ModelTableViewer extends Composite {
 		public String getColumnText(Object element, int columnIndex) {
 			Columns column = Columns.values()[columnIndex];
 			String text = super.getText(element);
-			IModel model = (IModel) element;
+			IModel<?> model = (IModel<?>) element;
 			switch( column ){
 			case ID:
 				text = model.getId();

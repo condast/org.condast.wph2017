@@ -1,6 +1,6 @@
 package org.condast.wph.core.definition;
 
-import org.condast.symbiotic.def.ISymbiot;
+import org.condast.symbiotic.core.def.ISymbiot;
 
 public interface IJourney {
 
