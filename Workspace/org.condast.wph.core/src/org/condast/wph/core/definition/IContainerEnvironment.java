@@ -31,8 +31,17 @@ public interface IContainerEnvironment {
 
 	SymbiotCollection getSymbiots();
 
-	long getElapsedTime();
+	/**
+	 * Get the time that has passed in minutes
+	 * @return
+	 */
+	public long getElapsedTime();
 
 	Date getStartDate();
+
+	/**
+	 * Clear the date and interval
+	 */
+	public void clear();
 
 }

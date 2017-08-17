@@ -15,6 +15,9 @@ import java.util.EnumSet;
 import org.condast.commons.strings.StringStyler;
 import org.condast.commons.ui.player.PlayerImages;
 import org.condast.commons.ui.player.PlayerImages.Images;
+import org.condast.commons.ui.session.ISessionListener;
+import org.condast.commons.ui.session.PushSession;
+import org.condast.commons.ui.session.SessionEvent;
 import org.condast.commons.ui.widgets.AbstractButtonBar;
 import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
@@ -44,7 +47,6 @@ public class WPHFrontend extends Composite {
 	private SymbiotGroup sg;
 	private PlayerComposite<IContainerEnvironment> buttonbar;
 	private Label timeLabel;
-	private Label dateLabel;
 		
 	private IContainerEnvironment ce;
 	
@@ -64,26 +66,28 @@ public class WPHFrontend extends Composite {
 		
 		@Override
 		public void notifyEnvironmentChanged(EnvironmentEvent event) {
-			while( ce.isRunning() ){
-				if( ce.isPaused() )
-					Display.getDefault().asyncExec( new Runnable() {
-
-						@Override
-						public void run() {
-							journeyViewer.setInput( ce.getJourneys());
-							timeLabel.setText( String.valueOf( ce.getElapsedTime()));								
-						}
-					});
-				try{
-					Thread.sleep(5000);
-					Thread.yield();
-				}
-				catch( InterruptedException ex ){
-					ex.printStackTrace();
-				}
-			}
+			session.addData(ce);
 		}
 	};
+	
+	private PushSession<IContainerEnvironment> session;
+	private ISessionListener<IContainerEnvironment> sessionListener = new ISessionListener<IContainerEnvironment>(){
+
+		@Override
+		public void notifySessionChanged(SessionEvent<IContainerEnvironment> event) {
+			getDisplay().asyncExec( new Runnable() {
+
+				@Override
+				public void run() {
+					journeyViewer.setInput( ce.getJourneys());
+					setTime();	
+					layout();
+				}
+			});
+		}
+		
+	};
+	
 	/**
 	 * Create the composite.
 	 * @param parent
@@ -94,6 +98,9 @@ public class WPHFrontend extends Composite {
 		setLayout(new GridLayout(1, false ));
 		listener = new EvaluationListener();
 		this.createComposite(parent, style);
+		session = new PushSession<IContainerEnvironment>();
+		session.init(getDisplay());
+		session.addSessionListener(sessionListener);
 	}
 	
 	protected void createComposite( Composite parent, int style ){
@@ -178,10 +185,6 @@ public class WPHFrontend extends Composite {
 		
 		timeLabel = new Label( statusBar, SWT.BORDER );
 		timeLabel.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
-
-		dateLabel = new Label( statusBar, SWT.BORDER );
-		dateLabel.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
-
 	}
 	
 	public void setEnvironment(  IContainerEnvironment ce ){
@@ -191,17 +194,22 @@ public class WPHFrontend extends Composite {
 	public void setupFrontEnd(){
 		ce.addListener( elistener);
 		ce.start();
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		String formattedDate = formatter.format(ce.getStartDate());
-		dateLabel.setText( formattedDate );
 		buttonbar.setInput( ce );
 		sg.setInput(ce.getSymbiots());
 		
 		modelViewer.setInput(ce.getModels());
+		setTime();
+		session.start();
 	}
 	
 	public IContainerEnvironment getInput(){
 		return this.ce;
+	}
+	
+	protected void setTime(){
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd;HH:mm:ss");
+		String formattedDate = formatter.format(ce.getStartDate());
+		timeLabel.setText( String.valueOf( formattedDate + " + " + ce.getElapsedTime()) + " min");	
 	}
 	
 	@Override
@@ -209,9 +217,22 @@ public class WPHFrontend extends Composite {
 		// Disable the check that prevents subclassing of SWT components
 	}
 
+	public void refresh(){
+		if( getDisplay().isDisposed() )
+			return;
+		getDisplay().asyncExec( new Runnable(){
+
+			@Override
+			public void run() {
+				layout();
+			}
+		});
+	}
 	@Override
 	public void dispose(){
 		ce.removeListener( elistener);
+		session.stop();
+		session.removeSessionListener(sessionListener);
 	}
 	
 	private class EvaluationListener implements IEvaluationListener<Object[]>{
@@ -277,6 +298,9 @@ public class WPHFrontend extends Composite {
 						button.setEnabled(false);
 						ce.stop();
 						break;
+					case RESET:
+						ce.clear();
+						setTime();
 					default:
 						break;
 					}

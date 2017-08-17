@@ -49,13 +49,19 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 	}
 
 	@Override
+	public void clear(){
+		this.startDate = Calendar.getInstance().getTime();
+		this.counter = 0;
+	}
+	
+	@Override
 	public SymbiotCollection getSymbiots(){
 		return this.shipentry.getSymbiots();
 	}
 	
 	@Override
 	public long getElapsedTime() {
-		return counter * interval;
+		return (counter * interval )/60000;
 	}
 
 	@Override
@@ -93,8 +99,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		}
 		*/
 		shipentry = new ShipEntry( environment );
-		counter = 0;
-		this.startDate = Calendar.getInstance().getTime();
+		this.clear();
 		notifyChangeEvent( new EnvironmentEvent( this ));
 	}
 
@@ -118,7 +123,8 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 				*/
 				shipentry.next();
 					
-				counter = ( counter + 1)%10;
+				counter++;
+				notifyChangeEvent( new EnvironmentEvent( this ));
 			}
 			finally{
 				lock.unlock();
