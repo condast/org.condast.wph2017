@@ -19,13 +19,20 @@
    <requires>
       <import plugin="org.eclipse.rap.rwt"/>
       <import plugin="org.eclipse.osgi"/>
-      <import plugin="org.condast.commons.graph"/>
       <import plugin="org.condast.commons"/>
       <import plugin="org.condast.symbiotic"/>
       <import plugin="org.google.geo.mapping.ui"/>
       <import plugin="org.condast.js.commons"/>
       <import plugin="org.eclipse.core.commands"/>
       <import plugin="org.eclipse.rap.jface"/>
+      <import plugin="org.eclipse.osgi.services"/>
+      <import plugin="org.condast.commons.ui"/>
+      <import plugin="javax.servlet"/>
+      <import plugin="javax.ws.rs-api"/>
+      <import plugin="org.glassfish.jersey.core.jersey-common"/>
+      <import plugin="org.glassfish.jersey.inject.jersey-hk2"/>
+      <import plugin="org.glassfish.jersey.core.jersey-server"/>
+      <import plugin="org.glassfish.jersey.containers.jersey-container-servlet-core"/>
    </requires>
 
    <plugin
@@ -44,6 +51,20 @@
 
    <plugin
          id="org.condast.wph.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.condast.wph.builder"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.condast.wph.rest"
          download-size="0"
          install-size="0"
          version="0.0.0"
