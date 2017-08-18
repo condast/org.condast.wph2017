@@ -7,6 +7,8 @@ import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.transformation.AbstractModelTransformer;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
+import org.condast.wph.core.message.MessageHandler;
+import org.condast.wph.core.message.MessageHandler.Parties;
 import org.condast.wph.core.model.Terminal;
 
 public class TTerminal extends AbstractModelTransformer<Terminal, IShip, Boolean, Integer>{
@@ -18,6 +20,11 @@ public class TTerminal extends AbstractModelTransformer<Terminal, IShip, Boolean
 
 	private int interval;
 	private Terminal terminal;
+
+	private boolean sendPMMessage;
+	private boolean sendModMessage;
+
+	private MessageHandler handler = MessageHandler.getInstance();
 
 	public TTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour ) {
 		super( ModelTypes.TERMINAL.toString(), terminal, behaviour);
@@ -38,9 +45,22 @@ public class TTerminal extends AbstractModelTransformer<Terminal, IShip, Boolean
 
 	@Override
 	protected void onUpdateStress(Iterator<IShip> inputs, ISymbiot symbiot) {
-		if( this.terminal.isAvailable())
+		if( !this.terminal.isAvailable()){
 			symbiot.clearStress();
-		else
+			this.sendModMessage = false;
+			this.sendPMMessage = false;
+		}
+		else{
 			symbiot.increaseStress();
-	}
+			if(!this.sendModMessage){
+				handler.sendMessage( Parties.PORTMASTER, "help");				
+			}
+			if( !this.sendModMessage ){
+				this.sendModMessage = true;
+				handler.sendMessage( Parties.TRAIN, "help");
+				handler.sendMessage( Parties.TRUCK, "help");
+				handler.sendMessage( Parties.BARGE, "help");
+			}
+		}
+}
 }

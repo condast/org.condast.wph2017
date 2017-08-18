@@ -2,6 +2,7 @@ package org.condast.wph.ui.swt;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.condast.commons.number.NumberUtils;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
@@ -24,18 +25,28 @@ public class SymbiotGroup extends Group {
 
 	private SymbiotCollection symbiots;
 	private Map<ISymbiot, StressCanvas> canvases;
+	private int[] current;
 	
 	private IStressListener listener = new IStressListener() {
 		
 		@Override
 		public void notifyStressChanged(StressEvent event) {
-			ISymbiot symbiot = (ISymbiot) event.getSource();
-			Integer[] values = new Integer[2];
-			StressCanvas stressCanvas = canvases.get( symbiot );
-			values[0] = (int)( stressCanvas.getRange() * symbiot.getStress());
-			stressCanvas.addInput(values);
+			try{
+				ISymbiot symbiot = (ISymbiot) event.getSource();
+				Integer[] values = new Integer[2];
+				StressCanvas stressCanvas = canvases.get( symbiot );
+				values[0] = (int)( stressCanvas.getRange() * symbiot.getStress());
+				values[1] = 0;
+				stressCanvas.addInput(values);
+				refresh();
+			}
+			catch( Exception ex ){
+				ex.printStackTrace();
+			}
 		}
 	};
+	
+	private Logger logger = Logger.getLogger( this.getClass().getName() );
 	
 	/**
 	 * Create the composite.
@@ -80,6 +91,8 @@ public class SymbiotGroup extends Group {
 	}
 
 	public void refresh() {
+		if( getDisplay().isDisposed() )
+			return;
 		getDisplay().asyncExec( new Runnable(){
 
 			@Override
@@ -115,6 +128,10 @@ public class SymbiotGroup extends Group {
 		@Override
 		protected void onDrawStart(GC gc) {
 			temp = getForeground();
+			Rectangle rect = super.getClientArea();
+			int halfY = (int)( rect.height/2 ); 
+			int[] arr = {halfY, halfY };
+			current = arr;
 			super.onDrawStart(gc);
 		}
 
@@ -128,12 +145,31 @@ public class SymbiotGroup extends Group {
 		protected void onDrawValue(GC gc, int index, Integer[] value) {
 			Rectangle rect = super.getClientArea();
 			int halfY = (int)( rect.height/2 ); 
+			int plotprevy = 0;
+			int ploty = 0;
+
 			int colour = SWT.COLOR_RED;
-			setForeground( getDisplay().getSystemColor( colour ) );
-			gc.drawPoint(index, halfY - NumberUtils.clip( super.getRange(), value[0] ));
+			gc.setForeground( getDisplay().getSystemColor( colour ) );
+			plotprevy = plotY( halfY, current[0]);
+			ploty = plotY( halfY, value[0]);
+			gc.drawLine( index-1, plotprevy, index, ploty );
 			colour = SWT.COLOR_GREEN;
-			setForeground( getDisplay().getSystemColor( colour ) );
-			gc.drawPoint(index, halfY - NumberUtils.clip( super.getRange(), value[1] ));
+			gc.setForeground( getDisplay().getSystemColor( colour ) );
+			plotprevy = plotY( halfY, current[1]);
+			ploty = plotY( halfY, value[1]);
+			gc.drawLine( index-1, plotprevy, index, ploty );
+
+			current[0] = value[0];
+			current[1] = value[1];
+		}
+		
+		/**
+		 * Plot the Y coordinate
+		 * @param value
+		 * @return
+		 */
+		protected int plotY( int halfY, int value ){
+			return halfY * (1 - NumberUtils.clip( super.getRange(), value )/super.getRange());
 		}
 	}
 }

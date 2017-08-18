@@ -1,15 +1,12 @@
 package org.condast.wph.builder.design;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.condast.commons.latlng.LatLng;
-import org.condast.symbiotic.core.AbstractNeighbourhood;
 import org.condast.symbiotic.core.DefaultBehaviour;
 import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
@@ -17,16 +14,17 @@ import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.def.ITransformation;
 import org.condast.symbiotic.core.def.ITransformer;
 import org.condast.symbiotic.core.environment.Environment;
+import org.condast.symbiotic.core.transformation.IModelTransformer;
 import org.condast.symbiotic.core.transformation.ITransformListener;
 import org.condast.symbiotic.core.transformation.TransformEvent;
 import org.condast.symbiotic.core.transformation.Transformation;
-import org.condast.symbiotic.core.utils.TimedNode;
 import org.condast.wph.core.def.IIntervalTransformation;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.design.TAnchorage;
 import org.condast.wph.core.design.TTerminal;
 import org.condast.wph.core.model.Anchorage;
+import org.condast.wph.core.model.Ship;
 import org.condast.wph.core.model.Terminal;
 
 public class ShipEntry {
@@ -34,13 +32,10 @@ public class ShipEntry {
 	public static final int DEFAULT_INTERVAL = 15*60*1000; //15 min
 	
 	private SymbiotCollection symbiots;
-	private Map<ModelTypes, IIntervalTransformation<?,?>> models;
+	private Map<ModelTypes, IntervalTransformation<?>> models;
 	
-	private Environment environment;
-	private ISymbiot transport;
 	private List<ISymbiot> chain;
 	private int index;
-	private Date startTime;
 	private int interval;
 
 	private Collection<ITransformListener<Boolean>> listeners;
@@ -56,29 +51,24 @@ public class ShipEntry {
 	};
 
 
-	private static ModelProvider provider = ModelProvider.getInstance();
-
 	public ShipEntry( Environment environment) {
 		this.symbiots = new SymbiotCollection();
-		this.models = new HashMap<ModelTypes, IIntervalTransformation<?,?>>();
+		this.models = new HashMap<ModelTypes, IntervalTransformation<?>>();
 		
-		this.environment = environment;
 		chain = new ArrayList<ISymbiot>();
 		this.index = 0;
-		startTime = Calendar.getInstance().getTime();
 		this.interval = DEFAULT_INTERVAL;
 		this.listeners = new ArrayList<ITransformListener<Boolean>>();
 		createDependencies();
 	}
 	
 	private void createDependencies(){
-		int index = 0;
 		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
 		
 		ModelTypes type = ModelTypes.ANCHORAGE;
 		String name = "Hoek van Holland";
 		symbiots.add( createId(type, name), behaviour);
-		IIntervalTransformation<IShip,Boolean> anch = new IntervalTransformation( ModelTypes.ANCHORAGE.toString(), 
+		IntervalTransformation<Anchorage> anch = new IntervalTransformation<Anchorage>( ModelTypes.ANCHORAGE.toString(), 
 				new TAnchorage( new Anchorage( name, new LatLng(4.2f, 51.8f), 3), behaviour));
 		this.models.put(ModelTypes.ANCHORAGE, anch);
 		anch.addTransformationListener(listener);
@@ -87,7 +77,7 @@ public class ShipEntry {
 		name = "APM-T";
 		behaviour = new DefaultBehaviour<>(5);
 		symbiots.add(createId(type, name), behaviour);
-		IIntervalTransformation<?,?> term = new IntervalTransformation( type.toString(),
+		IntervalTransformation<Terminal> term = new IntervalTransformation<Terminal>( type.toString(),
 				new TTerminal( new Terminal( "APM-T", new LatLng(4.2f, 51.8f), 3), behaviour ));
 		this.models.put(ModelTypes.TERMINAL, term);
 		/*				
@@ -156,24 +146,26 @@ public class ShipEntry {
 		this.listeners.remove( listener );
 	}
 
-	public ISymbiot next(){
+	public void next(){
+		TAnchorage tanch = (TAnchorage) models.get(ModelTypes.ANCHORAGE ).getTransformer();
+		tanch.addInput( new Ship());
 		for( IIntervalTransformation<?,?> trf: models.values() )
 			trf.next(interval);
-		return null;
 	}
 	
 	public boolean isCompleted(){
 		return this.index >= chain.size();
 	}
 	
-	private int getIndex( boolean direction, int current ){
-		return direction? current++: current--;
-	}
+	//private int getIndex( boolean direction, int current ){
+	//	return direction? current++: current--;
+	//}
 	
 	private String createId( ModelTypes type, String name ){
 		return type.toString() + ": " + name;
 	}
 	
+/*
 	private class ShipNeighbourhood extends AbstractNeighbourhood< Boolean, IShip>{
 
 		private Map<IShip,TimedNode> nodes;
@@ -191,20 +183,22 @@ public class ShipEntry {
 			nodes.put( input, new TimedNode( time ));
 			return super.addInput(input);
 		}
-
-		
 	}
+	*/
 	
-	private class IntervalTransformation extends Transformation<IShip, Boolean> implements IIntervalTransformation<IShip, Boolean>{
+	private class IntervalTransformation<M extends Object> extends Transformation<IShip, Boolean> implements IIntervalTransformation<IShip, Boolean>{
 
-		public IntervalTransformation(String name, ITransformer<IShip, Boolean> transformer) {
+		public IntervalTransformation(String name, IModelTransformer<M, IShip, Boolean> transformer) {
 			super(name, transformer);
 		}
-
+		
+		protected ITransformer<IShip,Boolean> getTransformer(){
+			return super.getTransformer();
+		}
+		
 		@Override
 		public void next(int interval) {
-			// TODO Auto-generated method stub
-			
+			super.transform();
 		}		
 	}
 }

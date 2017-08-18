@@ -98,8 +98,8 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 			journeys.add( journey);
 		}
 		*/
-		shipentry = new ShipEntry( environment );
 		this.clear();
+		shipentry = new ShipEntry( environment );
 		notifyChangeEvent( new EnvironmentEvent( this ));
 	}
 

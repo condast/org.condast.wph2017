@@ -83,6 +83,8 @@ public abstract class AbstractAxis<V extends Object> extends Canvas{
 		}
 		for( int i=0; i<values.size(); i++ )
 			this.onDrawValue(gc, i, values.get(i));
+		if( values.size() > rect.width )
+			values.remove(0);
 		this.onDrawEnd(gc);
 	}
 	

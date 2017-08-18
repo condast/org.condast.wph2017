@@ -193,9 +193,7 @@ public class WPHFrontend extends Composite {
 
 	public void setupFrontEnd(){
 		ce.addListener( elistener);
-		ce.start();
 		buttonbar.setInput( ce );
-		sg.setInput(ce.getSymbiots());
 		
 		modelViewer.setInput(ce.getModels());
 		setTime();
@@ -207,6 +205,8 @@ public class WPHFrontend extends Composite {
 	}
 	
 	protected void setTime(){
+		if( ce.getStartDate() == null)
+			return;
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd;HH:mm:ss");
 		String formattedDate = formatter.format(ce.getStartDate());
 		timeLabel.setText( String.valueOf( formattedDate + " + " + ce.getElapsedTime()) + " min");	
@@ -290,6 +290,7 @@ public class WPHFrontend extends Composite {
 					switch( image ){
 					case START:
 						ce.start();
+						sg.setInput(ce.getSymbiots());
 						getButton( PlayerImages.Images.STOP).setEnabled(true);
 						button.setEnabled(false);
 						break;
