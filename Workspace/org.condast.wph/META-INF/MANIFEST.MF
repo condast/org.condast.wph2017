@@ -4,7 +4,7 @@ Bundle-Name: Wph
 Bundle-SymbolicName: org.condast.wph
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.condast.wph.Activator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: org.condast.wph.core.definition,
  org.condast.wph.ui.swt,

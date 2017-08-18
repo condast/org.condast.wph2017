@@ -5,8 +5,7 @@ Bundle-SymbolicName: org.condast.wph.core;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Condast
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.condast.commons,
- org.condast.commons.http,
+Import-Package: org.condast.commons.http,
  org.condast.commons.i18n,
  org.condast.commons.latlng,
  org.condast.commons.strings,
@@ -18,7 +17,7 @@ Import-Package: org.condast.commons,
  org.condast.symbiotic.core.transformation,
  org.condast.symbiotic.core.utils,
  org.google.geo.mapping.ui.images,
- org.osgi.framework;version="1.8.0"
+ org.osgi.framework;version="1.3.0"
 Export-Package: org.condast.wph.core.def,
  org.condast.wph.core.definition,
  org.condast.wph.core.design,
