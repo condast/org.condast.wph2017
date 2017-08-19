@@ -6,16 +6,15 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Condast
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: javax.servlet;version="3.1.0.20150414",
- javax.ws.rs;version="2.0.99",
- javax.ws.rs.core;version="2.0.99",
+ javax.ws.rs;version="2.0.1",
+ javax.ws.rs.core;version="2.0.1",
  org.condast.commons.http,
  org.condast.symbiotic.core.def,
  org.condast.wph.core.definition,
- org.glassfish.jersey;version="2.26.0.b09",
- org.glassfish.jersey.inject.hk2;version="2.26.0.b09",
- org.glassfish.jersey.server;version="2.26.0.b09",
- org.glassfish.jersey.servlet;version="2.26.0",
- org.osgi.framework;version="1.8.0",
+ org.glassfish.jersey;version="2.25",
+ org.glassfish.jersey.server;version="2.25",
+ org.glassfish.jersey.servlet;version="2.25",
+ org.osgi.framework;version="1.3.0",
  org.osgi.service.component.annotations;version="1.2.0"
 Service-Component: OSGI-INF/org.condast.wph.rest.service.EnvironmentService.xml
 Bundle-ActivationPolicy: lazy

@@ -27,6 +27,11 @@
       <import plugin="org.condast.js.commons"/>
       <import plugin="org.eclipse.core.commands"/>
       <import plugin="org.eclipse.rap.jface"/>
+      <import plugin="javax.servlet"/>
+      <import plugin="javax.ws.rs-api"/>
+      <import plugin="org.glassfish.jersey.core.jersey-common"/>
+      <import plugin="org.glassfish.jersey.core.jersey-server"/>
+      <import plugin="org.glassfish.jersey.containers.jersey-container-servlet-core"/>
    </requires>
 
    <plugin
@@ -52,6 +57,13 @@
 
    <plugin
          id="org.condast.wph.builder"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.condast.wph.rest"
          download-size="0"
          install-size="0"
          version="0.0.0"
