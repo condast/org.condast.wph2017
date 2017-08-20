@@ -54,15 +54,15 @@ public class Journey implements IJourney {
 		ModelTypes type = ModelTypes.ANCHORAGE;
 		String name = "Hoek van Holland";
 		symbiots.add( createId(type, name), behaviour);
-		IIntervalTransformation<IShip,Boolean> anch = new IntervalTransformation( ModelTypes.ANCHORAGE.toString(), 
-				new TAnchorage( new Anchorage( "Hoek van Holland", new LatLng(4.2f, 51.8f), 3), behaviour));
+		//IIntervalTransformation<IShip,Boolean> anch = new IntervalTransformation( ModelTypes.ANCHORAGE.toString(), 
+		//		new TAnchorage( new Anchorage( "Hoek van Holland", new LatLng(4.2f, 51.8f), 3), behaviour));
 
 		behaviour = new DefaultBehaviour<>(5);
 		type = ModelTypes.TERMINAL;
 		name = "APM-T";
 		symbiots.add(createId(type, name), behaviour);
-		IIntervalTransformation<?,?> term = new IntervalTransformation( ModelTypes.TERMINAL.toString(),
-				new TTerminal( new Terminal( "APM-T", new LatLng(4.2f, 51.8f), 3), behaviour ));
+		//IIntervalTransformation<?,?> term = new IntervalTransformation( ModelTypes.TERMINAL.toString(),
+		//		new TTerminal( new Terminal( "APM-T", new LatLng(4.2f, 51.8f), 3), behaviour ));
 		/*				
 				create( IModel.ModelTypes.CLIENT );
 		chain.add( client );
@@ -133,38 +133,5 @@ public class Journey implements IJourney {
 	
 	private int getIndex( boolean direction, int current ){
 		return direction? current++: current--;
-	}
-	
-	private class ShipNeighbourhood extends AbstractNeighbourhood< Boolean, IShip>{
-
-		private Map<IShip,TimedNode> nodes;
-		private long time;
-		
-		protected ShipNeighbourhood(String name, long time ) {
-			super(name);
-			this.time = time;
-			nodes = new HashMap<IShip, TimedNode>();
-		}
-
-		
-		@Override
-		public boolean addInput(IShip input) {
-			nodes.put( input, new TimedNode( time ));
-			return super.addInput(input);
-		}		
-	}
-	
-	private class IntervalTransformation extends Transformation<IShip, Boolean> implements IIntervalTransformation<IShip, Boolean>{
-
-		public IntervalTransformation(String name, ITransformer<IShip, Boolean> transformer) {
-			super(name, transformer);
-		}
-
-		@Override
-		public void next(int interval) {
-			// TODO Auto-generated method stub
-			
-		}
-		
 	}
 }

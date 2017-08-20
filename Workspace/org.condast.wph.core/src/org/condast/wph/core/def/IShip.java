@@ -25,5 +25,11 @@ public interface IShip extends ICarrier{
 	 * @return
 	 */
 	public float getDraught();
+	
+	/**
+	 * The average time that the ship needs to reach a terminal
+	 * Temporary measure..eventually will be dependent on the warterway
+	 */
+	public long getAverageTransportTime();
 
 }

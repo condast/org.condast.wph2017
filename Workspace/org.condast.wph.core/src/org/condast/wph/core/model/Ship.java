@@ -70,4 +70,10 @@ public class Ship implements IShip {
 		return 0;
 	}
 
+	@Override
+	public long getAverageTransportTime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
