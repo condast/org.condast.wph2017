@@ -15,9 +15,9 @@ import org.condast.symbiotic.core.def.ITransformation;
 import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.transformation.ITransformListener;
 import org.condast.symbiotic.core.transformation.TransformEvent;
-import org.condast.wph.core.def.ICapacityTransformation;
+import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IContainer;
-import org.condast.wph.core.def.IIntervalTransformation;
+import org.condast.wph.core.def.IIntervalProcess;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.design.CapacityNeighbourhood;
@@ -32,7 +32,7 @@ public class ShipEntry {
 	public static final int DEFAULT_INTERVAL = 15*60*1000; //15 min
 	
 	private SymbiotCollection symbiots;
-	private Map<ModelTypes, IIntervalTransformation<?,?,?>> models;
+	private Map<ModelTypes, IIntervalProcess<?,?>> models;
 	
 	private List<ITransformation<?,?>> chain;
 	private int index;
@@ -46,13 +46,12 @@ public class ShipEntry {
 		public void notifyChange(TransformEvent<Boolean> event) {
 			for( ITransformListener<Boolean> listener: listeners )
 				listener.notifyChange(event);
-			
 		}
 	};
 
 	public ShipEntry( Environment environment) {
 		this.symbiots = new SymbiotCollection();
-		this.models = new HashMap<ModelTypes, IIntervalTransformation<?,?,?>>();
+		this.models = new HashMap<ModelTypes, IIntervalProcess<?,?>>();
 		
 		chain = new ArrayList<ITransformation<?,?>>();
 		this.index = 0;
@@ -66,22 +65,22 @@ public class ShipEntry {
 		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
 		
 		String name = "APM-T";
-		IIntervalTransformation<Terminal, IShip, IContainer> term = (IIntervalTransformation<Terminal, IShip, IContainer>) 
+		IIntervalProcess<IShip, IContainer> term = (IIntervalProcess<IShip, IContainer>) 
 				setupTransformation(ModelTypes.TERMINAL, name, behaviour, new TTerminal( new Terminal( name, new LatLng(4.2f, 51.8f), 3), behaviour, null));
 
-		INeighbourhood<IShip, Boolean> neighbourhood = new CapacityNeighbourhood<IShip, Boolean>("Nieuwe Maas", (ICapacityTransformation) term );
+		INeighbourhood<IShip, Boolean> neighbourhood = new CapacityNeighbourhood<IShip, Boolean>("Nieuwe Maas", (ICapacityProcess) term );
 		chain.add(neighbourhood);
 
 		name = "Hoek van Holland";
 		behaviour = new DefaultBehaviour<>(5);
-		IIntervalTransformation<Anchorage,IShip, Boolean> anch = (IIntervalTransformation<Anchorage, IShip, Boolean>)
-				setupTransformation(ModelTypes.ANCHORAGE, name, behaviour, new TAnchorage( new Anchorage( name, new LatLng(4.2f, 51.8f), 3), behaviour, neighbourhood ));
+		ITransformation<IShip, Boolean> anch = 
+				(ITransformation<IShip, Boolean>) setupTransformation(ModelTypes.ANCHORAGE, name, behaviour, new TAnchorage( new Anchorage( name, new LatLng(4.2f, 51.8f), 3), behaviour, neighbourhood ));
 		anch.addTransformationListener(listener);	
 	}
 
-	private IIntervalTransformation<?, ?, ?> setupTransformation( ModelTypes type, String name, IBehaviour<IShip, Integer> behaviour, ITransformation<?,?> transformation ){
+	private IIntervalProcess<?, ?> setupTransformation( ModelTypes type, String name, IBehaviour<IShip, Integer> behaviour, ITransformation<?,?> transformation ){
 		symbiots.add( createId(type, name), behaviour);
-		IIntervalTransformation<?, ?, ?> term = (IIntervalTransformation<?, ?, ?>) transformation;
+		IIntervalProcess<?, ?> term = (IIntervalProcess<?, ?>) transformation;
 		models.put(type, term );
 		return term;
 	}
@@ -116,7 +115,7 @@ public class ShipEntry {
 	*/
 	
 	public ITransformation<?,?> getTransformation( ModelTypes type ){
-		return models.get( type );
+		return (ITransformation<?, ?>) models.get( type );
 	}
 
 	/**
@@ -144,7 +143,7 @@ public class ShipEntry {
 		tanch.addInput( new Ship());
 		long time = index*interval;
 		index++;
-		for( IIntervalTransformation<?,?,?> trf: models.values() )
+		for( IIntervalProcess<?,?> trf: models.values() )
 			trf.next(time);
 		for( ITransformation<?,?> neighbourhood: chain )
 			neighbourhood.transform();

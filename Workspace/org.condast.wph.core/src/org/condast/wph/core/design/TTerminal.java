@@ -1,23 +1,25 @@
 package org.condast.wph.core.design;
 
-import java.util.Collection;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.def.INeighbourhood;
 import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.transformation.AbstractLinkedTransformation;
 import org.condast.symbiotic.core.transformation.AbstractModelTransformer;
-import org.condast.wph.core.def.ICapacityTransformation;
+import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IContainer;
-import org.condast.wph.core.def.IIntervalTransformation;
+import org.condast.wph.core.def.IIntervalProcess;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.message.MessageHandler;
 import org.condast.wph.core.message.MessageHandler.Parties;
+import org.condast.wph.core.model.IntervalProcess;
 import org.condast.wph.core.model.Terminal;
 
-public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> implements ICapacityTransformation<IShip, IContainer>,
-	IIntervalTransformation<Terminal, IShip, IContainer>{
+public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> implements ICapacityProcess<IShip, IContainer>,
+	IIntervalProcess<IShip, IContainer>{
 
 	public enum Strategies{
 		ALLOW_ENTRY,
@@ -38,14 +40,12 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 		return (Terminal) super.getTransformer();
 	}
 
-	@Override
-	public boolean addInput(IShip ship) {
-		if( ship == null )
-			return false;
-		super.addInput(ship);
-		return getModel().addJob( ship.getName(), ship.getNrOfContainers() * getModel().getUnloadTime() );
+	protected Date getJobCompletion( IShip ship ){
+		Date current = Calendar.getInstance().getTime();
+		long interval = ship.getNrOfContainers() * getModel().getUnloadTime();
+		current.setTime( current.getTime() + interval );
+		return current;
 	}
-
 	
 	@Override
 	public boolean isFull() {
@@ -79,45 +79,52 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 			handler.sendMessage( Parties.TRUCK, "help");
 			handler.sendMessage( Parties.BARGE, "help");
 		}
-
 	}
 
-	public class TRTerminal extends AbstractModelTransformer<Terminal, IShip, IContainer, Integer>{
+	public class TRTerminal extends AbstractModelTransformer<Terminal, IShip, IContainer, Integer> implements ICapacityProcess<IShip, IContainer>{
 
-		private int interval;
 		private Terminal terminal;
+		private IntervalProcess<IShip, IContainer> process;
 
 		public TRTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour ) {
 			super( ModelTypes.TERMINAL.toString(), terminal, behaviour);
 			this.terminal = terminal;
+			this.process = new IntervalProcess<IShip, IContainer>( this );
+		}
+
+		
+		@Override
+		public boolean addInput(IShip input) {
+			if( input == null )
+				return false;
+			return process.addJob(input, getJobCompletion( input ));
 		}
 
 		@Override
-		public boolean addInput(IShip ship) {
-			super.addInput(ship);
-			return this.terminal.addJob( ship.getName(), ship.getNrOfContainers() * terminal.getUnloadTime() );
+		public boolean isFull() {
+			return getInputSize() >= terminal.getMaxDocks();
+		}
+
+		@Override
+		public int getCapacity() {
+			return terminal.getMaxDocks() - getInputSize();
 		}
 
 		@Override
 		protected IContainer onTransform(Iterator<IShip> inputs) {
-			boolean retval = this.terminal.update( interval );
+			while( inputs.hasNext() )
+				process.removeJob(inputs.next());
 			return null;
 		}
 
 		@Override
 		protected void onUpdateStress(Iterator<IShip> inputs, ISymbiot symbiot) {
-			if( !this.terminal.isAvailable()){
+			if( this.isFull()){
 				symbiot.clearStress();
 			}
 			else{
 				symbiot.increaseStress();
 			}
-		}
-
-		@Override
-		public Collection<IShip> getInputs() {
-			// TODO Auto-generated method stub
-			return null;
 		}
 	}
 }

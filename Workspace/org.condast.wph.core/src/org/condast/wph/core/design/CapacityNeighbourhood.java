@@ -3,16 +3,18 @@ package org.condast.wph.core.design;
 import java.util.Iterator;
 
 import org.condast.symbiotic.core.def.INeighbourhood;
+import org.condast.symbiotic.core.def.ITransformation;
 import org.condast.symbiotic.core.transformation.AbstractLinkedTransformation;
 import org.condast.symbiotic.core.transformation.AbstractTransformer;
-import org.condast.wph.core.def.ICapacityTransformation;
+import org.condast.wph.core.def.ICapacityProcess;
 
 public class CapacityNeighbourhood<O, I extends Object> extends AbstractLinkedTransformation<I,O>
 implements INeighbourhood<O,I>
 {
 
-	public CapacityNeighbourhood(String name, ICapacityTransformation<O,I> outNode) {
-		super(name, outNode);
+	@SuppressWarnings("unchecked")
+	public CapacityNeighbourhood(String name, ICapacityProcess<O,I> outNode) {
+		super(name, (ITransformation<O, ?>) outNode);
 		this.setTransformer( new CapacityTransformer());
 	}
 
@@ -28,7 +30,7 @@ implements INeighbourhood<O,I>
 		@SuppressWarnings("unchecked")
 		@Override
 		public boolean addInput( I input) {
-			ICapacityTransformation<I,O> outNode = (ICapacityTransformation<I, O>) getOutNode();
+			ICapacityProcess<I,O> outNode = (ICapacityProcess<I, O>) getOutNode();
 			if( outNode.isFull()){
 				return false;
 			}else{

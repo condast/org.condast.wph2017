@@ -10,7 +10,7 @@ import org.condast.symbiotic.core.def.INeighbourhood;
 import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.transformation.AbstractLinkedTransformation;
 import org.condast.symbiotic.core.transformation.AbstractModelTransformer;
-import org.condast.wph.core.def.IIntervalTransformation;
+import org.condast.wph.core.def.IIntervalProcess;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.message.IMessageListener;
@@ -20,7 +20,7 @@ import org.condast.wph.core.message.MessageHandler.Parties;
 import org.condast.wph.core.model.Anchorage;
 
 public class TAnchorage extends AbstractLinkedTransformation<IShip, Boolean> 
-implements IIntervalTransformation<Anchorage, IShip, Boolean>{
+implements IIntervalProcess<IShip, Boolean>{
 
 	private long interval;
 	
@@ -29,28 +29,19 @@ implements IIntervalTransformation<Anchorage, IShip, Boolean>{
 		super.setTransformer( new TRAnchorage( anchorage, behaviour));
 	}
 
-	
 	@Override
-	public boolean addInput(IShip input) {
-		// TODO Auto-generated method stub
-		return super.addInput(input);
-	}
-
-
-	@Override
-	protected void onOutputBlocked(Boolean output) {
+	protected void onOutputBlocked( Boolean output ) {
 		MessageHandler handler = MessageHandler.getInstance();
 		handler.sendMessage( Parties.PORTMASTER, "dock ship");
 	}
 
-	@Override
 	public Anchorage getModel() {
 		TRAnchorage tanc = (TRAnchorage) getTransformer();
 		return (Anchorage)tanc.getModel();
 	}
 
 	@Override
-	public void next( long interval) {
+	public void next( long interval ) {
 		this.interval = interval;
 		super.transform();	
 	}

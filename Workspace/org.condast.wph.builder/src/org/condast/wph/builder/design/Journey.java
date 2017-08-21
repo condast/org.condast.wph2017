@@ -17,7 +17,7 @@ import org.condast.symbiotic.core.def.ITransformer;
 import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.transformation.Transformation;
 import org.condast.symbiotic.core.utils.TimedNode;
-import org.condast.wph.core.def.IIntervalTransformation;
+import org.condast.wph.core.def.IIntervalProcess;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IContainer;
 import org.condast.wph.core.definition.IJourney;

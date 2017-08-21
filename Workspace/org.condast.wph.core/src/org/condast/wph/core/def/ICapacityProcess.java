@@ -1,8 +1,6 @@
 package org.condast.wph.core.def;
 
-import org.condast.symbiotic.core.def.ITransformation;
-
-public interface ICapacityTransformation<I, O extends Object> extends ITransformation<I, O> {
+public interface ICapacityProcess<I, O extends Object>{
 
 	/**
 	 * Returns true if the capacity has been rewached 
