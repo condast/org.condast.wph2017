@@ -51,6 +51,23 @@ public class IntervalProcess<I, O extends Object> implements IIntervalProcess<I,
 	 * Get the oldest pending job, or null if all are not overdue
 	 * @return
 	 */
+	public Date getFirstDueJob(){
+		Date current = Calendar.getInstance().getTime();
+		current.setTime( current.getTime() + time );
+		Date first = null;
+		for( Date date: jobs.values() ){
+			if( date.getTime() > current.getTime() ){
+				if(( first == null ) || ( first.getTime() > date.getTime() ))
+					first = date;
+			}
+		}
+		return first;
+	}
+
+	/**
+	 * Get the oldest pending job, or null if all are not overdue
+	 * @return
+	 */
 	public Date getLongestOverdueJob(){
 		Date current = Calendar.getInstance().getTime();
 		current.setTime( current.getTime() + time );

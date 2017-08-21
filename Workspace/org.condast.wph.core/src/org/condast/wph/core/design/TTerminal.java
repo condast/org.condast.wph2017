@@ -30,16 +30,27 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 
 	private boolean sendPMMessage;
 	private boolean sendModMessage;
+	private IBehaviour<IShip,Integer> behaviour;
 
 	public TTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour, INeighbourhood<IShip, IContainer> neighbourhood) {
 		super( ModelTypes.TERMINAL.toString(), neighbourhood );
 		super.setTransformer( new TRTerminal( terminal, behaviour));
+		this.behaviour = behaviour;
 	}
 
 	public Terminal getModel() {
 		return (Terminal) super.getTransformer();
 	}
 
+	public IBehaviour<IShip, Integer> getBehaviour(){
+		return behaviour;
+	}
+	
+	public boolean allowNextShip(){
+		TRTerminal trt = (TRTerminal) super.getTransformer();
+		return trt.allowNextShip();
+	}
+	
 	protected Date getJobCompletion( IShip ship ){
 		Date current = Calendar.getInstance().getTime();
 		long interval = ship.getNrOfContainers() * getModel().getUnloadTime();
@@ -92,7 +103,6 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 			this.process = new IntervalProcess<IShip, IContainer>( this );
 		}
 
-		
 		@Override
 		public boolean addInput(IShip input) {
 			if( input == null )
@@ -108,6 +118,13 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 		@Override
 		public int getCapacity() {
 			return terminal.getMaxDocks() - getInputSize();
+		}
+
+		public boolean allowNextShip(){
+			IBehaviour<IShip,Integer> behaviour = super.getBehaviour();
+			int slack = behaviour.getOutput() * 15;//minutes
+			long firstJob = process.getFirstDueJob().getTime() - Calendar.getInstance().getTimeInMillis();
+			return( firstJob < slack );
 		}
 
 		@Override
