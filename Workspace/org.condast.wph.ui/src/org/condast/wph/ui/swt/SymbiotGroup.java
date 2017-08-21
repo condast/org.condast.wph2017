@@ -35,7 +35,7 @@ public class SymbiotGroup extends Group {
 				ISymbiot symbiot = (ISymbiot) event.getSource();
 				Integer[] values = new Integer[2];
 				StressCanvas stressCanvas = canvases.get( symbiot );
-				values[0] = (int)( stressCanvas.getRange() * symbiot.getStress());
+				values[0] = (int)((float)stressCanvas.getRange() * symbiot.getStress());
 				values[1] = 0;
 				stressCanvas.addInput(values);
 				refresh();

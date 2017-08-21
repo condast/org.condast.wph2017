@@ -1,8 +1,10 @@
 package org.condast.wph.core.design;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import org.condast.commons.number.NumberUtils;
 import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.def.INeighbourhood;
 import org.condast.symbiotic.core.def.ISymbiot;
@@ -20,10 +22,20 @@ import org.condast.wph.core.model.Anchorage;
 public class TAnchorage extends AbstractLinkedTransformation<IShip, Boolean> 
 implements IIntervalTransformation<Anchorage, IShip, Boolean>{
 
+	private long interval;
+	
 	public TAnchorage( Anchorage anchorage, IBehaviour<IShip,Integer> behaviour, INeighbourhood<IShip, Boolean> outputNode) {
 		super( ModelTypes.ANCHORAGE.toString(), outputNode);
 		super.setTransformer( new TRAnchorage( anchorage, behaviour));
 	}
+
+	
+	@Override
+	public boolean addInput(IShip input) {
+		// TODO Auto-generated method stub
+		return super.addInput(input);
+	}
+
 
 	@Override
 	protected void onOutputBlocked(Boolean output) {
@@ -33,18 +45,17 @@ implements IIntervalTransformation<Anchorage, IShip, Boolean>{
 
 	@Override
 	public Anchorage getModel() {
-		return (Anchorage) getTransformer();
+		TRAnchorage tanc = (TRAnchorage) getTransformer();
+		return (Anchorage)tanc.getModel();
 	}
 
 	@Override
-	public void next(int interval) {
-		// TODO Auto-generated method stub
-		
+	public void next( long interval) {
+		this.interval = interval;
+		super.transform();	
 	}
 
-
-
-	public class TRAnchorage extends AbstractModelTransformer<Anchorage, IShip, Boolean, Integer>{
+	private class TRAnchorage extends AbstractModelTransformer<Anchorage, IShip, Boolean, Integer>{
 
 		private Anchorage anchorage;
 		private boolean sendMessage;
@@ -56,7 +67,7 @@ implements IIntervalTransformation<Anchorage, IShip, Boolean>{
 				logger.info("Response " + event.getParty() + ": " + event.getResult());
 			}
 		};
-
+		
 		private Logger logger = Logger.getLogger( this.getClass().getName() );
 
 		public TRAnchorage( Anchorage anchorage, IBehaviour<IShip, Integer> behaviour ) {
@@ -91,12 +102,19 @@ implements IIntervalTransformation<Anchorage, IShip, Boolean>{
 				this.sendMessage = false;
 			}
 			else{
-				symbiot.increaseStress();
+				float quotient = 60 * this.anchorage.getMaxWaitingTime();
+				float longest = (float)this.anchorage.getLongestWaitingTime( interval );
+				symbiot.setStress(NumberUtils.clip(1, longest/quotient));
 				if( !this.sendMessage ){
 					this.sendMessage = true;
 					handler.sendMessage( Parties.PORTMASTER, "help");
 				}
 			}
+		}
+
+		@Override
+		public Collection<IShip> getInputs() {
+			return anchorage.getInputs();
 		}
 	}
 }

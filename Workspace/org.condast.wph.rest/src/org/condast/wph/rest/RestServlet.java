@@ -7,6 +7,7 @@ import org.condast.commons.http.AbstractServletWrapper;
 import org.condast.wph.rest.resources.AnchorageResource;
 import org.condast.wph.rest.resources.ControlResource;
 import org.condast.wph.rest.resources.HelloResource;
+import org.condast.wph.rest.resources.StressResource;
 import org.condast.wph.rest.resources.TerminalResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -31,9 +32,9 @@ public class RestServlet extends AbstractServletWrapper {
 		//Loading classes is the safest way...
 		//in equinox the scanning of packages may not work
 		private RestApplication() {
-			register( HelloResource.class );
-			register( TerminalResource.class );
 			register( ControlResource.class );
+			register( StressResource.class );
+			register( TerminalResource.class );
 			register( AnchorageResource.class );
 		}
 	}

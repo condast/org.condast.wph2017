@@ -1,6 +1,7 @@
 package org.condast.wph.core.model;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.TreeMap;
 
@@ -10,11 +11,13 @@ import org.condast.wph.core.definition.IModel;
 
 public class Anchorage extends AbstractModel<IModel.ModelTypes> {
 
+	public static final float TO_MINUTES = 60000;//scale from msec to hours
+	public static final float TO_HOURS = 60* TO_MINUTES;//scale from msec to hours
+
 	public static final int MAX_WAITING_TIME = 12;//hours
-	public static final float TO_HOURS = 3600000;//scale from msec to hours
 
 	private TreeMap<Date, IShip > ships;
-	private int maxWaitingTime;//hours
+	private int maxWaitingTime;//minutes
 
 	public Anchorage( String id, LatLng lnglat) {
 		this( id, lnglat, MAX_WAITING_TIME );
@@ -56,13 +59,18 @@ public class Anchorage extends AbstractModel<IModel.ModelTypes> {
 		return this.ships.firstEntry().getValue();
 	}
 	
+	public Collection<IShip> getInputs(){
+		return this.ships.values();
+	}
+	
 	/**
-	 * Get the longest waiting time in hours
+	 * Get the longest waiting time in minutes
 	 * @return
 	 */
-	public long getLongestWaitingTime(){
+	public long getLongestWaitingTime( long interval ){
 		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis( calendar.getTimeInMillis() + interval );
 		long diff = calendar.getTimeInMillis() - this.ships.firstEntry().getKey().getTime();
-		return (long) ((float)diff/TO_HOURS);
+		return (long) ((float)diff/TO_MINUTES);
 	}
 }

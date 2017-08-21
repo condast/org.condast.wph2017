@@ -6,5 +6,5 @@ public interface IIntervalTransformation<M, I,O extends Object> extends ITransfo
 
 	public M getModel();
 	
-	public void next( int interval );
+	public void next( long interval );
 }

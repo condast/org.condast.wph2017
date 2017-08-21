@@ -205,11 +205,7 @@ public class WPHFrontend extends Composite {
 	}
 	
 	protected void setTime(){
-		if( ce.getStartDate() == null)
-			return;
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd;HH:mm:ss");
-		String formattedDate = formatter.format(ce.getStartDate());
-		timeLabel.setText( String.valueOf( formattedDate + " + " + ce.getElapsedTime()) + " min");	
+		timeLabel.setText( ce.getSimulatedTime());	
 	}
 	
 	@Override
@@ -266,7 +262,10 @@ public class WPHFrontend extends Composite {
 
 		@Override
 		protected EnumSet<PlayerImages.Images> setupButtonBar() {
-			return EnumSet.of(PlayerImages.Images.START, PlayerImages.Images.STOP, PlayerImages.Images.RESET);
+			return EnumSet.of(PlayerImages.Images.START, 
+					PlayerImages.Images.STOP, 
+					PlayerImages.Images.NEXT,
+					PlayerImages.Images.RESET);
 		}
 
 		@Override

@@ -1,5 +1,6 @@
 package org.condast.wph.core.design;
 
+import java.util.Collection;
 import java.util.Iterator;
 import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.def.INeighbourhood;
@@ -39,6 +40,8 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 
 	@Override
 	public boolean addInput(IShip ship) {
+		if( ship == null )
+			return false;
 		super.addInput(ship);
 		return getModel().addJob( ship.getName(), ship.getNrOfContainers() * getModel().getUnloadTime() );
 	}
@@ -62,7 +65,9 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 		
 	}
 
-	public void next(int interval) {
+	@Override
+	public void next(long interval) {
+		super.transform();
 		this.sendModMessage = false;
 		this.sendPMMessage = false;
 		if(!this.sendModMessage){
@@ -107,6 +112,12 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 			else{
 				symbiot.increaseStress();
 			}
+		}
+
+		@Override
+		public Collection<IShip> getInputs() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 }

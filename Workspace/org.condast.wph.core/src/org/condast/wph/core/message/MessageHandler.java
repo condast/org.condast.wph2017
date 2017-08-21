@@ -43,11 +43,13 @@ public class MessageHandler {
 	private ExecutorService service;
 	private String path;
 	private Collection<IMessageListener> listeners;
+	private boolean enabled;
 
-	private static MessageHandler handler = new MessageHandler();
+	private static MessageHandler handler = new MessageHandler( false );
 	
-	private MessageHandler() {
+	private MessageHandler( boolean enabled ) {
 		super();
+		this.enabled = enabled;
 		this.path = WPH_CONTEXT;
 		this.listeners = new ArrayList<IMessageListener>();
 		service = Executors.newCachedThreadPool();
@@ -57,8 +59,25 @@ public class MessageHandler {
 		return handler;
 	}
 	
-	public void sendMessage( Parties party, String request ){
-		service.submit( new MessageCallable( this, party, path, request ));
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	/**
+	 * Send a message if the handler is enabled. Returns true if the
+	 * the message was sent succesfully
+	 * @param party
+	 * @param request
+	 * @return
+	 */
+	public boolean sendMessage( Parties party, String request ){
+		if( this.enabled )
+			service.submit( new MessageCallable( this, party, path, request ));
+		return this.enabled;
 	}
 
 	public void addMessageListener( IMessageListener listener ){
@@ -95,12 +114,18 @@ public class MessageHandler {
 
 		@Override
 		public String call() throws Exception {
-			HttpMessages msg = new HttpMessages(party, path);
-			msg.sendGet();
-			this.message = msg.getResponse();
-			handler.notifyMessageEvent( new MessageEvent( this.handler, party, message ));
-			this.message = "notusedyet";
-			return msg.getResponse();
+			try{
+				HttpMessages msg = new HttpMessages(party, path);
+				msg.sendGet();
+				this.message = msg.getResponse();
+				handler.notifyMessageEvent( new MessageEvent( this.handler, party, message ));
+				this.message = "notusedyet";
+				return msg.getResponse();
+			}
+			catch( Exception ex ){
+				ex.printStackTrace();
+			}
+			return null;
 		}
 
 		private class HttpMessages extends AbstractHttpRequest{

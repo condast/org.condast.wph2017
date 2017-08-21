@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.condast.commons.http,
  org.condast.commons.i18n,
  org.condast.commons.latlng,
+ org.condast.commons.number,
  org.condast.commons.strings,
  org.condast.commons.xml,
  org.condast.symbiotic.core,

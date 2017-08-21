@@ -34,6 +34,15 @@ public class ControlResource{
 		IContainerEnvironment ce = dispatcher.getEnvironment();
 		return "Started: " + ce.isRunning();
 	}
+	
+	// This method is called if XML is request
+	@GET
+	@Path("/elapsed")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getElapsedTime(){
+		IContainerEnvironment ce = dispatcher.getEnvironment();
+		return "Time: " + ce.getSimulatedTime();		
+	}
 
 	// This method is called if HTML is request
 	@GET

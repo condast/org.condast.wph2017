@@ -1,5 +1,6 @@
 package org.condast.wph.builder.eco;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -51,11 +52,14 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 	@Override
 	public void clear(){
 		this.startDate = Calendar.getInstance().getTime();
+		//this.shipentry.clear();
 		this.counter = 0;
 	}
 	
 	@Override
 	public SymbiotCollection getSymbiots(){
+		if( this.shipentry == null )
+			return null;
 		return this.shipentry.getSymbiots();
 	}
 	
@@ -68,6 +72,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 	public Date getStartDate() {
 		return startDate;
 	}
+	
 
 	@Override
 	public void addListener( IEnvironmentListener listener ){
@@ -138,6 +143,18 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		}
 	}
 	
+	/**
+	 * Get the simulated time
+	 * @return
+	 */
+	@Override
+	public String getSimulatedTime(){
+		Date date = ( this.startDate == null)?Calendar.getInstance().getTime(): this.startDate;
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd;HH:mm:ss");
+		String formattedDate = formatter.format( date );
+		return String.valueOf( formattedDate ) + " + " + getElapsedTime() + " min";	
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public ITransformation<?,Boolean> getTransformation( ModelTypes type ){

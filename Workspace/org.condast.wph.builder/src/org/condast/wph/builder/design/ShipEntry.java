@@ -1,28 +1,20 @@
 package org.condast.wph.builder.design;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.condast.commons.latlng.LatLng;
-import org.condast.symbiotic.core.AbstractNeighbourhood;
 import org.condast.symbiotic.core.DefaultBehaviour;
 import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
 import org.condast.symbiotic.core.def.INeighbourhood;
-import org.condast.symbiotic.core.def.INeighbourhood.Types;
 import org.condast.symbiotic.core.def.ITransformation;
-import org.condast.symbiotic.core.def.ITransformer;
 import org.condast.symbiotic.core.environment.Environment;
-import org.condast.symbiotic.core.transformation.IModelTransformer;
 import org.condast.symbiotic.core.transformation.ITransformListener;
 import org.condast.symbiotic.core.transformation.TransformEvent;
-import org.condast.symbiotic.core.transformation.Transformation;
 import org.condast.wph.core.def.ICapacityTransformation;
 import org.condast.wph.core.def.IContainer;
 import org.condast.wph.core.def.IIntervalTransformation;
@@ -69,46 +61,31 @@ public class ShipEntry {
 		createDependencies();
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void createDependencies(){
 		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
 		
-		ModelTypes type = ModelTypes.TERMINAL;
 		String name = "APM-T";
-		symbiots.add( createId(type, name), behaviour);
-		behaviour = new DefaultBehaviour<>(5);
-		symbiots.add(createId(type, name), behaviour);
-		IIntervalTransformation<Terminal, IShip, IContainer> term = new TTerminal( new Terminal( name, new LatLng(4.2f, 51.8f), 3), behaviour, null);
-		this.models.put(ModelTypes.TERMINAL, term );
+		IIntervalTransformation<Terminal, IShip, IContainer> term = (IIntervalTransformation<Terminal, IShip, IContainer>) 
+				setupTransformation(ModelTypes.TERMINAL, name, behaviour, new TTerminal( new Terminal( name, new LatLng(4.2f, 51.8f), 3), behaviour, null));
 
-		INeighbourhood<IShip, Boolean> neighbourhood = new CapacityNeighbourhood("Nieuwe Maas", (ICapacityTransformation) term );
+		INeighbourhood<IShip, Boolean> neighbourhood = new CapacityNeighbourhood<IShip, Boolean>("Nieuwe Maas", (ICapacityTransformation) term );
 		chain.add(neighbourhood);
 
-		type = ModelTypes.ANCHORAGE;
 		name = "Hoek van Holland";
 		behaviour = new DefaultBehaviour<>(5);
-		IIntervalTransformation<Anchorage,IShip, Boolean> anch = new TAnchorage( new Anchorage( name, new LatLng(4.2f, 51.8f), 3), behaviour, neighbourhood );
-		this.models.put(ModelTypes.ANCHORAGE, anch);
-		anch.addTransformationListener(listener);
-		
-		
-
-		/*				
-		create( IModel.ModelTypes.CLIENT );
-		chain.add( client );
-		ISymbiot<?,?> supplier = create( IModel.ModelTypes.SUPPLIER );
-		container.setLnglat( supplier.getModel().getLnglat());
-		chain.add( supplier );
-		environment.addNeighbourhood(client, supplier, new Neighbourhood(index++));
-		ISymbiot<?,?> shipagent = create( IModel.ModelTypes.SHIPPING_AGENT );
-		chain.add( shipagent );
-		index = createJourney(shipagent, environment, index, false);
-		index = createJourney(shipagent, environment, index, false);
-		
-		environment.addNeighbourhood(anch, term, new Neighbourhood( index ));
-		*/
+		IIntervalTransformation<Anchorage,IShip, Boolean> anch = (IIntervalTransformation<Anchorage, IShip, Boolean>)
+				setupTransformation(ModelTypes.ANCHORAGE, name, behaviour, new TAnchorage( new Anchorage( name, new LatLng(4.2f, 51.8f), 3), behaviour, neighbourhood ));
+		anch.addTransformationListener(listener);	
 	}
 
-	
+	private IIntervalTransformation<?, ?, ?> setupTransformation( ModelTypes type, String name, IBehaviour<IShip, Integer> behaviour, ITransformation<?,?> transformation ){
+		symbiots.add( createId(type, name), behaviour);
+		IIntervalTransformation<?, ?, ?> term = (IIntervalTransformation<?, ?, ?>) transformation;
+		models.put(type, term );
+		return term;
+	}
+
 	/*
 	private int createJourney( ISymbiot<?,?> shipagent, Environment environment, int index, boolean destination){
 		transport = create( IModel.ModelTypes.LOGISTICS );
@@ -158,18 +135,21 @@ public class ShipEntry {
 		this.listeners.remove( listener );
 	}
 
+	public void clear(){
+		this.index = 0;
+	}
+	
 	public void next(){
-		TAnchorage tanch = (TAnchorage) models.get(ModelTypes.ANCHORAGE ).getModel();
+		TAnchorage tanch = (TAnchorage) models.get(ModelTypes.ANCHORAGE );
 		tanch.addInput( new Ship());
+		long time = index*interval;
+		index++;
 		for( IIntervalTransformation<?,?,?> trf: models.values() )
-			trf.next(interval);
+			trf.next(time);
 		for( ITransformation<?,?> neighbourhood: chain )
 			neighbourhood.transform();
 	}
 	
-	public boolean isCompleted(){
-		return this.index >= chain.size();
-	}
 	
 	//private int getIndex( boolean direction, int current ){
 	//	return direction? current++: current--;
@@ -179,7 +159,7 @@ public class ShipEntry {
 		return type.toString() + ": " + name;
 	}
 	
-
+/*
 	private static class ShipNeighbourhood extends AbstractNeighbourhood< Boolean, IShip>{
 
 		private Map<IShip,Date> nodes;
@@ -195,10 +175,6 @@ public class ShipEntry {
 			return block;
 		}
 		
-		public void setBlocked( boolean choice ){
-			this.block = choice;
-		}
-
 		@Override
 		public boolean addInput(IShip input) {
 			if( isBlocked())
@@ -225,33 +201,10 @@ public class ShipEntry {
 		}
 	}
 	
-	private static class IntervalTransformation<M extends Object> extends Transformation<IShip, Boolean> implements IIntervalTransformation<M, IShip, Boolean>{
-
-		private ShipNeighbourhood neighbourhood;
-		
-		private ITransformListener<IShip> listener = new ITransformListener<IShip>(){
-
-			@Override
-			public void notifyChange(TransformEvent<IShip> event) {
-				boolean result = addInput(event.getOutput());
-			}
-		};
-		
-		public IntervalTransformation(String name, IModelTransformer<M, IShip, Boolean> transformer) {
-			super(name, transformer);
-		}
-		
-		private void setNeighbourhood(ShipNeighbourhood neighbourhood) {
-			this.neighbourhood = neighbourhood;
-		}
-
-		protected ITransformer<IShip,Boolean> getTransformer(){
-			return super.getTransformer();
-		}
 		
 		@Override
 		public void next(int interval) {
-/*
+
 			switch( neighbourhood.getType() ){
 			case OUT:
 				if( ShipNeighbourhood.Types.OUT.equals( neighbourhood.getType() ) && 
@@ -267,13 +220,7 @@ public class ShipEntry {
 				}
 				break;
 			}
-			*/
-		}
-
-		@Override
-		public M getModel() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+			
 	}
+	*/
 }

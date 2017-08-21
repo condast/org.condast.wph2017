@@ -44,4 +44,10 @@ public interface IContainerEnvironment {
 	 */
 	public void clear();
 
+	/**
+	 * Convenience method displays the simulated time
+	 * @return
+	 */
+	public String getSimulatedTime();
+
 }
