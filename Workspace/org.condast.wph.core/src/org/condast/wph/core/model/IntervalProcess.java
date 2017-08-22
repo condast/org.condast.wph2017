@@ -5,46 +5,41 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
-import org.condast.symbiotic.core.def.ITransformer;
+import org.condast.symbiotic.core.transformation.AbstractTransformer;
 import org.condast.wph.core.def.IIntervalProcess;
 
-public class IntervalProcess<I, O extends Object> implements IIntervalProcess<I, O>{
+public class IntervalProcess<I, O extends Object> extends AbstractTransformer<I,O> implements IIntervalProcess<I, O>{
 
 	public static final int DEFAULT_CAPACITY = 10;
 	
 	//The times that the job should end are depicted here
 	private Map<I,Date> jobs;
 	private int capacity;
-	private ITransformer<I,O> transformer;
 	private long time;
 
-	public IntervalProcess( ITransformer<I,O> transformer ) {
-		this(transformer, DEFAULT_CAPACITY );
+	public IntervalProcess() {
+		this(DEFAULT_CAPACITY );
 	}
 	
-	public IntervalProcess( ITransformer<I,O> transformer, int capacity ) {
+	public IntervalProcess( int capacity ) {
 		jobs = new HashMap<I,Date>();
 		this.capacity = capacity;
-		this.transformer = transformer;
 		this.time = 0;
 	}
 	
-	protected ITransformer<I, O> getTransformer() {
-		return transformer;
-	}
-
-	public boolean addJob( I input, Date completion ){
+	public boolean addInput( I input, Date completion ){
 		if( jobs.size() >= capacity )
 			return false;
 		this.jobs.put(input, completion);
 		return true;
 	}
 	
-	public boolean removeJob( I input ){
+	public boolean removeInput( I input ){
 		jobs.remove( input );
-		return transformer.removeInput(input);
+		return super.removeInput(input);
 	}
 
 	/**
@@ -86,14 +81,20 @@ public class IntervalProcess<I, O extends Object> implements IIntervalProcess<I,
 		Date current = Calendar.getInstance().getTime();
 		current.setTime( current.getTime() + time );
 		this.time = time;
-		this.transformer.clearInputs();
+		clearInputs();
 		Collection<I> inputs = new ArrayList<I>( jobs.keySet());
 		for( I input: inputs ){
 			if( jobs.get( input ).getTime() <= current.getTime() ){
 				//jobs.remove( input );
-				this.transformer.addInput(input);
+				super.addInput(input);
 			}
 		}
-		transformer.transform(inputs.iterator());
+		transform(inputs.iterator());
+	}
+
+	@Override
+	public O transform(Iterator<I> inputs) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

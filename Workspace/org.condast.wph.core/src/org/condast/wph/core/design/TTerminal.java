@@ -6,8 +6,8 @@ import java.util.Iterator;
 import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.def.INeighbourhood;
 import org.condast.symbiotic.core.def.ISymbiot;
+import org.condast.symbiotic.core.transformation.AbstractBehavedTransformer;
 import org.condast.symbiotic.core.transformation.AbstractLinkedTransformation;
-import org.condast.symbiotic.core.transformation.AbstractModelTransformer;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IContainer;
 import org.condast.wph.core.def.IIntervalProcess;
@@ -92,22 +92,22 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 		}
 	}
 
-	public class TRTerminal extends AbstractModelTransformer<Terminal, IShip, IContainer, Integer> implements ICapacityProcess<IShip, IContainer>{
+	public class TRTerminal extends AbstractBehavedTransformer<IShip, IContainer, Integer> implements ICapacityProcess<IShip, IContainer>{
 
 		private Terminal terminal;
 		private IntervalProcess<IShip, IContainer> process;
 
 		public TRTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour ) {
-			super( ModelTypes.TERMINAL.toString(), terminal, behaviour);
+			super( behaviour);
 			this.terminal = terminal;
-			this.process = new IntervalProcess<IShip, IContainer>( this );
+			this.process = new IntervalProcess<IShip, IContainer>();
 		}
 
 		@Override
 		public boolean addInput(IShip input) {
 			if( input == null )
 				return false;
-			return process.addJob(input, getJobCompletion( input ));
+			return process.addInput(input, getJobCompletion( input ));
 		}
 
 		@Override
@@ -129,8 +129,10 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 
 		@Override
 		protected IContainer onTransform(Iterator<IShip> inputs) {
+			if( inputs == null )
+				return null;
 			while( inputs.hasNext() )
-				process.removeJob(inputs.next());
+				process.removeInput(inputs.next());
 			return null;
 		}
 

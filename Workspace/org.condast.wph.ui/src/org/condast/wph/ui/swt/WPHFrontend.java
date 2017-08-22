@@ -9,7 +9,6 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
-import java.text.SimpleDateFormat;
 import java.util.EnumSet;
 
 import org.condast.commons.strings.StringStyler;
@@ -297,6 +296,9 @@ public class WPHFrontend extends Composite {
 						getButton( PlayerImages.Images.START).setEnabled(true);
 						button.setEnabled(false);
 						ce.stop();
+						break;
+					case NEXT:
+						ce.step();
 						break;
 					case RESET:
 						ce.clear();

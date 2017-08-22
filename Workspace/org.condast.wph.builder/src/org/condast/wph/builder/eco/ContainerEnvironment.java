@@ -110,11 +110,10 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 
 	@Override
 	public void onExecute() {
-		while( super.isRunning() ){
-			lock.lock();
-			try{
-				
-				/*
+		lock.lock();
+		try{
+
+			/*
 				for( IJourney journey: journeys ){
 					if( journey.isCompleted() )
 						continue;
@@ -125,21 +124,20 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 					if( counter == 9 )
 						journey.next(); 
 				}
-				*/
-				shipentry.next();
-					
-				counter++;
-				notifyChangeEvent( new EnvironmentEvent( this ));
-			}
-			finally{
-				lock.unlock();
-			}
-			try{
-				Thread.sleep(1000);
-			}
-			catch( InterruptedException ex ){
-				ex.printStackTrace();
-			}
+			 */
+			shipentry.next();
+
+			counter++;
+			notifyChangeEvent( new EnvironmentEvent( this ));
+		}
+		finally{
+			lock.unlock();
+		}
+		try{
+			Thread.sleep(1000);
+		}
+		catch( InterruptedException ex ){
+			ex.printStackTrace();
 		}
 	}
 	

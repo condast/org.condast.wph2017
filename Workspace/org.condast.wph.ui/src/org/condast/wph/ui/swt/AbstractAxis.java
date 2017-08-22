@@ -89,6 +89,8 @@ public abstract class AbstractAxis<V extends Object> extends Canvas{
 	}
 	
 	public void refresh(){
-		this.redraw();
+		if( isDisposed())
+			return;
+		super.redraw();
 	}
 }

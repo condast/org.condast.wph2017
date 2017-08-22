@@ -17,6 +17,8 @@ public interface IContainerEnvironment {
 	
 	public void stop();
 
+	public void step();
+
 	public void pause();
 
 	public boolean isRunning();

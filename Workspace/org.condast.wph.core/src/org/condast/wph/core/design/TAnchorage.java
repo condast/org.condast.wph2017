@@ -62,7 +62,7 @@ implements IIntervalProcess<IShip, Boolean>{
 		private Logger logger = Logger.getLogger( this.getClass().getName() );
 
 		public TRAnchorage( Anchorage anchorage, IBehaviour<IShip, Integer> behaviour ) {
-			super( ModelTypes.ANCHORAGE.toString(), anchorage, behaviour );
+			super( anchorage, behaviour );
 			this.anchorage = anchorage;
 			handler.addMessageListener(listener);
 		}
