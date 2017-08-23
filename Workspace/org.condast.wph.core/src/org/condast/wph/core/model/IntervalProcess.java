@@ -14,7 +14,9 @@ import org.condast.wph.core.def.IIntervalProcess;
 public class IntervalProcess<I extends Object> extends AbstractTransformer<I,I> implements IIntervalProcess<I, I>{
 
 	public static final int DEFAULT_CAPACITY = 10;
-	
+
+	public static final int TO_HOURS =  60*60*1000;
+
 	//The times that the job should end are depicted here
 	private Map<I,Date> jobs;
 	private int capacity;
@@ -30,6 +32,10 @@ public class IntervalProcess<I extends Object> extends AbstractTransformer<I,I> 
 		this.time = 0;
 	}
 	
+	public int getCapacity() {
+		return capacity;
+	}
+
 	public boolean addInput( I input, Date completion ){
 		if( jobs.size() >= capacity )
 			return false;
@@ -76,7 +82,7 @@ public class IntervalProcess<I extends Object> extends AbstractTransformer<I,I> 
 		while( iterator.hasNext()){
 			Map.Entry<I, Date> entry = iterator.next();
 			Date date = entry.getValue();
-			if( date.getTime() > current.getTime() ){
+			if( date.getTime() <= current.getTime() ){
 				if(( first == null ) || ( first.getTime() > date.getTime() )){
 					first = date;
 					retval = entry.getKey();
@@ -125,4 +131,11 @@ public class IntervalProcess<I extends Object> extends AbstractTransformer<I,I> 
 			return null;
 		return getFirstDueJob();
 	}
+	
+	public static Date getSimulatedTime( long interval){
+		Date current = Calendar.getInstance().getTime();
+		current.setTime( current.getTime() + interval );
+		return current;
+	}
+
 }

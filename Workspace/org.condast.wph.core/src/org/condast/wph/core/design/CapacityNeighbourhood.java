@@ -8,8 +8,7 @@ import org.condast.symbiotic.core.def.INeighbourhood;
 import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.def.ITransformation;
 import org.condast.symbiotic.core.transformer.LinkedTransformation;
-import org.condast.symbiotic.core.transformer.AbstractBehavedTransformer;
-import org.condast.symbiotic.core.transformer.FilteredTransformer;
+import org.condast.symbiotic.core.transformer.AbstractBehavedTransformerWrapper;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IIntervalProcess;
 import org.condast.wph.core.model.IntervalProcess;
@@ -18,44 +17,47 @@ public class CapacityNeighbourhood<I extends Object> extends LinkedTransformatio
 implements INeighbourhood<I,I>, IIntervalProcess<I,I>
 {
 	private static final int DEFAULT_BUFFER_SIZE = 10;
+	private static final int DEFAULT_TRAVEL_TIME = 2;//hours
 	
 	private IntervalProcess<I> process;
-	private long time;
-	private int buffer;
+	private int travelTime;
 
 	public CapacityNeighbourhood(String name, IBehaviour<I,Integer> behaviour, ICapacityProcess<I,I> outNode) {
-		this( name, DEFAULT_BUFFER_SIZE, behaviour, outNode );
+		this( name, DEFAULT_BUFFER_SIZE, DEFAULT_TRAVEL_TIME, behaviour, outNode );
 	}
 	
 	@SuppressWarnings("unchecked")
-	public CapacityNeighbourhood(String name, int buffer, IBehaviour<I,Integer> behaviour, ICapacityProcess<I,?> outNode) {
+	public CapacityNeighbourhood(String name, int buffer, int travelTime, IBehaviour<I,Integer> behaviour, ICapacityProcess<I,?> outNode) {
 		super(name, (ITransformation<I, ?>) outNode);
-		this.time = 0;
-		this.buffer = buffer;
-		this.process = new IntervalProcess<I>();
+		this.travelTime = travelTime;
+		this.process = new IntervalProcess<I>( buffer );
 		super.setTransformer( new TRNeighbourhood(behaviour) );
+	}
+	
+	private int getActiveJobs(){
+		return this.process.getInputs().size() + super.getInputSize();
 	}
 
 	@Override
 	public boolean addInput(I input) {
-		if( super.addInput(input))
-			return true;
-		
-		if ( super.getInputSize() >= this.buffer )
+		if ( this.getActiveJobs() >= this.process.getCapacity())
 			return false;
-		return process.addInput(input);
+		return process.addInput(input, IntervalProcess.getSimulatedTime( this.travelTime * IntervalProcess.TO_HOURS));
 	}
 
 	@Override
 	public void next(long time) {
-		this.time = time;
-		super.transform();
+		process.next(time);
+		I result = super.transform();
+		if( result != null ){
+			super.removeInput(result);
+		}
 	}
 
-	private class TRNeighbourhood extends AbstractBehavedTransformer<I, I, Integer>{
+	private class TRNeighbourhood extends AbstractBehavedTransformerWrapper<I, I, Integer>{
 
 		protected TRNeighbourhood( IBehaviour<I, Integer> behaviour) {
-			super(behaviour);
+			super(process, behaviour);
 		}
 
 		@Override
@@ -64,21 +66,20 @@ implements INeighbourhood<I,I>, IIntervalProcess<I,I>
 				symbiot.clearStress();
 			}
 			else{
-				float stress = NumberUtils.clip(1f, super.getInputSize() / buffer );
+				float stress = NumberUtils.clip(1f, getInputSize() / process.getCapacity() );
 				symbiot.setStress( stress );
 			}
 		}
 
 		@Override
-		protected I onTransform(Iterator<I> inputs) {
+		protected I onTransform(Iterator<I> inputs, I selected) {
 			if( inputs == null )
 				return null;
-			if( super.getInputSize() < buffer ){
-				I inp = inputs.next();
-				removeInput( inp );
-				return inp;
+			if( getActiveJobs() < process.getCapacity() ){
+				removeInput( selected );
+				return selected;
 			}
-			return process.transform(inputs);
+			return selected;
 		}
 	}
 }
