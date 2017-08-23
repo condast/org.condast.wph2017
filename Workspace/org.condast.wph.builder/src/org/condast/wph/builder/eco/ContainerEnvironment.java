@@ -90,7 +90,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 	}
 
 	@Override
-	public void onInitialise() {
+	public boolean onInitialise() {
 		/*
 		for( int i=0; i<20; i++ ){
 			int tag = 50000 + (int)( 1000000 * Math.random());
@@ -106,6 +106,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		this.clear();
 		shipentry = new ShipEntry( environment );
 		notifyChangeEvent( new EnvironmentEvent( this ));
+		return true;
 	}
 
 	@Override
@@ -133,12 +134,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		finally{
 			lock.unlock();
 		}
-		try{
-			Thread.sleep(1000);
-		}
-		catch( InterruptedException ex ){
-			ex.printStackTrace();
-		}
+		sleep(1000);
 	}
 	
 	/**

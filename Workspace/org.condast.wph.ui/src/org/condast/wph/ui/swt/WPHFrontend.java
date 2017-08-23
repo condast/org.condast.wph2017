@@ -15,7 +15,7 @@ import org.condast.commons.strings.StringStyler;
 import org.condast.commons.ui.player.PlayerImages;
 import org.condast.commons.ui.player.PlayerImages.Images;
 import org.condast.commons.ui.session.ISessionListener;
-import org.condast.commons.ui.session.PushSession;
+import org.condast.commons.ui.session.RefreshSession;
 import org.condast.commons.ui.session.SessionEvent;
 import org.condast.commons.ui.widgets.AbstractButtonBar;
 import org.condast.js.commons.eval.EvaluationEvent;
@@ -65,28 +65,21 @@ public class WPHFrontend extends Composite {
 		
 		@Override
 		public void notifyEnvironmentChanged(EnvironmentEvent event) {
-			session.addData(ce);
+			session.refresh();
 		}
 	};
 	
-	private PushSession<IContainerEnvironment> session;
+	private RefreshSession<IContainerEnvironment> session;
 	private ISessionListener<IContainerEnvironment> sessionListener = new ISessionListener<IContainerEnvironment>(){
 
 		@Override
 		public void notifySessionChanged(SessionEvent<IContainerEnvironment> event) {
-			getDisplay().asyncExec( new Runnable() {
-
-				@Override
-				public void run() {
-					journeyViewer.setInput( ce.getJourneys());
-					setTime();	
-					layout();
-				}
-			});
+			journeyViewer.setInput( ce.getJourneys());
+			setTime();	
+			layout();
 		}
-		
 	};
-	
+
 	/**
 	 * Create the composite.
 	 * @param parent
@@ -97,7 +90,7 @@ public class WPHFrontend extends Composite {
 		setLayout(new GridLayout(1, false ));
 		listener = new EvaluationListener();
 		this.createComposite(parent, style);
-		session = new PushSession<IContainerEnvironment>();
+		session = new RefreshSession<IContainerEnvironment>();
 		session.init(getDisplay());
 		session.addSessionListener(sessionListener);
 	}

@@ -1,15 +1,10 @@
 package org.condast.wph.rest.resources;
 
-import java.util.Calendar;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.condast.symbiotic.core.IBehaviour;
-import org.condast.symbiotic.core.def.ITransformation;
-import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IContainerEnvironment;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.design.TTerminal;
