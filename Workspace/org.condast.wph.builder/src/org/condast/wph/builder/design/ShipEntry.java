@@ -29,22 +29,22 @@ import org.condast.wph.core.model.Terminal;
 
 public class ShipEntry {
 	
-	public static final int DEFAULT_INTERVAL = 15*60*1000; //15 min
+	public static final int DEFAULT_INTERVAL = 3*60*1000; //3 min
 	
 	private SymbiotCollection symbiots;
 	private Map<ModelTypes, IIntervalProcess<?,?>> models;
 	
-	private List<ITransformation<?,?>> chain;
+	private List<IIntervalProcess<?,?>> chain;
 	private int index;
 	private int interval;
 
-	private Collection<ITransformListener<Boolean>> listeners;
+	private Collection<ITransformListener<IShip>> listeners;
 	
-	private ITransformListener<Boolean> listener = new ITransformListener<Boolean>(){
+	private ITransformListener<IShip> listener = new ITransformListener<IShip>(){
 
 		@Override
-		public void notifyChange(TransformEvent<Boolean> event) {
-			for( ITransformListener<Boolean> listener: listeners )
+		public void notifyChange(TransformEvent<IShip> event) {
+			for( ITransformListener<IShip> listener: listeners )
 				listener.notifyChange(event);
 		}
 	};
@@ -53,10 +53,10 @@ public class ShipEntry {
 		this.symbiots = new SymbiotCollection();
 		this.models = new HashMap<ModelTypes, IIntervalProcess<?,?>>();
 		
-		chain = new ArrayList<ITransformation<?,?>>();
+		chain = new ArrayList<IIntervalProcess<?,?>>();
 		this.index = 0;
 		this.interval = DEFAULT_INTERVAL;
-		this.listeners = new ArrayList<ITransformListener<Boolean>>();
+		this.listeners = new ArrayList<ITransformListener<IShip>>();
 		createDependencies();
 	}
 	
@@ -66,15 +66,17 @@ public class ShipEntry {
 		
 		String name = "APM-T";
 		IIntervalProcess<IShip, IContainer> term = (IIntervalProcess<IShip, IContainer>) 
-				setupTransformation(ModelTypes.TERMINAL, name, behaviour, new TTerminal( new Terminal( name, new LatLng(4.2f, 51.8f), 3), behaviour, null));
+				setupTransformation(ModelTypes.TERMINAL, name, behaviour, (ITransformation<?, ?>) new TTerminal( new Terminal( name, new LatLng(4.2f, 51.8f), 3), behaviour, null));
 
-		INeighbourhood<IShip, Boolean> neighbourhood = new CapacityNeighbourhood<IShip, Boolean>("Nieuwe Maas", (ICapacityProcess) term );
-		chain.add(neighbourhood);
+		behaviour = new DefaultBehaviour<>(5);
+		INeighbourhood<IShip, IShip> neighbourhood = new CapacityNeighbourhood<IShip>("Nieuwe Maas", behaviour, (ICapacityProcess) term );
+		symbiots.add( createId(ModelTypes.PORT_AUTHORITY, name), behaviour);
+		chain.add((IIntervalProcess<?, ?>) neighbourhood);
 
 		name = "Hoek van Holland";
 		behaviour = new DefaultBehaviour<>(5);
-		ITransformation<IShip, Boolean> anch = 
-				(ITransformation<IShip, Boolean>) setupTransformation(ModelTypes.ANCHORAGE, name, behaviour, new TAnchorage( new Anchorage( name, new LatLng(4.2f, 51.8f), 3), behaviour, neighbourhood ));
+		ITransformation<IShip, IShip> anch = 
+				(ITransformation<IShip, IShip>) setupTransformation(ModelTypes.ANCHORAGE, name, behaviour, new TAnchorage( new Anchorage( name, new LatLng(4.2f, 51.8f), 3), behaviour, neighbourhood ));
 		anch.addTransformationListener(listener);	
 	}
 
@@ -126,7 +128,7 @@ public class ShipEntry {
 		return symbiots;
 	}
 
-	public void addTransformListener( ITransformListener<Boolean> listener ){
+	public void addTransformListener( ITransformListener<IShip> listener ){
 		this.listeners.add( listener );
 	}
 
@@ -145,8 +147,8 @@ public class ShipEntry {
 		index++;
 		for( IIntervalProcess<?,?> trf: models.values() )
 			trf.next(time);
-		for( ITransformation<?,?> neighbourhood: chain )
-			neighbourhood.transform();
+		for(IIntervalProcess<?,?> neighbourhood: chain )
+			neighbourhood.next(time);
 	}
 	
 	

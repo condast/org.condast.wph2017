@@ -6,8 +6,9 @@ import java.util.Iterator;
 import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.def.INeighbourhood;
 import org.condast.symbiotic.core.def.ISymbiot;
-import org.condast.symbiotic.core.transformation.AbstractBehavedTransformer;
-import org.condast.symbiotic.core.transformation.AbstractLinkedTransformation;
+import org.condast.symbiotic.core.def.ITransformation;
+import org.condast.symbiotic.core.transformer.AbstractBehavedTransformer;
+import org.condast.symbiotic.core.transformer.LinkedTransformation;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IContainer;
 import org.condast.wph.core.def.IIntervalProcess;
@@ -18,7 +19,7 @@ import org.condast.wph.core.message.MessageHandler.Parties;
 import org.condast.wph.core.model.IntervalProcess;
 import org.condast.wph.core.model.Terminal;
 
-public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> implements ICapacityProcess<IShip, IContainer>,
+public class TTerminal extends LinkedTransformation<IShip, IContainer> implements ICapacityProcess<IShip, IContainer>,
 	IIntervalProcess<IShip, IContainer>{
 
 	public enum Strategies{
@@ -31,15 +32,17 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 	private boolean sendPMMessage;
 	private boolean sendModMessage;
 	private IBehaviour<IShip,Integer> behaviour;
+	private Terminal terminal;
 
 	public TTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour, INeighbourhood<IShip, IContainer> neighbourhood) {
-		super( ModelTypes.TERMINAL.toString(), neighbourhood );
+		super( ModelTypes.TERMINAL.toString(), (ITransformation<IContainer, ?>) neighbourhood );
 		super.setTransformer( new TRTerminal( terminal, behaviour));
 		this.behaviour = behaviour;
+		this.terminal = terminal;
 	}
 
 	public Terminal getModel() {
-		return (Terminal) super.getTransformer();
+		return terminal;
 	}
 
 	public IBehaviour<IShip, Integer> getBehaviour(){
@@ -50,14 +53,7 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 		TRTerminal trt = (TRTerminal) super.getTransformer();
 		return trt.allowNextShip();
 	}
-	
-	protected Date getJobCompletion( IShip ship ){
-		Date current = Calendar.getInstance().getTime();
-		long interval = ship.getNrOfContainers() * getModel().getUnloadTime();
-		current.setTime( current.getTime() + interval );
-		return current;
-	}
-	
+		
 	@Override
 	public boolean isFull() {
 		// TODO Auto-generated method stub
@@ -68,12 +64,6 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 	public int getCapacity() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	protected void onOutputBlocked(IContainer output) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -95,12 +85,12 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 	public class TRTerminal extends AbstractBehavedTransformer<IShip, IContainer, Integer> implements ICapacityProcess<IShip, IContainer>{
 
 		private Terminal terminal;
-		private IntervalProcess<IShip, IContainer> process;
+		private IntervalProcess<IShip> process;
 
 		public TRTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour ) {
 			super( behaviour);
 			this.terminal = terminal;
-			this.process = new IntervalProcess<IShip, IContainer>();
+			this.process = new IntervalProcess<IShip>();
 		}
 
 		@Override
@@ -123,7 +113,7 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 		public boolean allowNextShip(){
 			IBehaviour<IShip,Integer> behaviour = super.getBehaviour();
 			int slack = behaviour.getOutput() * 15;//minutes
-			long firstJob = process.getFirstDueJob().getTime() - Calendar.getInstance().getTimeInMillis();
+			long firstJob = process.getFirstDueDate().getTime() - Calendar.getInstance().getTimeInMillis();
 			return( firstJob < slack );
 		}
 
@@ -145,5 +135,13 @@ public class TTerminal extends AbstractLinkedTransformation<IShip, IContainer> i
 				symbiot.increaseStress();
 			}
 		}
+		
+		protected Date getJobCompletion( IShip ship ){
+			Date current = Calendar.getInstance().getTime();
+			long interval = ship.getNrOfContainers() * getModel().getUnloadTime();
+			current.setTime( current.getTime() + interval );
+			return current;
+		}
+
 	}
 }

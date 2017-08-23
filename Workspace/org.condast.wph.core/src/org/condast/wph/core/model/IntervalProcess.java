@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.condast.symbiotic.core.transformation.AbstractTransformer;
+import org.condast.symbiotic.core.transformer.AbstractTransformer;
 import org.condast.wph.core.def.IIntervalProcess;
 
-public class IntervalProcess<I, O extends Object> extends AbstractTransformer<I,O> implements IIntervalProcess<I, O>{
+public class IntervalProcess<I extends Object> extends AbstractTransformer<I,I> implements IIntervalProcess<I, I>{
 
 	public static final int DEFAULT_CAPACITY = 10;
 	
@@ -25,7 +25,7 @@ public class IntervalProcess<I, O extends Object> extends AbstractTransformer<I,
 	}
 	
 	public IntervalProcess( int capacity ) {
-		jobs = new HashMap<I,Date>();
+		jobs = new LinkedHashMap<I,Date>();
 		this.capacity = capacity;
 		this.time = 0;
 	}
@@ -46,17 +46,44 @@ public class IntervalProcess<I, O extends Object> extends AbstractTransformer<I,
 	 * Get the oldest pending job, or null if all are not overdue
 	 * @return
 	 */
-	public Date getFirstDueJob(){
+	public Date getFirstDueDate(){
 		Date current = Calendar.getInstance().getTime();
 		current.setTime( current.getTime() + time );
 		Date first = null;
-		for( Date date: jobs.values() ){
+		Iterator<Map.Entry<I, Date>> iterator = jobs.entrySet().iterator();
+		while( iterator.hasNext()){
+			Map.Entry<I, Date> entry = iterator.next();
+			Date date = entry.getValue();
 			if( date.getTime() > current.getTime() ){
-				if(( first == null ) || ( first.getTime() > date.getTime() ))
+				if(( first == null ) || ( first.getTime() > date.getTime() )){
 					first = date;
+				}
 			}
 		}
 		return first;
+	}
+
+	/**
+	 * Get the oldest pending job, or null if all are not overdue
+	 * @return
+	 */
+	public I getFirstDueJob(){
+		Date current = Calendar.getInstance().getTime();
+		current.setTime( current.getTime() + time );
+		Date first = null;
+		I retval = null;;
+		Iterator<Map.Entry<I, Date>> iterator = jobs.entrySet().iterator();
+		while( iterator.hasNext()){
+			Map.Entry<I, Date> entry = iterator.next();
+			Date date = entry.getValue();
+			if( date.getTime() > current.getTime() ){
+				if(( first == null ) || ( first.getTime() > date.getTime() )){
+					first = date;
+					retval = entry.getKey();
+				}
+			}
+		}
+		return retval;
 	}
 
 	/**
@@ -93,8 +120,9 @@ public class IntervalProcess<I, O extends Object> extends AbstractTransformer<I,
 	}
 
 	@Override
-	public O transform(Iterator<I> inputs) {
-		// TODO Auto-generated method stub
-		return null;
+	public I transform(Iterator<I> inputs) {
+		if( this.jobs.size() == 0)
+			return null;
+		return getFirstDueJob();
 	}
 }

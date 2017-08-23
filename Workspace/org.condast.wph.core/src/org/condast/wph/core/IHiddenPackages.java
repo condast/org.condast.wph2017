@@ -1,7 +1,5 @@
-package org.condast.wph.builder;
+package org.condast.wph.core;
 
-import org.condast.commons.xml.*;
-import org.condast.symbiotic.core.transformer.*;
 import org.condast.symbiotic.core.filter.*;
 
 @SuppressWarnings("unused")

@@ -1,15 +1,21 @@
 package org.condast.wph.core.design;
 
-import java.util.Collection;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.condast.commons.number.NumberUtils;
 import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.def.INeighbourhood;
 import org.condast.symbiotic.core.def.ISymbiot;
-import org.condast.symbiotic.core.transformation.AbstractLinkedTransformation;
-import org.condast.symbiotic.core.transformation.AbstractModelTransformer;
+import org.condast.symbiotic.core.def.ITransformation;
+import org.condast.symbiotic.core.filter.ITransformFilter;
+import org.condast.symbiotic.core.transformer.AbstractBehavedTransformer;
+import org.condast.symbiotic.core.transformer.LinkedTransformation;
+import org.condast.symbiotic.core.transformer.FilteredTransformer;
 import org.condast.wph.core.def.IIntervalProcess;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
@@ -19,25 +25,28 @@ import org.condast.wph.core.message.MessageHandler;
 import org.condast.wph.core.message.MessageHandler.Parties;
 import org.condast.wph.core.model.Anchorage;
 
-public class TAnchorage extends AbstractLinkedTransformation<IShip, Boolean> 
-implements IIntervalProcess<IShip, Boolean>{
+public class TAnchorage extends LinkedTransformation<IShip, IShip>
+implements IIntervalProcess<IShip, IShip>{
 
 	private long interval;
-	
-	public TAnchorage( Anchorage anchorage, IBehaviour<IShip,Integer> behaviour, INeighbourhood<IShip, Boolean> outputNode) {
-		super( ModelTypes.ANCHORAGE.toString(), outputNode);
-		super.setTransformer( new TRAnchorage( anchorage, behaviour));
-	}
+	private Anchorage anchorage;
+	private TRAnchorage tanc;
+	private LinkedHashMap<Date, IShip> anchorTime;
 
-	@Override
-	protected void onOutputBlocked( Boolean output ) {
-		MessageHandler handler = MessageHandler.getInstance();
-		handler.sendMessage( Parties.PORTMASTER, "dock ship");
+	private Logger logger = Logger.getLogger( this.getClass().getName() );
+
+	public TAnchorage( Anchorage anchorage, IBehaviour<IShip,Integer> behaviour, INeighbourhood<IShip, IShip> outputNode) {
+		super( ModelTypes.ANCHORAGE.toString(), outputNode );
+		anchorTime = new LinkedHashMap<Date, IShip>();
+		tanc = new TRAnchorage( behaviour);
+		FilteredTransformer<IShip, IShip> ft = new FilteredTransformer<IShip, IShip>( tanc);
+		ft.addFilter( new LinkedFilter( tanc, outputNode ));
+		super.setTransformer( ft );
+		this.anchorage = anchorage;
 	}
 
 	public Anchorage getModel() {
-		TRAnchorage tanc = (TRAnchorage) getTransformer();
-		return (Anchorage)tanc.getModel();
+		return anchorage;
 	}
 
 	@Override
@@ -45,10 +54,35 @@ implements IIntervalProcess<IShip, Boolean>{
 		this.interval = interval;
 		super.transform();	
 	}
+	
+	private Date getSimulatedTime(){
+		Date current = Calendar.getInstance().getTime();
+		current.setTime( current.getTime() + interval );
+		return current;
+	}
 
-	private class TRAnchorage extends AbstractModelTransformer<Anchorage, IShip, Boolean, Integer>{
+	/**
+	 * Get the longest waiting time in minutes
+	 * @return
+	 */
+	public long getLongestWaitingTime( long interval ){
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis( calendar.getTimeInMillis() + interval );
+		if( anchorTime.isEmpty() )
+			return calendar.getTimeInMillis();
+		Map.Entry<Date, IShip> entry = anchorTime.entrySet().iterator().next();
+		long longest = entry.getKey().getTime();
+		long diff = calendar.getTimeInMillis() - longest;
+		return (long) ((float)diff/Anchorage.TO_MINUTES);
+	}
 
-		private Anchorage anchorage;
+	/**
+	 * The linked filter checks to see if the stress needs to be updated
+	 * @author Kees
+	 *
+	 */
+	private class LinkedFilter implements ITransformFilter< IShip, IShip>{
+
 		private boolean sendMessage;
 		private MessageHandler handler = MessageHandler.getInstance();
 		private IMessageListener listener = new IMessageListener() {
@@ -58,54 +92,81 @@ implements IIntervalProcess<IShip, Boolean>{
 				logger.info("Response " + event.getParty() + ": " + event.getResult());
 			}
 		};
-		
-		private Logger logger = Logger.getLogger( this.getClass().getName() );
 
-		public TRAnchorage( Anchorage anchorage, IBehaviour<IShip, Integer> behaviour ) {
-			super( anchorage, behaviour );
-			this.anchorage = anchorage;
+		public LinkedFilter( TRAnchorage transformer, ITransformation<IShip, ?> outputNode) {
 			handler.addMessageListener(listener);
+		}
+	
+		@Override
+		public boolean accept(IShip input) {
+			if( tanc.isEmpty()){
+				this.sendMessage = false;
+			}else{
+				float longest = (float)getLongestWaitingTime( interval );
+				if(( !this.sendMessage ) && ( longest > 1 )){
+					this.sendMessage = true;
+					handler.sendMessage( Parties.PORTMASTER, "dock ship");
+				}
+			}
+			return true;
+		}
+
+
+		@Override
+		public boolean acceptTransform(Iterator<IShip> inputs) {
+			return true;
+		}			
+	}
+
+	private class TRAnchorage extends AbstractBehavedTransformer<IShip, IShip, Integer>{
+
+		protected TRAnchorage( IBehaviour<IShip, Integer> behaviour) {
+			super(behaviour);
 		}
 
 		@Override
-		public boolean addInput( IShip ship ) {
-			boolean retval = super.addInput(ship);
-			this.anchorage.addShip( ship );
-			return retval;
+		public boolean addInput(IShip input) {
+			if( input == null )
+				return false;
+			anchorTime.put( getSimulatedTime(), input );
+			return super.addInput( input );
 		}
 
 		@Override
 		public boolean removeInput(IShip input) {
-			boolean retval = super.removeInput( input );
-			this.anchorage.removeShip( input );
-			return retval;
+			Iterator<Map.Entry<Date, IShip>> iterator = anchorTime.entrySet().iterator();
+			while( iterator.hasNext() ){
+				Map.Entry<Date, IShip> entry = iterator.next();
+				if( entry.getValue().equals( input ))
+					anchorTime.remove(entry.getKey());
+			}
+			return super.removeInput(input);
 		}
-
-		@Override
-		protected Boolean onTransform( Iterator<IShip> inputs) {
-			return !this.anchorage.isEmpty();
+		
+		public boolean isEmpty(){
+			return super.getInputs().isEmpty();
 		}
-
+	
 		@Override
-		protected void onUpdateStress( Iterator<IShip> inputs, ISymbiot symbiot) {
-			if( this.anchorage.isEmpty()){
+		protected void onUpdateStress(Iterator<IShip> inputs, ISymbiot symbiot) {
+			if( isEmpty()){
 				symbiot.clearStress();
-				this.sendMessage = false;
 			}
 			else{
-				float quotient = 60 * this.anchorage.getMaxWaitingTime();
-				float longest = (float)this.anchorage.getLongestWaitingTime( interval );
+				float quotient = 60 * anchorage.getMaxWaitingTime();//hours
+				float longest = (float)getLongestWaitingTime( interval );
 				symbiot.setStress(NumberUtils.clip(1, longest/quotient));
-				if( !this.sendMessage ){
-					this.sendMessage = true;
-					handler.sendMessage( Parties.PORTMASTER, "help");
-				}
 			}
 		}
 
 		@Override
-		public Collection<IShip> getInputs() {
-			return anchorage.getInputs();
+		protected IShip onTransform(Iterator<IShip> inputs) {
+			if( anchorTime.isEmpty())
+				return null;
+			//Linked hashmap preserves the moment of adding
+			Map.Entry<Date, IShip> entry = anchorTime.entrySet().iterator().next();
+			IShip ship = anchorTime.remove(entry.getKey() );
+			return ship;
 		}
 	}
 }
