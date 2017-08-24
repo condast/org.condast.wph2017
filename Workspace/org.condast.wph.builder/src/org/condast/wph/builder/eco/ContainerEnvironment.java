@@ -5,21 +5,20 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.condast.commons.thread.AbstractExecuteThread;
-import org.condast.symbiotic.core.collection.SymbiotCollection;
-import org.condast.symbiotic.core.def.ITransformation;
+import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.environment.EnvironmentEvent;
 import org.condast.symbiotic.core.environment.IEnvironmentListener;
 import org.condast.wph.builder.design.Journey;
-import org.condast.wph.builder.design.ModelProvider;
 import org.condast.wph.builder.design.ShipEntry;
+import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IContainerEnvironment;
 import org.condast.wph.core.definition.IJourney;
-import org.condast.wph.core.definition.IModel;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 
 public class ContainerEnvironment extends AbstractExecuteThread implements IContainerEnvironment {
@@ -55,12 +54,12 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		//this.shipentry.clear();
 		this.counter = 0;
 	}
-	
+		
 	@Override
-	public SymbiotCollection getSymbiots(){
+	public Map<IStakeHolder<?,?>,IBehaviour<?,?>> getModels(){
 		if( this.shipentry == null )
 			return null;
-		return this.shipentry.getSymbiots();
+		return this.shipentry.getModels();
 	}
 	
 	@Override
@@ -149,20 +148,17 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		return String.valueOf( formattedDate ) + " + " + getElapsedTime() + " min";	
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public ITransformation<?,Boolean> getTransformation( ModelTypes type ){
+	public IStakeHolder<?,?> getStakeHolder( ModelTypes type ){
 		if( shipentry == null )
 			return null;
-		return (ITransformation<?, Boolean>) shipentry.getTransformation(type);
+		for( IStakeHolder<?,?> trf: shipentry.getModels().keySet() ){
+			if( trf.getName().toLowerCase().contains( type.name().toLowerCase()))
+				return trf;
+		}
+		return null;
 	}
-	
-	@Override
-	public IModel<IModel.ModelTypes>[] getModels(){
-		ModelProvider provider = ModelProvider.getInstance();
-		return provider.getModels();
-	}
-	
+		
 	@Override
 	public synchronized IJourney[] getJourneys(){
 		lock.lock();

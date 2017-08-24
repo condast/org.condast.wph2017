@@ -4,10 +4,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import org.condast.symbiotic.core.IBehaviour;
-import org.condast.symbiotic.core.def.INeighbourhood;
 import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.def.ITransformation;
-import org.condast.symbiotic.core.transformer.AbstractBehavedTransformer;
+import org.condast.symbiotic.core.transformer.AbstractBehavedTransformerWrapper;
+import org.condast.symbiotic.core.transformer.AbstractProcessWrapper;
 import org.condast.symbiotic.core.transformer.LinkedTransformation;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IContainer;
@@ -31,44 +31,55 @@ public class TTerminal extends LinkedTransformation<IShip, IContainer> implement
 
 	private boolean sendPMMessage;
 	private boolean sendModMessage;
-	private IBehaviour<IShip,Integer> behaviour;
+	
 	private Terminal terminal;
+	private ProcessTransformation process;
 
-	public TTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour, INeighbourhood<IShip, IContainer> neighbourhood) {
-		super( ModelTypes.TERMINAL.toString(), (ITransformation<IContainer, ?>) neighbourhood );
-		super.setTransformer( new TRTerminal( terminal, behaviour));
-		this.behaviour = behaviour;
+	public TTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour, ITransformation<IContainer,IShip> outNode) {
+		super( ModelTypes.TERMINAL.toString(), (ITransformation<IContainer, ?>) outNode );
 		this.terminal = terminal;
+		this.process = new ProcessTransformation( terminal.getId(), this.terminal.getMaxDocks() );
+		super.setTransformer( new TRTerminal( terminal, behaviour));
 	}
 
 	public Terminal getModel() {
 		return terminal;
-	}
-
-	public IBehaviour<IShip, Integer> getBehaviour(){
-		return behaviour;
 	}
 	
 	public boolean allowNextShip(){
 		TRTerminal trt = (TRTerminal) super.getTransformer();
 		return trt.allowNextShip();
 	}
-		
+
 	@Override
-	public boolean isFull() {
-		// TODO Auto-generated method stub
-		return false;
+	public Date getFirstDueJob() {
+		return process.getFirstDueDate();
+	}
+
+	@Override
+	public int getJobSize() {
+		return super.getInputSize();
 	}
 
 	@Override
 	public int getCapacity() {
-		// TODO Auto-generated method stub
-		return 0;
+		return process.getCapacity();
 	}
 
 	@Override
-	public void next(long interval) {
-		super.transform();
+	public int getReaminingCapacity() {
+		return process.getCapacity() - super.getInputSize();
+	}
+
+	@Override
+	public boolean isFull() {
+		return super.getInputSize() >= process.getCapacity();
+	}
+
+	@Override
+	public void next( long time ) {
+		process.next(time);
+		IContainer result = super.transform();
 		this.sendModMessage = false;
 		this.sendPMMessage = false;
 		if(!this.sendModMessage){
@@ -82,32 +93,17 @@ public class TTerminal extends LinkedTransformation<IShip, IContainer> implement
 		}
 	}
 
-	public class TRTerminal extends AbstractBehavedTransformer<IShip, IContainer, Integer> implements ICapacityProcess<IShip, IContainer>{
+	public class TRTerminal extends AbstractBehavedTransformerWrapper<IShip, IContainer, Integer>{
 
 		private Terminal terminal;
-		private IntervalProcess<IShip> process;
 
 		public TRTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour ) {
-			super( behaviour);
+			super( process, behaviour);
 			this.terminal = terminal;
-			this.process = new IntervalProcess<IShip>();
 		}
 
-		@Override
-		public boolean addInput(IShip input) {
-			if( input == null )
-				return false;
-			return process.addInput(input, getJobCompletion( input ));
-		}
-
-		@Override
-		public boolean isFull() {
-			return getInputSize() >= terminal.getMaxDocks();
-		}
-
-		@Override
-		public int getCapacity() {
-			return terminal.getMaxDocks() - getInputSize();
+		protected Terminal getTerminal() {
+			return terminal;
 		}
 
 		public boolean allowNextShip(){
@@ -116,24 +112,20 @@ public class TTerminal extends LinkedTransformation<IShip, IContainer> implement
 			long firstJob = process.getFirstDueDate().getTime() - Calendar.getInstance().getTimeInMillis();
 			return( firstJob < slack );
 		}
-
+		
 		@Override
-		protected IContainer onTransform(Iterator<IShip> inputs) {
+		protected IContainer onTransform(Iterator<IShip> inputs, IContainer output) {
 			if( inputs == null )
 				return null;
-			while( inputs.hasNext() )
-				process.removeInput(inputs.next());
-			return null;
+			//while( inputs.hasNext() )
+			//	process.removeInput(inputs.next());
+			return output;
 		}
 
 		@Override
 		protected void onUpdateStress(Iterator<IShip> inputs, ISymbiot symbiot) {
-			if( this.isFull()){
-				symbiot.clearStress();
-			}
-			else{
-				symbiot.increaseStress();
-			}
+			float stress = getReaminingCapacity()/getCapacity();
+			symbiot.setStress(stress);
 		}
 		
 		protected Date getJobCompletion( IShip ship ){
@@ -142,6 +134,50 @@ public class TTerminal extends LinkedTransformation<IShip, IContainer> implement
 			current.setTime( current.getTime() + interval );
 			return current;
 		}
-
 	}
+	
+	private static class ProcessTransformation extends AbstractProcessWrapper<IShip, IContainer>{
+
+		protected ProcessTransformation( String name, int capacity) {
+			super( new IntervalProcess<IShip>( name, capacity));
+		}
+
+		@Override
+		public boolean addInput( IShip input ){
+			if( input == null )
+				return false;
+			boolean retval = getProcess().addInput(input, getJobcompletion(input));
+			if( retval )
+				super.addInput(input);
+			return retval;
+		}
+		
+		public Date getJobcompletion( IShip input ){
+			return IntervalProcess.getSimulatedTime( 3 * IntervalProcess.TO_HOURS );
+		}
+		
+		public IntervalProcess<IShip> getProcess(){
+			return (IntervalProcess<IShip>) super.getTransformer();
+		}
+		
+		public Date getFirstDueDate() {
+			return getProcess().getFirstDueDate();
+		}
+
+		public int getCapacity() {
+			return getProcess().getCapacity();
+		}
+
+		public void next( long time ){
+			getProcess().next(time);
+		}
+		
+		@Override
+		protected IContainer onTransform(Iterator<IShip> inputs) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	}
+
 }

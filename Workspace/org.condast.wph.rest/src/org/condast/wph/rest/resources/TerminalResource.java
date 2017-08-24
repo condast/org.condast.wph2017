@@ -31,7 +31,7 @@ public class TerminalResource{
 	@Path("/requestSlot")
 	public String requestSlot() {
 		IContainerEnvironment ce = dispatcher.getEnvironment();
-		TTerminal term= (TTerminal) ce.getTransformation( ModelTypes.TERMINAL );
+		TTerminal term= (TTerminal) ce.getStakeHolder( ModelTypes.TERMINAL ).getTransformation();
 		return term.allowNextShip()? "OK": "DENY";
 	}
 

@@ -9,7 +9,14 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import org.condast.commons.strings.StringStyler;
 import org.condast.commons.ui.player.PlayerImages;
@@ -20,8 +27,14 @@ import org.condast.commons.ui.session.SessionEvent;
 import org.condast.commons.ui.widgets.AbstractButtonBar;
 import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
+import org.condast.symbiotic.core.IBehaviour;
+import org.condast.symbiotic.core.def.IStressListener;
+import org.condast.symbiotic.core.def.ITransformation;
+import org.condast.symbiotic.core.def.StressEvent;
 import org.condast.symbiotic.core.environment.EnvironmentEvent;
 import org.condast.symbiotic.core.environment.IEnvironmentListener;
+import org.condast.wph.core.def.ICapacityProcess;
+import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IContainerEnvironment;
 import org.condast.wph.ui.rest.RestController;
 import org.condast.wph.ui.rest.RestController.Pages;
@@ -37,17 +50,7 @@ import org.eclipse.swt.custom.CTabItem;
 public class WPHFrontend extends Composite {
 	private static final long serialVersionUID = 1L;
 
-	private IEvaluationListener<Object[]> listener;
-	private ModelTableViewer modelViewer;
-	private JourneyTableViewer journeyViewer;
-	private Browser browser;
-	private GeoCoderController controller; 
-	private RestController restController; 
-	private SymbiotGroup sg;
-	private PlayerComposite<IContainerEnvironment> buttonbar;
-	private Label timeLabel;
-		
-	private IContainerEnvironment ce;
+	public static final String S_WRN_DISPOSE = "The front end is disposed. This may leed to unexpected behaviour";
 	
 	private enum Tabs{
 		OVERVIEW,
@@ -60,6 +63,20 @@ public class WPHFrontend extends Composite {
 			return StringStyler.prettyString( super.toString());
 		}
 	}
+
+	private IEvaluationListener<Object[]> listener;
+	private ModelTableViewer modelViewer;
+	private JourneyTableViewer journeyViewer;
+	private Browser browser;
+	private GeoCoderController controller; 
+	private RestController restController; 
+	//private SymbiotGroup sg;
+	private PlayerComposite<IContainerEnvironment> buttonbar;
+	private Label timeLabel;
+	private Composite body;
+		
+	private IContainerEnvironment ce;
+	private Logger logger = Logger.getLogger( this.getClass().getName() );
 	
 	private IEnvironmentListener elistener = new IEnvironmentListener() {
 		
@@ -122,7 +139,8 @@ public class WPHFrontend extends Composite {
 					restController.setBrowser( Pages.INDEX );
 					break;
 				case SYMBIOT:
-					sg.redraw();
+					//sg.redraw();
+					break;
 				default:
 					break;
 				}
@@ -160,10 +178,11 @@ public class WPHFrontend extends Composite {
 		CTabItem tbtmSymbiotItem = new CTabItem(tabFolder, SWT.NONE);
 		tbtmSymbiotItem.setText( Tabs.SYMBIOT.toString());
 		tbtmSymbiotItem.setData( Tabs.SYMBIOT);
-		sg = new SymbiotGroup(tabFolder, SWT.BORDER);
-		sg.setText( Tabs.SYMBIOT.toString());
-		sg.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
-		tbtmSymbiotItem.setControl( sg);	
+		body = new Composite( tabFolder, SWT.BORDER );
+		// TODO sg = new SymbiotGroup(tabFolder, SWT.BORDER);
+		//sg.setText( Tabs.SYMBIOT.toString());
+		//sg.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
+		tbtmSymbiotItem.setControl( body);	
 
 		tabFolder.setSelection(Tabs.SYMBIOT.ordinal());
 		
@@ -186,16 +205,25 @@ public class WPHFrontend extends Composite {
 	public void setupFrontEnd(){
 		ce.addListener( elistener);
 		buttonbar.setInput( ce );
-		
-		modelViewer.setInput(ce.getModels());
 		setTime();
 		session.start();
 	}
-	
-	public IContainerEnvironment getInput(){
-		return this.ce;
+		
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected void setModels( Map<IStakeHolder<?,?>,IBehaviour<?,?>> input ){
+		for( Control child: body.getChildren() )
+			child.dispose();
+		body.setLayout(new GridLayout( input.size(), true ));
+		CapacityTransformationGroup tg = null;
+		List<IStakeHolder<?,?>> shs = new ArrayList<IStakeHolder<?,?>>( input.keySet());
+		Collections.sort( shs, new StakeHolderComparator());
+		for( IStakeHolder<?,?> stake: shs ){
+			tg = new CapacityTransformationGroup( body, SWT.TOP );
+			tg.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ));
+			tg.setInput((ICapacityProcess) stake.getTransformation(), input.get( stake ));
+		}
 	}
-	
+
 	protected void setTime(){
 		timeLabel.setText( ce.getSimulatedTime());	
 	}
@@ -218,11 +246,68 @@ public class WPHFrontend extends Composite {
 	}
 	@Override
 	public void dispose(){
+		logger.warning( S_WRN_DISPOSE);
 		ce.removeListener( elistener);
 		session.stop();
 		session.removeSessionListener(sessionListener);
 	}
 	
+	private class TransformationGroup<I,O extends Object> extends AbstractTransformationGroup<I,O, ITransformation<I,O>>{
+		private static final long serialVersionUID = 1L;
+				
+		private SymbiotGroup sg;
+
+		private IStressListener listener = new IStressListener() {
+
+			@Override
+			public void notifyStressChanged(StressEvent event) {
+				try{
+					if( getDisplay().isDisposed())
+						return;
+					getDisplay().asyncExec( new Runnable(){
+
+						@Override
+						public void run() {
+							body.layout();
+							session.refresh();
+						}
+					});
+					refresh();
+				}
+				catch( Exception ex ){
+					ex.printStackTrace();
+				}
+			}
+		};
+
+		protected TransformationGroup(Composite parent, int style) {
+			super(parent, style);
+			sg = new SymbiotGroup(this, SWT.NONE);
+			sg.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ));
+		}
+
+		@Override
+		protected void setupDashboard(Composite dashBoard, int style) {
+			super.setupDashboard(dashBoard, style);
+		}
+		
+		@Override
+		protected void onSetInput(ITransformation<I, O> transformation) {
+			super.onSetInput(transformation);
+			IBehaviour<?,?> behaviour = ce.getModels().get( transformation );
+			behaviour.addStressListener(listener);
+			sg.setInput( behaviour);
+			
+		}
+
+		@Override
+		protected Integer[] onPlotValues(ITransformation<I, O> input) {
+			Collection<Integer> values = new ArrayList<Integer>();
+			values.add( input.getInputSize());
+			return values.toArray( new Integer[ values.size() ]);
+		}
+	}
+		
 	private class EvaluationListener implements IEvaluationListener<Object[]>{
 
 		@Override
@@ -265,7 +350,7 @@ public class WPHFrontend extends Composite {
 			Button button = new Button( this, SWT.FLAT );
 			switch( type ){
 			case STOP:
-				button.setEnabled(false);
+				button.setEnabled(( ce != null ) && ce.isRunning());
 				break;
 			default:
 				break;
@@ -281,7 +366,8 @@ public class WPHFrontend extends Composite {
 					switch( image ){
 					case START:
 						ce.start();
-						sg.setInput(ce.getSymbiots());
+						setModels( ce.getModels());
+						//setInput(ce.getBehaviour());
 						getButton( PlayerImages.Images.STOP).setEnabled(true);
 						button.setEnabled(false);
 						break;
@@ -305,5 +391,17 @@ public class WPHFrontend extends Composite {
 			button.setImage( PlayerImages.getInstance().getImage(type));
 			return button;
 		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private class StakeHolderComparator<S extends IStakeHolder> implements Comparator<S>{
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public int compare(S o1, S o2) {
+			return o1.compareTo( o2);
+		}
+
+		
 	}
 }

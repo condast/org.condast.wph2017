@@ -1,10 +1,11 @@
 package org.condast.wph.core.definition;
 
 import java.util.Date;
+import java.util.Map;
 
-import org.condast.symbiotic.core.collection.SymbiotCollection;
-import org.condast.symbiotic.core.def.ITransformation;
+import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.environment.IEnvironmentListener;
+import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 
 public interface IContainerEnvironment {
@@ -27,11 +28,14 @@ public interface IContainerEnvironment {
 
 	IJourney[] getJourneys();
 
-	IModel<ModelTypes>[] getModels();
+	public Map<IStakeHolder<?,?>,IBehaviour<?,?>> getModels();
 
-	ITransformation<?, ?> getTransformation(ModelTypes type);
-
-	SymbiotCollection getSymbiots();
+	/**
+	 * Get a specific model
+	 * @param type
+	 * @return
+	 */
+	public IStakeHolder<?, ?> getStakeHolder(ModelTypes type);
 
 	/**
 	 * Get the time that has passed in minutes
@@ -51,5 +55,4 @@ public interface IContainerEnvironment {
 	 * @return
 	 */
 	public String getSimulatedTime();
-
 }

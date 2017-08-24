@@ -3,14 +3,12 @@ package org.condast.wph.builder.design;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.condast.commons.latlng.LatLng;
 import org.condast.symbiotic.core.DefaultBehaviour;
 import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
-import org.condast.symbiotic.core.def.INeighbourhood;
 import org.condast.symbiotic.core.def.ITransformation;
 import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.transformation.ITransformListener;
@@ -19,24 +17,31 @@ import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IContainer;
 import org.condast.wph.core.def.IIntervalProcess;
 import org.condast.wph.core.def.IShip;
+import org.condast.wph.core.def.IStakeHolder;
+import org.condast.wph.core.definition.IModel;
 import org.condast.wph.core.definition.IModel.ModelTypes;
-import org.condast.wph.core.design.CapacityNeighbourhood;
+import org.condast.wph.core.design.CapacityTransformation;
+import org.condast.wph.core.design.MultiCapacityTransformation;
 import org.condast.wph.core.design.TAnchorage;
 import org.condast.wph.core.design.TTerminal;
 import org.condast.wph.core.model.Anchorage;
+import org.condast.wph.core.model.Modality;
 import org.condast.wph.core.model.Ship;
+import org.condast.wph.core.model.StakeHolder;
 import org.condast.wph.core.model.Terminal;
+import org.condast.wph.core.model.WaterWay;
 
 public class ShipEntry {
 	
 	public static final int DEFAULT_INTERVAL = 3*60*1000; //3 min
 	
 	private SymbiotCollection symbiots;
-	private Map<ModelTypes, IIntervalProcess<?,?>> models;
+	private Map<IStakeHolder<?,?>,IBehaviour<?,?>> models;
 	
-	private List<IIntervalProcess<?,?>> chain;
 	private int index;
 	private int interval;
+	
+	private TAnchorage tanch;
 
 	private Collection<ITransformListener<IShip>> listeners;
 	
@@ -51,9 +56,8 @@ public class ShipEntry {
 
 	public ShipEntry( Environment environment) {
 		this.symbiots = new SymbiotCollection();
-		this.models = new HashMap<ModelTypes, IIntervalProcess<?,?>>();
+		this.models = new HashMap<IStakeHolder<?,?>,IBehaviour<?,?>>();
 		
-		chain = new ArrayList<IIntervalProcess<?,?>>();
 		this.index = 0;
 		this.interval = DEFAULT_INTERVAL;
 		this.listeners = new ArrayList<ITransformListener<IShip>>();
@@ -63,69 +67,41 @@ public class ShipEntry {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void createDependencies(){
 		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
+		String name = "Modalities";
+		IModel<IModel.ModelTypes> model =  new Modality( name, ModelTypes.LOGISTICS, new LatLng(4.5f, 51.8f));
+		IStakeHolder<IContainer, IShip> mod = (IStakeHolder<IContainer, IShip>) 
+				setupTransformation( model, behaviour, new MultiCapacityTransformation( name ));
 		
-		String name = "APM-T";
-		IIntervalProcess<IShip, IContainer> term = (IIntervalProcess<IShip, IContainer>) 
-				setupTransformation(ModelTypes.TERMINAL, name, behaviour, (ITransformation<?, ?>) new TTerminal( new Terminal( name, new LatLng(4.2f, 51.8f), 3), behaviour, null));
-
+		name = "APM-T";
+		model =  new Terminal( name, new LatLng(4.2f, 51.8f), 3);
+		IStakeHolder<IShip, IContainer> term = (IStakeHolder<IShip, IContainer>) 
+				setupTransformation( model, behaviour, new TTerminal( (Terminal) model, behaviour, (ITransformation<IContainer, IShip>) mod.getTransformation()));
+		
+		name = "Nieuwe Maas";
+		model = new WaterWay(name, ModelTypes.PORT_AUTHORITY, new LatLng(4.3f, 51.8f));
 		behaviour = new DefaultBehaviour<>(5);
-		INeighbourhood<IShip, IShip> neighbourhood = new CapacityNeighbourhood<IShip>("Nieuwe Maas", behaviour, (ICapacityProcess) term );
-		symbiots.add( createId(ModelTypes.PORT_AUTHORITY, name), behaviour);
-		chain.add((IIntervalProcess<?, ?>) neighbourhood);
+		IStakeHolder<IShip, IShip> waterway = 
+				(IStakeHolder<IShip, IShip>) setupTransformation( model, behaviour, new CapacityTransformation<IShip>(name, behaviour, (ICapacityProcess) term.getTransformation() ));
 
 		name = "Hoek van Holland";
 		behaviour = new DefaultBehaviour<>(5);
-		ITransformation<IShip, IShip> anch = 
-				(ITransformation<IShip, IShip>) setupTransformation(ModelTypes.ANCHORAGE, name, behaviour, new TAnchorage( new Anchorage( name, new LatLng(4.2f, 51.8f), 3), behaviour, neighbourhood ));
-		anch.addTransformationListener(listener);	
+		model = new Anchorage( name, new LatLng(4.2f, 51.8f), 3 );
+		tanch = new TAnchorage(( Anchorage )model, behaviour, (ITransformation<IShip, IShip>) waterway.getTransformation() );
+		tanch.addTransformationListener(listener);	
+		setupTransformation( model, behaviour, tanch);
 	}
 
-	private IIntervalProcess<?, ?> setupTransformation( ModelTypes type, String name, IBehaviour<IShip, Integer> behaviour, ITransformation<?,?> transformation ){
-		symbiots.add( createId(type, name), behaviour);
-		IIntervalProcess<?, ?> term = (IIntervalProcess<?, ?>) transformation;
-		models.put(type, term );
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private IStakeHolder<?, ?> setupTransformation( IModel model, IBehaviour<IShip, Integer> behaviour, IIntervalProcess<?,?> transformation ){
+		symbiots.add( createId( (ModelTypes) model.getType(), model.getId()), behaviour);
+		IStakeHolder<?, ?> term = new StakeHolder(  transformation, (ModelTypes) model.getType(), model.getLnglat() );
+		models.put(term, behaviour );
 		return term;
 	}
 
-	/*
-	private int createJourney( ISymbiot<?,?> shipagent, Environment environment, int index, boolean destination){
-		transport = create( IModel.ModelTypes.LOGISTICS );
-		chain.add( transport );
-		environment.addNeighbourhood(shipagent, transport, new Neighbourhood( index ));
-		index = getIndex( destination, index);
-		ISymbiot<?,?> terminal = create( IModel.ModelTypes.TERMINAL );
-		chain.add( terminal );
-		environment.addNeighbourhood(transport, terminal, new Neighbourhood( index ));
-		index = getIndex( destination, index);
-		ISymbiot<?,?> shipowner = create( IModel.ModelTypes.SHIP_OWNER );
-		chain.add( shipowner );
-		environment.addNeighbourhood(terminal, shipowner, new Neighbourhood( index ));
-		index = getIndex( destination, index);
-		ISymbiot<?,?> port = create( IModel.ModelTypes.PORT_AUTHORITY );
-		chain.add( port );
-		environment.addNeighbourhood(shipowner, port, new Neighbourhood( index ));
-		index = getIndex( destination, index);
-		ISymbiot<?,?> tug = create( IModel.ModelTypes.TUG_BOAT );
-		chain.add( tug );
-		environment.addNeighbourhood(port, tug, new Neighbourhood( index ));
-		index = getIndex( destination, index);
-		ISymbiot<?,?> pilot = create( IModel.ModelTypes.PILOT );
-		chain.add( pilot );
-		environment.addNeighbourhood(port, pilot, new Neighbourhood( index ));
-		return getIndex( destination, index);
-	}
-	*/
-	
-	public ITransformation<?,?> getTransformation( ModelTypes type ){
-		return (ITransformation<?, ?>) models.get( type );
-	}
-
-	/**
-	 * Get the collection of symbiots
-	 * @return
-	 */
-	public SymbiotCollection getSymbiots() {
-		return symbiots;
+			
+	public Map<IStakeHolder<?,?>,IBehaviour<?,?>> getModels(){
+		return this.models;
 	}
 
 	public void addTransformListener( ITransformListener<IShip> listener ){
@@ -141,14 +117,12 @@ public class ShipEntry {
 	}
 	
 	public void next(){
-		TAnchorage tanch = (TAnchorage) models.get(ModelTypes.ANCHORAGE );
 		tanch.addInput( new Ship());
 		long time = index*interval;
 		index++;
-		for( IIntervalProcess<?,?> trf: models.values() )
-			trf.next(time);
-		for(IIntervalProcess<?,?> neighbourhood: chain )
-			neighbourhood.next(time);
+		for( IStakeHolder<?,?> stakeholder: models.keySet() ){
+			stakeholder.next(time);
+		}
 	}
 	
 	
@@ -159,69 +133,4 @@ public class ShipEntry {
 	private String createId( ModelTypes type, String name ){
 		return type.toString() + ": " + name;
 	}
-	
-/*
-	private static class ShipNeighbourhood extends AbstractNeighbourhood< Boolean, IShip>{
-
-		private Map<IShip,Date> nodes;
-		private boolean block;
-
-		protected ShipNeighbourhood( String name, ITransformation<IShip, Boolean> inNode, ITransformation<IShip, Boolean>outNode) {
-			super(name, inNode, outNode );
-			this.block = false;
-			nodes = new HashMap<IShip, Date>();
-		}
-
-		private boolean isBlocked() {
-			return block;
-		}
-		
-		@Override
-		public boolean addInput(IShip input) {
-			if( isBlocked())
-				return false;
-			Date current = Calendar.getInstance().getTime();
-			current.setTime( current.getTime() + input.getAverageTransportTime());
-			nodes.put( input, current);
-			return super.addInput(input);
-		}
-
-
-		@Override
-		public Boolean transform() {
-			Iterator<Map.Entry<IShip,Date>> iterator = nodes.entrySet().iterator();
-			Date current = Calendar.getInstance().getTime();
-			while( iterator.hasNext() ){
-				Map.Entry<IShip,Date> entry = iterator.next();
-				if( entry.getValue().getTime() <= current.getTime() ){
-					super.transform();
-				}
-				
-			}
-			return false;
-		}
-	}
-	
-		
-		@Override
-		public void next(int interval) {
-
-			switch( neighbourhood.getType() ){
-			case OUT:
-				if( ShipNeighbourhood.Types.OUT.equals( neighbourhood.getType() ) && 
-						neighbourhood.isBlocked() ){
-					//MESSAGE
-				}else
-					super.transform();
-				break;
-			default:
-				if( neighbourhood.isEmpty()){
-					if( super.i)
-					//MESSAGE
-				}
-				break;
-			}
-			
-	}
-	*/
 }

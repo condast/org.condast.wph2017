@@ -5,7 +5,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.condast.symbiotic.core.def.ITransformation;
+import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.rest.service.Dispatcher;
 
@@ -28,13 +28,12 @@ public class AnchorageResource{
 		super();
 	}
 	
-	@SuppressWarnings("unchecked")
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/amount")
 	public String requestSlot() {
-		ITransformation<?,Boolean> anch = (ITransformation<?, Boolean>) dispatcher.getEnvironment().getTransformation( ModelTypes.ANCHORAGE );
-		int size = ( anch == null)? 0: anch.getInputSize();
+		IStakeHolder<?,?> anch = dispatcher.getEnvironment().getStakeHolder( ModelTypes.ANCHORAGE );
+		int size = ( anch == null)? 0: anch.getTransformation().getInputSize();
 		return "Number of Ships: " + size ;
 	}
 

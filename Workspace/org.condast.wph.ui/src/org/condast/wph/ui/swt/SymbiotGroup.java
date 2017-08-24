@@ -1,11 +1,8 @@
 package org.condast.wph.ui.swt;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger;
-
 import org.condast.commons.number.NumberUtils;
-import org.condast.symbiotic.core.collection.SymbiotCollection;
+import org.condast.commons.ui.swt.AbstractAxis;
+import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.def.IStressListener;
 import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.def.StressEvent;
@@ -13,28 +10,30 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 
 public class SymbiotGroup extends Group {
 	private static final long serialVersionUID = 1L;
 
-	private SymbiotCollection symbiots;
-	private Map<ISymbiot, StressCanvas> canvases;
 	private int[] current;
-	
+
+
+	private Label stress;
+	private Label behaviour;
+	private Label transformation;
+	private StressCanvas stressCanvas;
+
 	private IStressListener listener = new IStressListener() {
-		
+
 		@Override
 		public void notifyStressChanged(StressEvent event) {
 			try{
 				ISymbiot symbiot = (ISymbiot) event.getSource();
 				Integer[] values = new Integer[2];
-				StressCanvas stressCanvas = canvases.get( symbiot );
 				values[0] = (int)((float)stressCanvas.getRange() * symbiot.getStress());
 				values[1] = 0;
 				stressCanvas.addInput(values);
@@ -45,63 +44,54 @@ public class SymbiotGroup extends Group {
 			}
 		}
 	};
-	
-	private Logger logger = Logger.getLogger( this.getClass().getName() );
-	
-	/**
-	 * Create the composite.
-	 * @param parent
-	 * @param style
-	 */
-	public SymbiotGroup(Composite parent, int style) {
+
+	protected SymbiotGroup(Composite parent, int style) {
 		super(parent, style);
-		canvases = new HashMap<ISymbiot, StressCanvas>();
-		createGroup( parent, style );
+		setLayout( new GridLayout(2,false));
+		Label stressLabel = new Label( this, SWT.NONE );
+		stressLabel.setText("Stress:" );
+		stressLabel.setLayoutData( new GridData( SWT.FILL, SWT.FILL, false, false ));
+		stress = new Label( this, SWT.BORDER );
+		stress.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, false ));
+
+		Label behaviourLabel = new Label( this, SWT.NONE );
+		behaviourLabel.setText("Behaviour:" );
+		behaviourLabel.setLayoutData( new GridData( SWT.FILL, SWT.FILL, false, false ));
+		behaviour = new Label( this, SWT.BORDER );
+		behaviour.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, false ));		
+
+		Label transformationLabel = new Label( this, SWT.NONE );
+		transformationLabel.setText("Transformation:" );
+		transformationLabel.setLayoutData( new GridData( SWT.FILL, SWT.FILL, false, false ));
+		transformation = new Label( this, SWT.BORDER );
+		transformation.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, false ));
+
+		stressCanvas = new StressCanvas(this, SWT.NONE);
+		stressCanvas.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true,2, 1 ));
 	}
 
-	private void createGroup(Composite parent, int style) {
-		setLayout( new GridLayout(1,false));
+	public void setInput( IBehaviour<?,?> behaviour ){
+		super.setText( behaviour.getId());
+		this.behaviour.setText( String.valueOf( behaviour.getRange()));
+		this.transformation.setText( String.valueOf( behaviour.getOutput().toString()));
+
+		ISymbiot symbiot = behaviour.getOwner();
+		symbiot.addStressListener(listener);
+		this.stress.setText( String.valueOf( symbiot.getStress() ));
+		stressCanvas.setInput(symbiot);
 	}
 
-	public ISymbiot[] getInput(){
-		return symbiots.toArray( new ISymbiot[ symbiots.size()]);
-	}
-	
-	public void setInput( SymbiotCollection symbiots) {
-		this.symbiots = symbiots;
-		this.symbiots.addStressListener(listener);
-		setLayout( new GridLayout(symbiots.size(),true));
-		for( Control control: getChildren() )
-			control.dispose();
-		for( ISymbiot symbiot: symbiots ){
-			Group group = new Group( this, SWT.BORDER );
-			group.setText( symbiot.getId());
-			group.setLayout( new FillLayout() );
-			group.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
-			StressCanvas stressCanvas = new StressCanvas(group, SWT.NONE);
-			canvases.put(symbiot, stressCanvas);
-			stressCanvas.setInput(symbiot);
-		}
-		refresh();
-	}
-
-	@Override
-	protected void checkSubclass() {
-		// Disable the check that prevents subclassing of SWT components
-	}
-
-	public void refresh() {
+	public void refresh(){
 		if( getDisplay().isDisposed() )
 			return;
 		getDisplay().asyncExec( new Runnable(){
 
 			@Override
 			public void run() {
-				for( StressCanvas canvas: canvases.values())
-					canvas.refresh();
-				redraw();
-				layout(true);
-			}	
+				stressCanvas.refresh();
+				layout();
+			}
+
 		});
 	}
 
@@ -115,16 +105,16 @@ public class SymbiotGroup extends Group {
 
 		private ISymbiot symbiot;
 		private Color temp;
-		
+
 		protected StressCanvas(Composite parent, int style) {
 			super(parent, style);
 		}
-		
+
 		private void setInput( ISymbiot symbiot ){
 			this.symbiot = symbiot;
 			this.symbiot.addStressListener(listener);
 		}
-		
+
 		@Override
 		protected void onDrawStart(GC gc) {
 			temp = getForeground();
@@ -162,14 +152,14 @@ public class SymbiotGroup extends Group {
 			current[0] = value[0];
 			current[1] = value[1];
 		}
-		
+
 		/**
 		 * Plot the Y coordinate
 		 * @param value
 		 * @return
 		 */
 		protected int plotY( int halfY, int value ){
-			return halfY * (1 - NumberUtils.clip( super.getRange(), value )/super.getRange());
+			return (int)( halfY * (1 - (float)NumberUtils.clip( super.getRange(), value )/super.getRange()));
 		}
 	}
 }

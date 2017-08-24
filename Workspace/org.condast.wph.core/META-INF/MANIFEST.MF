@@ -5,14 +5,14 @@ Bundle-SymbolicName: org.condast.wph.core;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Condast
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.condast.commons.http,
+Import-Package: org.condast.commons,
+ org.condast.commons.http,
  org.condast.commons.i18n,
  org.condast.commons.latlng,
  org.condast.commons.number,
  org.condast.commons.strings,
  org.condast.commons.xml,
  org.condast.symbiotic.core,
- org.condast.symbiotic.core.collection,
  org.condast.symbiotic.core.def,
  org.condast.symbiotic.core.environment,
  org.condast.symbiotic.core.filter,
