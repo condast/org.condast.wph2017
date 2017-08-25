@@ -1,9 +1,11 @@
 package org.condast.wph.core.definition;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
-import org.condast.symbiotic.core.IBehaviour;
+import org.condast.symbiotic.core.def.IBehaviour;
+import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.environment.IEnvironmentListener;
 import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IModel.ModelTypes;
@@ -27,6 +29,12 @@ public interface IContainerEnvironment {
 	public boolean isPaused();
 
 	IJourney[] getJourneys();
+
+	/**
+	 * Get the symbiots
+	 * @return
+	 */
+	public Collection<ISymbiot> getSymbiots();
 
 	public Map<IStakeHolder<?,?>,IBehaviour<?,?>> getModels();
 

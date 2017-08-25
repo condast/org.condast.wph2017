@@ -2,11 +2,20 @@ package org.condast.wph.core.def;
 
 import java.util.Date;
 
-public interface IContainer extends ITransport{
+import org.condast.commons.latlng.LatLng;
 
-	/**
-	 * Get the date when the cargo is due
-	 * @return
-	 */
-	public Date getDueDate();
+public interface IContainer {
+
+	String getTag();
+
+	Date getDeparture();
+
+	Date getETA();
+
+	LatLng getLngLat();
+
+	void setLnglat(LatLng lnglat);
+	
+	public Date getTimeStamp();
+
 }

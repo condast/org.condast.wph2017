@@ -2,7 +2,7 @@ package org.condast.wph.ui.swt;
 
 import org.condast.commons.number.NumberUtils;
 import org.condast.commons.ui.swt.AbstractAxis;
-import org.condast.symbiotic.core.IBehaviour;
+import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.IStressListener;
 import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.def.StressEvent;

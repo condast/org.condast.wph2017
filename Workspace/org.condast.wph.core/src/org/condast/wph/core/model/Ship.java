@@ -1,72 +1,77 @@
 package org.condast.wph.core.model;
 
+import java.util.Date;
+
 import org.condast.commons.latlng.LatLng;
 import org.condast.wph.core.def.IEventLocation;
 import org.condast.wph.core.def.IShip;
 
 public class Ship implements IShip {
 
+	private Date timeStamp;
+	private int length;
+	private int containerSize;
+	private int containers;
+	private float speed;
+	
 	public Ship() {
-		// TODO Auto-generated constructor stub
+		this( 0 );
+	}
+
+	public Ship( long time ) {
+		timeStamp = IntervalProcess.getSimulatedTime(time);
+		this.length = 20 + ( int )( 300* Math.random());
+		this.containerSize = 20 + ( int )( this.length * Math.random());
+		this.containers = 20 + ( int )(( this.containerSize - 20)* Math.random());
 	}
 
 	@Override
 	public int getLength() {
-		// TODO Auto-generated method stub
-		return 0;
+		return length;
 	}
 
 	@Override
 	public int getMaxContainerSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.containerSize;
 	}
 
 	@Override
 	public float getSpeed() {
-		// TODO Auto-generated method stub
-		return 0;
+		return speed;
 	}
 
 	@Override
 	public IEventLocation getATD() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public IEventLocation getETA() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public LatLng getLocation() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public VesselType getVesselType() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public int getNrOfContainers() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.containers;
 	}
 
 	@Override
 	public float getDraught() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -76,4 +81,10 @@ public class Ship implements IShip {
 		return 0;
 	}
 
+	@Override
+	public Date getTimeStamp() {
+		return this.timeStamp;
+	}
+
+	
 }

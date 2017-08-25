@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.condast.symbiotic.core.IBehaviour;
+import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.transformation.Transformation;
 import org.condast.symbiotic.core.transformer.AbstractTransformer;

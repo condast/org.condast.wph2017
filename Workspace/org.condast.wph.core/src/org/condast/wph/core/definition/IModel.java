@@ -18,7 +18,10 @@ public interface IModel<E extends Enum<E>> {
 		PORT_AUTHORITY,
 		SHIP_OWNER,
 		LOGISTICS,
-		SUPPLIER;
+		SUPPLIER, 
+		TRUCK, 
+		BARGE, 
+		TRAIN;
 		
 		public String getImage(){
 			IGoogleMapsImages.MarkerImages image = IGoogleMapsImages.MarkerImages.RED;

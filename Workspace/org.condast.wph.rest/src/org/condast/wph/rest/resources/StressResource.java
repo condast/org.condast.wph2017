@@ -8,8 +8,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.condast.symbiotic.core.collection.SymbiotCollection;
+import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.wph.core.definition.IContainerEnvironment;
-import org.condast.wph.core.definition.IModel;
 import org.condast.wph.rest.service.Dispatcher;
 
 import com.google.gson.Gson;
@@ -26,11 +27,25 @@ public class StressResource{
 	public String getStress() {
 		IContainerEnvironment ce = dispatcher.getEnvironment();
 		Gson gson = new Gson();
-		//Map<String, Float> stress = ce.getSymbiots().getCumultatedStress();
-		//String result = 
-		Map<String, Float> stress = new HashMap<String, Float>();
-		for( IModel.ModelTypes type: IModel.ModelTypes.values() )	
-			stress.put(type.toString(), (float)Math.random());
-		return "Stress: " + gson.toJson( stress );
+		SymbiotCollection symbiots = (SymbiotCollection) ce.getSymbiots();
+		Map<String, Float> stress = ( symbiots == null )? new HashMap<String, Float>(): symbiots.getCumultatedStress();
+		for( ISymbiot symbiot: symbiots )	
+			stress.put( symbiot.getId(), symbiot.getStress() );
+		return gson.toJson( stress );
 	}
+
+	// This method is called if TEXT_PLAIN is request
+	@GET
+	@Path("/weights")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getWeights() {
+		IContainerEnvironment ce = dispatcher.getEnvironment();
+		Gson gson = new Gson();
+		SymbiotCollection symbiots = (SymbiotCollection) ce.getSymbiots();
+		Map<String, Float> weights = ( symbiots == null )? new HashMap<String, Float>(): symbiots.getCumultatedStress();
+		for( ISymbiot symbiot: symbiots )	
+			weights.put( symbiot.getId(), symbiot.getStress() );
+		return gson.toJson( weights );
+	}
+
 }

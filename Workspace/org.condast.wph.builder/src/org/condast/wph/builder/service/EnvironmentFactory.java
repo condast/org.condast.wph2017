@@ -8,15 +8,15 @@ import org.osgi.service.component.annotations.Component;
 @Component
 public class EnvironmentFactory implements IEnvironmentFactory{
 
+	IContainerEnvironment ce = new ContainerEnvironment();
 	
 	public EnvironmentFactory() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public IContainerEnvironment createEnvironment() {
-		return new ContainerEnvironment();
+		return ce;
 	}
 
 }

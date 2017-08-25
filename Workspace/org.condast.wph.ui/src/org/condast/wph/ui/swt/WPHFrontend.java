@@ -27,7 +27,7 @@ import org.condast.commons.ui.session.SessionEvent;
 import org.condast.commons.ui.widgets.AbstractButtonBar;
 import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
-import org.condast.symbiotic.core.IBehaviour;
+import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.IStressListener;
 import org.condast.symbiotic.core.def.ITransformation;
 import org.condast.symbiotic.core.def.StressEvent;
@@ -216,7 +216,7 @@ public class WPHFrontend extends Composite {
 		body.setLayout(new GridLayout( input.size(), true ));
 		CapacityTransformationGroup tg = null;
 		List<IStakeHolder<?,?>> shs = new ArrayList<IStakeHolder<?,?>>( input.keySet());
-		Collections.sort( shs, new StakeHolderComparator());
+		//Collections.sort( shs, new StakeHolderComparator());
 		for( IStakeHolder<?,?> stake: shs ){
 			tg = new CapacityTransformationGroup( body, SWT.TOP );
 			tg.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ));

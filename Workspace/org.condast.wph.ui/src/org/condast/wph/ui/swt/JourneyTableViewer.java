@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Table;
 import java.text.SimpleDateFormat;
 
 import org.condast.commons.strings.StringStyler;
-import org.condast.wph.core.definition.IContainer;
+import org.condast.wph.core.def.IContainer;
 import org.condast.wph.core.definition.IJourney;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;

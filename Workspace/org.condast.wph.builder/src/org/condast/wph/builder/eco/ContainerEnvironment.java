@@ -10,7 +10,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.condast.commons.thread.AbstractExecuteThread;
-import org.condast.symbiotic.core.IBehaviour;
+import org.condast.symbiotic.core.collection.SymbiotCollection;
+import org.condast.symbiotic.core.def.IBehaviour;
+import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.environment.EnvironmentEvent;
 import org.condast.symbiotic.core.environment.IEnvironmentListener;
@@ -35,6 +37,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 	private ShipEntry shipentry;
 	private int interval;
 	private Date startDate;
+	private SymbiotCollection symbiots;
 
 	public ContainerEnvironment() {
 		this( INTERVAL );
@@ -54,7 +57,12 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		//this.shipentry.clear();
 		this.counter = 0;
 	}
-		
+	
+	@Override
+	public Collection<ISymbiot> getSymbiots() {
+		return symbiots;
+	}
+
 	@Override
 	public Map<IStakeHolder<?,?>,IBehaviour<?,?>> getModels(){
 		if( this.shipentry == null )
@@ -103,7 +111,8 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		}
 		*/
 		this.clear();
-		shipentry = new ShipEntry( environment );
+		this.symbiots =new SymbiotCollection();
+		shipentry = new ShipEntry( environment, symbiots );
 		notifyChangeEvent( new EnvironmentEvent( this ));
 		return true;
 	}

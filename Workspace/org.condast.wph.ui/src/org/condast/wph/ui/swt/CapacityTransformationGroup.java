@@ -1,7 +1,7 @@
 package org.condast.wph.ui.swt;
 
 import org.condast.commons.ui.date.DateUtils;
-import org.condast.symbiotic.core.IBehaviour;
+import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.IStressListener;
 import org.condast.symbiotic.core.def.StressEvent;
 import org.condast.wph.core.def.ICapacityProcess;

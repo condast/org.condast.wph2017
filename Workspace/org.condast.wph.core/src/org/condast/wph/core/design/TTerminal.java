@@ -1,14 +1,21 @@
 package org.condast.wph.core.design;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
-import org.condast.symbiotic.core.IBehaviour;
+import java.util.Map;
+
+import org.condast.commons.number.NumberUtils;
+import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
-import org.condast.symbiotic.core.def.ITransformation;
+import org.condast.symbiotic.core.transformation.ITransformListener;
+import org.condast.symbiotic.core.transformation.TransformEvent;
+import org.condast.symbiotic.core.transformation.Transformation;
 import org.condast.symbiotic.core.transformer.AbstractBehavedTransformerWrapper;
 import org.condast.symbiotic.core.transformer.AbstractProcessWrapper;
-import org.condast.symbiotic.core.transformer.LinkedTransformation;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IContainer;
 import org.condast.wph.core.def.IIntervalProcess;
@@ -16,10 +23,11 @@ import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.message.MessageHandler;
 import org.condast.wph.core.message.MessageHandler.Parties;
+import org.condast.wph.core.model.Container;
 import org.condast.wph.core.model.IntervalProcess;
 import org.condast.wph.core.model.Terminal;
 
-public class TTerminal extends LinkedTransformation<IShip, IContainer> implements ICapacityProcess<IShip, IContainer>,
+public class TTerminal extends Transformation<IShip, IContainer> implements ICapacityProcess<IShip, IContainer>,
 	IIntervalProcess<IShip, IContainer>{
 
 	public enum Strategies{
@@ -34,9 +42,9 @@ public class TTerminal extends LinkedTransformation<IShip, IContainer> implement
 	
 	private Terminal terminal;
 	private ProcessTransformation process;
-
-	public TTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour, ITransformation<IContainer,IShip> outNode) {
-		super( ModelTypes.TERMINAL.toString(), (ITransformation<IContainer, ?>) outNode );
+	
+	public TTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour ) {
+		super( ModelTypes.TERMINAL.toString() );
 		this.terminal = terminal;
 		this.process = new ProcessTransformation( terminal.getId(), this.terminal.getMaxDocks() );
 		super.setTransformer( new TRTerminal( terminal, behaviour));
@@ -75,6 +83,18 @@ public class TTerminal extends LinkedTransformation<IShip, IContainer> implement
 	public boolean isFull() {
 		return super.getInputSize() >= process.getCapacity();
 	}
+	
+	@Override
+	protected void onHandleOutput(ITransformListener<IContainer> listener, TransformEvent<IContainer> event) {
+		if( event.accept ){
+			Collection<IShip> temp = new ArrayList<IShip>( super.getInput());
+			for( IShip input: temp ){
+				//for( )
+				super.removeInput( input );
+			}
+		}
+		super.onHandleOutput(listener, event);
+	}
 
 	@Override
 	public void next( long time ) {
@@ -96,10 +116,12 @@ public class TTerminal extends LinkedTransformation<IShip, IContainer> implement
 	public class TRTerminal extends AbstractBehavedTransformerWrapper<IShip, IContainer, Integer>{
 
 		private Terminal terminal;
+		private Map<IShip, Integer> buffer;
 
 		public TRTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour ) {
 			super( process, behaviour);
 			this.terminal = terminal;
+			buffer = new HashMap<IShip, Integer>();
 		}
 
 		protected Terminal getTerminal() {
@@ -113,13 +135,33 @@ public class TTerminal extends LinkedTransformation<IShip, IContainer> implement
 			return( firstJob < slack );
 		}
 		
+		
+		@Override
+		public boolean addInput(IShip input) {
+			if( input == null )
+				return false;
+			buffer.put(input, input.getNrOfContainers());
+			return super.addInput(input);
+		}
+
 		@Override
 		protected IContainer onTransform(Iterator<IShip> inputs, IContainer output) {
 			if( inputs == null )
 				return null;
-			//while( inputs.hasNext() )
-			//	process.removeInput(inputs.next());
-			return output;
+			IShip ship = null;
+			int remaining= 0;
+			while( inputs.hasNext() ){
+				ship = inputs.next();
+				if( buffer.get( ship ) != null )
+					remaining = buffer.get( ship );
+				break;
+			}
+			buffer.replace(ship, remaining-- );
+			if( remaining == 0 )
+				removeInput(ship );
+			String tag = ship.getName() + ": " + remaining;
+			Date date = Calendar.getInstance().getTime();
+			return new Container( tag, ship.getTimeStamp(), date, date );
 		}
 
 		@Override

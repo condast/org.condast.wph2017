@@ -7,9 +7,10 @@ import java.util.Map;
 
 import org.condast.commons.latlng.LatLng;
 import org.condast.symbiotic.core.DefaultBehaviour;
-import org.condast.symbiotic.core.IBehaviour;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
+import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ITransformation;
+import org.condast.symbiotic.core.ecosystem.AbstractLinkedNeighbourhood;
 import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.transformation.ITransformListener;
 import org.condast.symbiotic.core.transformation.TransformEvent;
@@ -21,7 +22,6 @@ import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IModel;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.design.CapacityTransformation;
-import org.condast.wph.core.design.MultiCapacityTransformation;
 import org.condast.wph.core.design.TAnchorage;
 import org.condast.wph.core.design.TTerminal;
 import org.condast.wph.core.model.Anchorage;
@@ -54,8 +54,8 @@ public class ShipEntry {
 		}
 	};
 
-	public ShipEntry( Environment environment) {
-		this.symbiots = new SymbiotCollection();
+	public ShipEntry( Environment environment, SymbiotCollection symbiots) {
+		this.symbiots = symbiots;
 		this.models = new HashMap<IStakeHolder<?,?>,IBehaviour<?,?>>();
 		
 		this.index = 0;
@@ -66,29 +66,89 @@ public class ShipEntry {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void createDependencies(){
+		
 		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
-		String name = "Modalities";
-		IModel<IModel.ModelTypes> model =  new Modality( name, ModelTypes.LOGISTICS, new LatLng(4.5f, 51.8f));
-		IStakeHolder<IContainer, IShip> mod = (IStakeHolder<IContainer, IShip>) 
-				setupTransformation( model, behaviour, new MultiCapacityTransformation( name ));
-		
-		name = "APM-T";
-		model =  new Terminal( name, new LatLng(4.2f, 51.8f), 3);
-		IStakeHolder<IShip, IContainer> term = (IStakeHolder<IShip, IContainer>) 
-				setupTransformation( model, behaviour, new TTerminal( (Terminal) model, behaviour, (ITransformation<IContainer, IShip>) mod.getTransformation()));
-		
+
+		String name = "Hoek van Holland";
+		behaviour = new DefaultBehaviour<>(5);
+		IModel<IModel.ModelTypes> model = new Anchorage( name, new LatLng(4.2f, 51.8f), 3 );
+		tanch = new TAnchorage(( Anchorage )model, behaviour );
+		tanch.addTransformationListener(listener);	
+		setupTransformation( model, behaviour, tanch);
+
 		name = "Nieuwe Maas";
 		model = new WaterWay(name, ModelTypes.PORT_AUTHORITY, new LatLng(4.3f, 51.8f));
 		behaviour = new DefaultBehaviour<>(5);
 		IStakeHolder<IShip, IShip> waterway = 
-				(IStakeHolder<IShip, IShip>) setupTransformation( model, behaviour, new CapacityTransformation<IShip>(name, behaviour, (ICapacityProcess) term.getTransformation() ));
+				(IStakeHolder<IShip, IShip>) setupTransformation( model, behaviour, new CapacityTransformation<IShip>(name, behaviour ));
 
-		name = "Hoek van Holland";
+		AbstractLinkedNeighbourhood<IShip,IShip> entryNeighbourhood = new AbstractLinkedNeighbourhood<IShip, IShip>(){
+
+	
+			@Override
+			protected void onChange(ITransformation<IShip, ?> transformation, TransformEvent<IShip> event) {
+				ICapacityProcess<IShip,IShip> outNode = (ICapacityProcess<IShip, IShip>) transformation;
+				boolean accept = event.isAccept()? true: outNode.addInput(event.getOutput()) ;
+				event.setAccept( accept);
+			}			
+		};
+		entryNeighbourhood.addTransformation( waterway.getTransformation());
+		tanch.addTransformationListener(entryNeighbourhood );
+
+		name = "APM-T";
+		model =  new Terminal( name, new LatLng(4.2f, 51.8f), 3);
 		behaviour = new DefaultBehaviour<>(5);
-		model = new Anchorage( name, new LatLng(4.2f, 51.8f), 3 );
-		tanch = new TAnchorage(( Anchorage )model, behaviour, (ITransformation<IShip, IShip>) waterway.getTransformation() );
-		tanch.addTransformationListener(listener);	
-		setupTransformation( model, behaviour, tanch);
+		IStakeHolder<IShip, IContainer> term = (IStakeHolder<IShip, IContainer>) 
+				setupTransformation( model, behaviour, new TTerminal( (Terminal) model, behaviour ));
+
+		AbstractLinkedNeighbourhood<IShip, IShip> dockNeighbourhood = new AbstractLinkedNeighbourhood<IShip, IShip>(){
+			
+			@Override
+			protected void onChange(ITransformation<IShip, ?> transformation, TransformEvent<IShip> event) {
+				ICapacityProcess<IShip,IShip> outNode = (ICapacityProcess<IShip, IShip>) transformation;
+				boolean accept = event.isAccept()? true: outNode.addInput(event.getOutput()) ;
+				event.setAccept( accept);
+			}
+			
+		};
+		dockNeighbourhood.addTransformation( term.getTransformation() );
+		waterway.getTransformation().addTransformationListener(dockNeighbourhood );
+		
+		AbstractLinkedNeighbourhood<IContainer, IShip> terminalNeighbourhood = new AbstractLinkedNeighbourhood(){
+	
+			@Override
+			protected void onChange(ITransformation transformation, TransformEvent event) {
+				ICapacityProcess<IShip,IShip> outNode = (ICapacityProcess<IShip, IShip>) transformation;
+				boolean accept = true;// event.isAccept()? true: outNode.addInput(event.getOutput()) ;
+				event.setAccept( accept);
+			}			
+		};
+		term.getTransformation().addTransformationListener( terminalNeighbourhood );
+
+		name = "DB Schenker";
+		behaviour = new DefaultBehaviour<>(5);
+		model =  new Modality( name, ModelTypes.TRUCK, new LatLng(4.5f, 51.8f));
+		CapacityTransformation<IShip> ct = new CapacityTransformation( name, 1, 20, behaviour );//20 containers per hour
+		IStakeHolder<IContainer, IShip> mod = (IStakeHolder<IContainer, IShip>) 
+				setupTransformation( model, behaviour, ct);
+		terminalNeighbourhood.addTransformation(ct);
+
+		name = "NedCargo";
+		behaviour = new DefaultBehaviour<>(5);
+		model =  new Modality( name, ModelTypes.BARGE, new LatLng(4.5f, 51.8f));
+		ct = new CapacityTransformation( name, 1, 40, behaviour );//40 containers per hour
+		mod = (IStakeHolder<IContainer, IShip>) 
+				setupTransformation( model, behaviour, ct);
+		terminalNeighbourhood.addTransformation(ct);
+
+		name = "NS Cargo";
+		behaviour = new DefaultBehaviour<>(5);
+		model =  new Modality( name, ModelTypes.TRAIN, new LatLng(4.5f, 51.8f));
+		ct = new CapacityTransformation( name, 1, 200, behaviour ); //200 containersv per hour
+		mod = (IStakeHolder<IContainer, IShip>) 
+				setupTransformation( model, behaviour, ct);
+		terminalNeighbourhood.addTransformation(ct);
+
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -117,9 +177,9 @@ public class ShipEntry {
 	}
 	
 	public void next(){
-		tanch.addInput( new Ship());
 		long time = index*interval;
-		index++;
+		tanch.addInput( new Ship( time ));
+			index++;
 		for( IStakeHolder<?,?> stakeholder: models.keySet() ){
 			stakeholder.next(time);
 		}

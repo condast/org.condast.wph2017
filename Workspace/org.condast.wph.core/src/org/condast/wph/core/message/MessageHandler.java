@@ -45,7 +45,7 @@ public class MessageHandler {
 	private Collection<IMessageListener> listeners;
 	private boolean enabled;
 
-	private static MessageHandler handler = new MessageHandler( false );
+	private static MessageHandler handler = new MessageHandler( true );
 	
 	private MessageHandler( boolean enabled ) {
 		super();
