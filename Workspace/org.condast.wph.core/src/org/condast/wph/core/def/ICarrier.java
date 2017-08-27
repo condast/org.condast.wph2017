@@ -1,5 +1,7 @@
 package org.condast.wph.core.def;
 
+import java.util.Date;
+
 public interface ICarrier extends ITransport {
 
 	public enum Modality{
@@ -28,4 +30,11 @@ public interface ICarrier extends ITransport {
 	 * @return
 	 */
 	public int getMaxContainerSize();
+	
+	/**
+	 * Get the time that the ship is created
+	 * @return
+	 */
+	public Date getTimeStamp();
+
 }

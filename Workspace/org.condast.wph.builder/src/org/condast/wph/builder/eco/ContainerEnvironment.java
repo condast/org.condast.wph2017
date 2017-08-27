@@ -22,6 +22,7 @@ import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IContainerEnvironment;
 import org.condast.wph.core.definition.IJourney;
 import org.condast.wph.core.definition.IModel.ModelTypes;
+import org.condast.wph.core.model.Statistics;
 
 public class ContainerEnvironment extends AbstractExecuteThread implements IContainerEnvironment {
 
@@ -64,7 +65,12 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 	}
 
 	@Override
-	public Map<IStakeHolder<?,?>,IBehaviour<?,?>> getModels(){
+	public Statistics getStatistics() {
+		return this.shipentry.getStatistics();
+	}
+
+	@Override
+	public Map<IStakeHolder<?,?>,IBehaviour> getModels(){
 		if( this.shipentry == null )
 			return null;
 		return this.shipentry.getModels();

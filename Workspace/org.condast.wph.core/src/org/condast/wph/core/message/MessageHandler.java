@@ -37,15 +37,19 @@ public class MessageHandler {
 			}
 			return null;
 		}
-
 	}
 
+	public enum Messages{
+		OK,
+		DENY;
+	}
+	
 	private ExecutorService service;
 	private String path;
 	private Collection<IMessageListener> listeners;
 	private boolean enabled;
 
-	private static MessageHandler handler = new MessageHandler( true );
+	private static MessageHandler handler = new MessageHandler( false );
 	
 	private MessageHandler( boolean enabled ) {
 		super();

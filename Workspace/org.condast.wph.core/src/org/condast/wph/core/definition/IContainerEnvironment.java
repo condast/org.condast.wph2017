@@ -9,6 +9,7 @@ import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.environment.IEnvironmentListener;
 import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IModel.ModelTypes;
+import org.condast.wph.core.model.Statistics;
 
 public interface IContainerEnvironment {
 
@@ -36,7 +37,7 @@ public interface IContainerEnvironment {
 	 */
 	public Collection<ISymbiot> getSymbiots();
 
-	public Map<IStakeHolder<?,?>,IBehaviour<?,?>> getModels();
+	public Map<IStakeHolder<?,?>,IBehaviour> getModels();
 
 	/**
 	 * Get a specific model
@@ -63,4 +64,6 @@ public interface IContainerEnvironment {
 	 * @return
 	 */
 	public String getSimulatedTime();
+
+	Statistics getStatistics();
 }

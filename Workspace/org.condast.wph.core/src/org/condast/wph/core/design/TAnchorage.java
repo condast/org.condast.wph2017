@@ -7,24 +7,19 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.condast.commons.number.NumberUtils;
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
-import org.condast.symbiotic.core.filter.ITransformFilter;
 import org.condast.symbiotic.core.transformation.ITransformListener;
 import org.condast.symbiotic.core.transformation.TransformEvent;
 import org.condast.symbiotic.core.transformation.Transformation;
 import org.condast.symbiotic.core.transformer.AbstractBehavedTransformer;
-import org.condast.symbiotic.core.transformer.FilteredTransformer;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IIntervalProcess;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
-import org.condast.wph.core.message.IMessageListener;
-import org.condast.wph.core.message.MessageEvent;
-import org.condast.wph.core.message.MessageHandler;
+import org.condast.wph.core.message.MessageController;
 import org.condast.wph.core.message.MessageHandler.Parties;
 import org.condast.wph.core.model.Anchorage;
 import org.condast.wph.core.model.IntervalProcess;
@@ -36,21 +31,23 @@ implements IIntervalProcess<IShip, IShip>, ICapacityProcess<IShip, IShip>{
 	private Anchorage anchorage;
 	private TRAnchorage tanc;
 	private LinkedHashMap<Date, IShip> anchorTime;
+	private MessageController mc;
 
-	private Logger logger = Logger.getLogger( this.getClass().getName() );
-
-	public TAnchorage( Anchorage anchorage, IBehaviour<IShip,Integer> behaviour) {
+	public TAnchorage( Anchorage anchorage, IBehaviour behaviour) {
 		super( ModelTypes.ANCHORAGE.toString() );
+		this.mc = new MessageController(behaviour);
 		anchorTime = new LinkedHashMap<Date, IShip>();
 		tanc = new TRAnchorage( behaviour);
-		FilteredTransformer<IShip, IShip> ft = new FilteredTransformer<IShip, IShip>( tanc);
-		ft.addFilter( new LinkedFilter( tanc ));
-		super.setTransformer( ft );
+		super.setTransformer( tanc );
 		this.anchorage = anchorage;
 	}
 
 	public Anchorage getModel() {
 		return anchorage;
+	}
+
+	public MessageController getMessageController() {
+		return mc;
 	}
 
 	@Override
@@ -60,10 +57,14 @@ implements IIntervalProcess<IShip, IShip>, ICapacityProcess<IShip, IShip>{
 	}
 	
 	
+	//Handle the throughput to the next node
 	@Override
 	protected void onHandleOutput(ITransformListener<IShip> listener, TransformEvent<IShip> event) {
 		if( event.isAccept() )
 			removeInput(event.getOutput());
+		else{
+			mc.sendMessage(Parties.TERMINAL, "dockEarly");
+		}
 		super.onHandleOutput(listener, event);
 	}
 
@@ -85,48 +86,6 @@ implements IIntervalProcess<IShip, IShip>, ICapacityProcess<IShip, IShip>{
 		long longest = entry.getKey().getTime();
 		long diff = calendar.getTimeInMillis() - longest;
 		return (long) ((float)diff/Anchorage.TO_MINUTES);
-	}
-
-	/**
-	 * The linked filter checks to see if the stress needs to be updated
-	 * @author Kees
-	 *
-	 */
-	private class LinkedFilter implements ITransformFilter< IShip, IShip>{
-
-		private boolean sendMessage;
-		private MessageHandler handler = MessageHandler.getInstance();
-		private IMessageListener listener = new IMessageListener() {
-
-			@Override
-			public void notifyMessageReceived(MessageEvent event) {
-				logger.info("Response " + event.getParty() + ": " + event.getResult());
-			}
-		};
-
-		public LinkedFilter( TRAnchorage transformer) {
-			handler.addMessageListener(listener);
-		}
-	
-		@Override
-		public boolean accept(IShip input) {
-			if( tanc.isEmpty()){
-				this.sendMessage = false;
-			}else{
-				float longest = (float)getLongestWaitingTime( interval );
-				if(( !this.sendMessage ) && ( longest > 1 )){
-					this.sendMessage = true;
-					handler.sendMessage( Parties.PORTMASTER, "dock ship");
-				}
-			}
-			return true;
-		}
-
-
-		@Override
-		public boolean acceptTransform(Iterator<IShip> inputs) {
-			return true;
-		}			
 	}
 
 	@Override
@@ -152,9 +111,9 @@ implements IIntervalProcess<IShip, IShip>, ICapacityProcess<IShip, IShip>{
 		return Integer.MAX_VALUE;
 	}
 
-	private class TRAnchorage extends AbstractBehavedTransformer<IShip, IShip, Integer>{
+	private class TRAnchorage extends AbstractBehavedTransformer<IShip, IShip>{
 
-		protected TRAnchorage( IBehaviour<IShip, Integer> behaviour) {
+		protected TRAnchorage( IBehaviour behaviour) {
 			super(behaviour);
 		}
 

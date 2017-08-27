@@ -24,6 +24,7 @@ Import-Package: org.condast.commons,
 Export-Package: org.condast.wph.core.def,
  org.condast.wph.core.definition,
  org.condast.wph.core.design,
+ org.condast.wph.core.message,
  org.condast.wph.core.model,
  org.condast.wph.core.xml
 Bundle-ActivationPolicy: lazy

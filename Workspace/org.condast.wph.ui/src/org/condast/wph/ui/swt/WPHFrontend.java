@@ -11,8 +11,6 @@ import org.eclipse.swt.events.SelectionEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -210,7 +208,7 @@ public class WPHFrontend extends Composite {
 	}
 		
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void setModels( Map<IStakeHolder<?,?>,IBehaviour<?,?>> input ){
+	protected void setModels( Map<IStakeHolder<?,?>,IBehaviour> input ){
 		for( Control child: body.getChildren() )
 			child.dispose();
 		body.setLayout(new GridLayout( input.size(), true ));
@@ -294,7 +292,7 @@ public class WPHFrontend extends Composite {
 		@Override
 		protected void onSetInput(ITransformation<I, O> transformation) {
 			super.onSetInput(transformation);
-			IBehaviour<?,?> behaviour = ce.getModels().get( transformation );
+			IBehaviour behaviour = ce.getModels().get( transformation );
 			behaviour.addStressListener(listener);
 			sg.setInput( behaviour);
 			
@@ -391,17 +389,5 @@ public class WPHFrontend extends Composite {
 			button.setImage( PlayerImages.getInstance().getImage(type));
 			return button;
 		}
-	}
-	
-	@SuppressWarnings("rawtypes")
-	private class StakeHolderComparator<S extends IStakeHolder> implements Comparator<S>{
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public int compare(S o1, S o2) {
-			return o1.compareTo( o2);
-		}
-
-		
 	}
 }

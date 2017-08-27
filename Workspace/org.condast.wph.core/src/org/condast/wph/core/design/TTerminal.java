@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.condast.commons.number.NumberUtils;
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.transformation.ITransformListener;
@@ -21,7 +20,7 @@ import org.condast.wph.core.def.IContainer;
 import org.condast.wph.core.def.IIntervalProcess;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
-import org.condast.wph.core.message.MessageHandler;
+import org.condast.wph.core.message.MessageController;
 import org.condast.wph.core.message.MessageHandler.Parties;
 import org.condast.wph.core.model.Container;
 import org.condast.wph.core.model.IntervalProcess;
@@ -35,18 +34,15 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 		ALLOW_DELAY
 	}
 
-	private MessageHandler handler = MessageHandler.getInstance();
-
-	private boolean sendPMMessage;
-	private boolean sendModMessage;
-	
 	private Terminal terminal;
 	private ProcessTransformation process;
+	private MessageController mc;
 	
-	public TTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour ) {
+	public TTerminal( Terminal terminal, IBehaviour behaviour ) {
 		super( ModelTypes.TERMINAL.toString() );
 		this.terminal = terminal;
 		this.process = new ProcessTransformation( terminal.getId(), this.terminal.getMaxDocks() );
+		mc = new MessageController( behaviour );
 		super.setTransformer( new TRTerminal( terminal, behaviour));
 	}
 
@@ -54,6 +50,10 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 		return terminal;
 	}
 	
+	public MessageController getMessageController() {
+		return mc;
+	}
+
 	public boolean allowNextShip(){
 		TRTerminal trt = (TRTerminal) super.getTransformer();
 		return trt.allowNextShip();
@@ -99,26 +99,15 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 	@Override
 	public void next( long time ) {
 		process.next(time);
-		IContainer result = super.transform();
-		this.sendModMessage = false;
-		this.sendPMMessage = false;
-		if(!this.sendModMessage){
-			handler.sendMessage( Parties.PORTMASTER, "help");				
-		}
-		if( !this.sendModMessage ){
-			this.sendModMessage = true;
-			handler.sendMessage( Parties.TRAIN, "help");
-			handler.sendMessage( Parties.TRUCK, "help");
-			handler.sendMessage( Parties.BARGE, "help");
-		}
+		super.transform();
 	}
 
-	public class TRTerminal extends AbstractBehavedTransformerWrapper<IShip, IContainer, Integer>{
+	public class TRTerminal extends AbstractBehavedTransformerWrapper<IShip, IContainer>{
 
 		private Terminal terminal;
 		private Map<IShip, Integer> buffer;
 
-		public TRTerminal( Terminal terminal, IBehaviour<IShip,Integer> behaviour ) {
+		public TRTerminal( Terminal terminal, IBehaviour behaviour ) {
 			super( process, behaviour);
 			this.terminal = terminal;
 			buffer = new HashMap<IShip, Integer>();
@@ -126,24 +115,34 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 
 		protected Terminal getTerminal() {
 			return terminal;
-		}
+		}		
 
 		public boolean allowNextShip(){
-			IBehaviour<IShip,Integer> behaviour = super.getBehaviour();
-			int slack = behaviour.getOutput() * 15;//minutes
+			IBehaviour behaviour = super.getBehaviour();
+			int slack = behaviour.getValue() * 15;//minutes
 			long firstJob = process.getFirstDueDate().getTime() - Calendar.getInstance().getTimeInMillis();
 			return( firstJob < slack );
 		}
-		
 		
 		@Override
 		public boolean addInput(IShip input) {
 			if( input == null )
 				return false;
-			buffer.put(input, input.getNrOfContainers());
+			if( !buffer.containsKey(input)){
+				buffer.put(input, input.getNrOfContainers());
+				mc.sendMessage( Parties.BARGE, "transport");
+				mc.sendMessage( Parties.TRAIN, "transport");
+				mc.sendMessage( Parties.TRUCK, "transport");
+			}
 			return super.addInput(input);
 		}
-
+		
+		@Override
+		public boolean removeInput(IShip input) {
+			buffer.remove(input);
+			return super.removeInput(input);
+		}
+		
 		@Override
 		protected IContainer onTransform(Iterator<IShip> inputs, IContainer output) {
 			if( inputs == null )
@@ -156,7 +155,8 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 					remaining = buffer.get( ship );
 				break;
 			}
-			buffer.replace(ship, remaining-- );
+			remaining -=1;
+			buffer.replace(ship, remaining );
 			if( remaining == 0 )
 				removeInput(ship );
 			String tag = ship.getName() + ": " + remaining;

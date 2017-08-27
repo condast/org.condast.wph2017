@@ -41,7 +41,7 @@ public class CapacityTransformationGroup<I,O extends Object> extends AbstractTra
 	private Label capacity;
 	private Label dueDate;
 
-	private IBehaviour<?,?> behaviour;
+	private IBehaviour behaviour;
 
 	public CapacityTransformationGroup(Composite parent, int style) {
 		super(parent, style);
@@ -72,11 +72,11 @@ public class CapacityTransformationGroup<I,O extends Object> extends AbstractTra
 		super.setupDashboard(dashBoard, style);
 	}
 
-	protected IBehaviour<?, ?> getBehaviour() {
+	protected IBehaviour getBehaviour() {
 		return behaviour;
 	}
 
-	public void setInput( ICapacityProcess<I,O> input, IBehaviour<I,O> behaviour ){
+	public void setInput( ICapacityProcess<I,O> input, IBehaviour behaviour ){
 		super.setInput(input);
 		this.behaviour = behaviour;
 		behaviour.addStressListener(listener);

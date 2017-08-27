@@ -1,5 +1,6 @@
 package org.condast.wph.rest.resources;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,14 +16,14 @@ import org.condast.wph.rest.service.Dispatcher;
 
 import com.google.gson.Gson;
 
-@Path("/stress")
-public class StressResource{
+@Path("/overview")
+public class OverviewResource{
 
 	private Dispatcher dispatcher = Dispatcher.getInstance();
 	
 	// This method is called if TEXT_PLAIN is request
 	@GET
-	@Path("/overview")
+	@Path("/stress")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getStress() {
 		IContainerEnvironment ce = dispatcher.getEnvironment();
@@ -48,4 +49,14 @@ public class StressResource{
 		return gson.toJson( weights );
 	}
 
+	// This method is called if TEXT_PLAIN is request
+	@GET
+	@Path("/throughput")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getThroughput() {
+		IContainerEnvironment ce = dispatcher.getEnvironment();
+		Gson gson = new Gson();
+		Collection<Integer> throughput = ce.getStatistics().getThroughput();
+		return gson.toJson( throughput );
+	}
 }

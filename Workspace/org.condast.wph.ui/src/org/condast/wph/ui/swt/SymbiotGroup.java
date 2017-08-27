@@ -70,10 +70,10 @@ public class SymbiotGroup extends Group {
 		stressCanvas.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true,2, 1 ));
 	}
 
-	public void setInput( IBehaviour<?,?> behaviour ){
+	public void setInput( IBehaviour behaviour ){
 		super.setText( behaviour.getId());
 		this.behaviour.setText( String.valueOf( behaviour.getRange()));
-		this.transformation.setText( String.valueOf( behaviour.getOutput().toString()));
+		this.transformation.setText( String.valueOf( behaviour.getValue()));
 
 		ISymbiot symbiot = behaviour.getOwner();
 		symbiot.addStressListener(listener);

@@ -6,14 +6,14 @@ import javax.ws.rs.ApplicationPath;
 import org.condast.commons.http.AbstractServletWrapper;
 import org.condast.wph.rest.resources.AnchorageResource;
 import org.condast.wph.rest.resources.ControlResource;
-import org.condast.wph.rest.resources.StressResource;
+import org.condast.wph.rest.resources.OverviewResource;
 import org.condast.wph.rest.resources.TerminalResource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 public class RestServlet extends AbstractServletWrapper {
 
-	public static final String S_CONTEXT_PATH = "rest";
+	public static final String S_CONTEXT_PATH = "wph";
 	
 	public RestServlet() {
 		super( S_CONTEXT_PATH );
@@ -32,7 +32,7 @@ public class RestServlet extends AbstractServletWrapper {
 		//in equinox the scanning of packages may not work
 		private RestApplication() {
 			register( ControlResource.class );
-			register( StressResource.class );
+			register( OverviewResource.class );
 			register( TerminalResource.class );
 			register( AnchorageResource.class );
 		}

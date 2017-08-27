@@ -17,6 +17,7 @@ public class Container implements IContainer {
 		this.tag = tag;
 		this.departure = departure;
 		this.eta = eta;
+		this.timeStamp = timeStamp;
 	}
 
 	@Override

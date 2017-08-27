@@ -21,15 +21,15 @@ implements IIntervalProcess<I,I>, ICapacityProcess<I,I>
 	private IntervalProcess<I> process;
 	private int travelTime;
 
-	public CapacityTransformation(String name, IBehaviour<I,Integer> behaviour) {
+	public CapacityTransformation(String name, IBehaviour behaviour) {
 		this( name, DEFAULT_BUFFER_SIZE, DEFAULT_TRAVEL_TIME, behaviour );
 	}
 	
-	public CapacityTransformation(String name, int capacity, int travelTime, IBehaviour<I,Integer> behaviour) {
+	public CapacityTransformation(String name, int capacity, int travelTime, IBehaviour behaviour) {
 		super(name);
 		this.travelTime = travelTime;
 		this.process = new IntervalProcess<I>( name, capacity );
-		super.setTransformer( new TRNeighbourhood(behaviour) );
+		super.setTransformer( new TRCapacity(behaviour) );
 	}
 	
 	private int getActiveJobs(){
@@ -80,9 +80,9 @@ implements IIntervalProcess<I,I>, ICapacityProcess<I,I>
 		return process.getCapacity();
 	}
 
-	private class TRNeighbourhood extends AbstractBehavedTransformerWrapper<I, I, Integer>{
+	private class TRCapacity extends AbstractBehavedTransformerWrapper<I, I>{
 
-		protected TRNeighbourhood( IBehaviour<I, Integer> behaviour) {
+		protected TRCapacity( IBehaviour behaviour) {
 			super(process, behaviour);
 		}
 

@@ -1,6 +1,8 @@
 package org.condast.wph.rest.service;
 
+import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IContainerEnvironment;
+import org.condast.wph.core.definition.IModel.ModelTypes;
 
 public class Dispatcher {
 
@@ -22,7 +24,10 @@ public class Dispatcher {
 		return cenv;
 	}
 
-	public void dispose(){
+	public IStakeHolder<?,?> getStakeholder( ModelTypes type ) {
+		return cenv.getStakeHolder(type);
 	}
 
+	public void dispose(){
+	}
 }

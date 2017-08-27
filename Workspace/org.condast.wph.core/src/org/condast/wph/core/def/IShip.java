@@ -1,7 +1,5 @@
 package org.condast.wph.core.def;
 
-import java.util.Date;
-
 public interface IShip extends ICarrier{
 	
 	public enum VesselType{
@@ -33,11 +31,4 @@ public interface IShip extends ICarrier{
 	 * Temporary measure..eventually will be dependent on the warterway
 	 */
 	public long getAverageTransportTime();
-	
-	/**
-	 * Get the time that the ship is created
-	 * @return
-	 */
-	public Date getTimeStamp();
-
 }

@@ -3,6 +3,7 @@ package org.condast.wph.rest.resources;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.condast.wph.core.definition.IContainerEnvironment;
@@ -29,10 +30,10 @@ public class TerminalResource{
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/requestSlot")
-	public String requestSlot() {
-		IContainerEnvironment ce = dispatcher.getEnvironment();
-		TTerminal term= (TTerminal) ce.getStakeHolder( ModelTypes.TERMINAL ).getTransformation();
-		return term.allowNextShip()? "OK": "DENY";
+	public String requestSlot(@QueryParam("party") String party) {
+		TTerminal term= (TTerminal) dispatcher.getStakeholder( ModelTypes.TERMINAL ).getTransformation();
+		boolean result = term.getMessageController().sendMessage(party, "request Slot");
+		return result? "OK": "DENY";
 	}
 
 	// This method is called if XML is request
@@ -42,4 +43,14 @@ public class TerminalResource{
 	public String requestLater() {
 		return "<?xml version=\"1.0\"?>" + "<hello> Hello Jersey" + "</hello>";
 	}
+
+	// This method is called if XML is request
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("/transportResponse")
+	public String responseTransport(@QueryParam("party")String party, @QueryParam("response")String response ) {
+		TTerminal term= (TTerminal) dispatcher.getStakeholder( ModelTypes.TERMINAL ).getTransformation();
+		return term.getMessageController().handleResponse( party, response );
+	}
+
 }

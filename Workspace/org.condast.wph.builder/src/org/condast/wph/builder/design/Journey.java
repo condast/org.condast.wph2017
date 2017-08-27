@@ -49,14 +49,14 @@ public class Journey implements IJourney {
 	
 	private void createDependencies(){
 		int index = 0;
-		IBehaviour<IShip, Integer> behaviour = new DefaultBehaviour<>(5);
+		IBehaviour behaviour = new DefaultBehaviour(5);
 		ModelTypes type = ModelTypes.ANCHORAGE;
 		String name = "Hoek van Holland";
 		symbiots.add( createId(type, name), behaviour);
 		//IIntervalTransformation<IShip,Boolean> anch = new IntervalTransformation( ModelTypes.ANCHORAGE.toString(), 
 		//		new TAnchorage( new Anchorage( "Hoek van Holland", new LatLng(4.2f, 51.8f), 3), behaviour));
 
-		behaviour = new DefaultBehaviour<>(5);
+		behaviour = new DefaultBehaviour(5);
 		type = ModelTypes.TERMINAL;
 		name = "APM-T";
 		symbiots.add(createId(type, name), behaviour);
