@@ -8,6 +8,8 @@ import org.google.geo.mapping.ui.model.MarkerModel;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Rectangle;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +24,7 @@ import org.condast.commons.ui.player.PlayerImages.Images;
 import org.condast.commons.ui.session.ISessionListener;
 import org.condast.commons.ui.session.RefreshSession;
 import org.condast.commons.ui.session.SessionEvent;
+import org.condast.commons.ui.swt.AbstractAxis;
 import org.condast.commons.ui.widgets.AbstractButtonBar;
 import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
@@ -54,7 +57,8 @@ public class WPHFrontend extends Composite {
 		OVERVIEW,
 		JOURNEY,
 		REST,
-		SYMBIOT;
+		SYMBIOT,
+		TRANSPORT;
 
 		@Override
 		public String toString() {
@@ -72,6 +76,7 @@ public class WPHFrontend extends Composite {
 	private PlayerComposite<IContainerEnvironment> buttonbar;
 	private Label timeLabel;
 	private Composite body;
+	private JourneyComposite jc;
 		
 	private IContainerEnvironment ce;
 	private Logger logger = Logger.getLogger( this.getClass().getName() );
@@ -90,6 +95,7 @@ public class WPHFrontend extends Composite {
 		@Override
 		public void notifySessionChanged(SessionEvent<IContainerEnvironment> event) {
 			journeyViewer.setInput( ce.getJourneys());
+			jc.setInput(ce);
 			setTime();	
 			layout();
 		}
@@ -177,10 +183,13 @@ public class WPHFrontend extends Composite {
 		tbtmSymbiotItem.setText( Tabs.SYMBIOT.toString());
 		tbtmSymbiotItem.setData( Tabs.SYMBIOT);
 		body = new Composite( tabFolder, SWT.BORDER );
-		// TODO sg = new SymbiotGroup(tabFolder, SWT.BORDER);
-		//sg.setText( Tabs.SYMBIOT.toString());
-		//sg.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true));
 		tbtmSymbiotItem.setControl( body);	
+
+		CTabItem tbtmTransportItem = new CTabItem(tabFolder, SWT.NONE);
+		tbtmTransportItem.setText( Tabs.TRANSPORT.toString());
+		tbtmTransportItem.setData( Tabs.TRANSPORT);
+		jc = new JourneyComposite( tabFolder, SWT.BORDER );
+		tbtmTransportItem.setControl( jc);	
 
 		tabFolder.setSelection(Tabs.SYMBIOT.ordinal());
 		
@@ -295,7 +304,6 @@ public class WPHFrontend extends Composite {
 			IBehaviour behaviour = ce.getModels().get( transformation );
 			behaviour.addStressListener(listener);
 			sg.setInput( behaviour);
-			
 		}
 
 		@Override
@@ -388,6 +396,35 @@ public class WPHFrontend extends Composite {
 			});
 			button.setImage( PlayerImages.getInstance().getImage(type));
 			return button;
+		}
+	}
+	
+	private class JourneyComposite extends AbstractAxis<Integer>{
+		private static final long serialVersionUID = 1L;
+		private int previous;
+		
+		protected JourneyComposite(Composite parent, int style) {
+			super(parent, style);
+		}
+
+		public void setInput( IContainerEnvironment ce ){
+			for( Integer value : ce.getStatistics().getThroughput()){
+				super.addInput(value);
+			}
+		}
+		
+		@Override
+		protected void onDrawStart(GC gc) {
+			previous = 0;
+			super.onDrawStart(gc);
+		}
+
+		@Override
+		protected void onDrawValue(GC gc, int index, Integer value) {
+			Rectangle rect = super.getClientArea();
+			int halfY = (int)( rect.height/2); 
+			gc.drawLine(index-1, (int)(halfY*(0.5 + previous/4)), index, (int)(halfY*(0.5 + value/4 )));
+			previous = value;
 		}
 	}
 }

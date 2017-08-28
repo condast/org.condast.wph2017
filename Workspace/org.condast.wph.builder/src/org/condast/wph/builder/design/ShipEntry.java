@@ -106,7 +106,7 @@ public class ShipEntry {
 		tanch.addTransformationListener(entryNeighbourhood );
 
 		name = "APM-T";
-		model =  new Terminal( name, new LatLng(4.2f, 51.8f), 3);
+		model =  new Terminal( name, new LatLng(4.2f, 51.8f), 50);//50 docks
 		behaviour = new DefaultBehaviour(60);//The range translates to 60 minutes
 		IStakeHolder<IShip, IContainer> term = (IStakeHolder<IShip, IContainer>) 
 				setupTransformation( model, behaviour, new TTerminal( (Terminal) model, behaviour ));
@@ -216,19 +216,12 @@ public class ShipEntry {
 	
 	public void next(){
 		long time = index*interval;
-		tanch.addInput( new Ship( time ));
-			index++;
+		boolean newShip = ( 10 * Math.random()) <=1;
+		if( newShip )
+			tanch.addInput( new Ship( time ));
+		index++;
 		for( IStakeHolder<?,?> stakeholder: models.keySet() ){
 			stakeholder.next(time);
 		}
-	}
-	
-	
-	//private int getIndex( boolean direction, int current ){
-	//	return direction? current++: current--;
-	//}
-	
-	private String createId( ModelTypes type, String name ){
-		return type.toString() + ": " + name;
 	}
 }
