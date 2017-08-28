@@ -26,6 +26,7 @@ public interface IModel<E extends Enum<E>> {
 		public String getImage(){
 			IGoogleMapsImages.MarkerImages image = IGoogleMapsImages.MarkerImages.RED;
 			switch( this ){
+			
 			case TERMINAL:
 				image = IGoogleMapsImages.MarkerImages.BLUE;
 				break;
@@ -40,6 +41,60 @@ public interface IModel<E extends Enum<E>> {
 			}
 			char id = this.name().charAt(0);
 			return image.getImage(id);
+		}
+
+		public static String getAbbreviation( ModelTypes type ){
+			String str = null;;
+			switch( type ){
+			case CLIENT:
+				str = "clt";
+				break;
+			case SHIP:
+				str = "shp";
+				break;
+			case SHIPPING_AGENT:
+				str = "sha";
+				break;
+			case ANCHORAGE:
+				str = "ptm";
+				break;
+			case TERMINAL:
+				str = "trm";
+				break;
+			case PILOT:
+				str = "plt";
+				break;
+			case BOAT_MEN:
+				str = "btm";
+				break;
+			case TUG_BOAT:
+				str = "tgb";
+				break;
+			case PORT_AUTHORITY:
+				str = "pta";
+				break;
+			case SHIP_OWNER:
+				str = "sho";
+				break;
+			case LOGISTICS:
+				str = "lgt";
+				break;
+			case SUPPLIER:
+				str = "spl";
+				break;
+			case TRUCK:
+				str = "trk";
+				break;
+			case BARGE:
+				str = "brg";
+				break;
+			case TRAIN:
+				str = "trn";
+				break;
+			default:
+				break;
+			}
+			return str;
 		}
 
 		@Override

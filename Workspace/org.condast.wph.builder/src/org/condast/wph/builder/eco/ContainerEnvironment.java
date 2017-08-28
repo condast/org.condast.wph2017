@@ -66,6 +66,8 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 
 	@Override
 	public Statistics getStatistics() {
+		if( this.shipentry == null )
+			return null;
 		return this.shipentry.getStatistics();
 	}
 

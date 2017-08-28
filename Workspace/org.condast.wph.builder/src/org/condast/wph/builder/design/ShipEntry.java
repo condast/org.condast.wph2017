@@ -191,7 +191,7 @@ public class ShipEntry {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private IStakeHolder<?, ?> setupTransformation( IModel model, IBehaviour behaviour, IIntervalProcess<?,?> transformation ){
-		symbiots.add( createId( (ModelTypes) model.getType(), model.getId()), behaviour);
+		symbiots.add( ModelTypes.getAbbreviation( (ModelTypes) model.getType() ), behaviour);
 		IStakeHolder<?, ?> term = new StakeHolder(  transformation, (ModelTypes) model.getType(), model.getLnglat() );
 		models.put(term, behaviour );
 		return term;
