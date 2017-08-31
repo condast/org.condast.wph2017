@@ -23,8 +23,7 @@
         <condast-commons>file:${generics}/org.condast.commons/Workspace/</condast-commons>
         <condast-js>file:${generics}/org.condast.js/Workspace/</condast-js>
         <condast-symbiot>file:${generics}/org.condast.symbiotic/Workspace/</condast-symbiot>
-        <!-- <condast-repo.url>file:${generics}/Root/WorkSpace/alpha.root.cultuurinzicht.update</condast-repo.url>-->
-        <condast-repo.url>${virgo-root}/alpha.condast.root.update/</condast-repo.url>
+         <condast-repo.url>${virgo-root}/alpha.condast.root.update/</condast-repo.url>
     </properties>
 
     <repositories>
