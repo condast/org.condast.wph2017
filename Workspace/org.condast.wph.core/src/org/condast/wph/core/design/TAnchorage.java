@@ -32,6 +32,7 @@ implements IIntervalProcess<IShip, IShip>, ICapacityProcess<IShip, IShip>{
 	private TRAnchorage tanc;
 	private LinkedHashMap<Date, IShip> anchorTime;
 	private MessageController mc;
+	private boolean blockOutput;
 
 	public TAnchorage( Anchorage anchorage, IBehaviour behaviour) {
 		super( ModelTypes.ANCHORAGE.toString() );
@@ -40,6 +41,7 @@ implements IIntervalProcess<IShip, IShip>, ICapacityProcess<IShip, IShip>{
 		tanc = new TRAnchorage( behaviour);
 		super.setTransformer( tanc );
 		this.anchorage = anchorage;
+		this.blockOutput = false;
 	}
 
 	public Anchorage getModel() {
@@ -60,6 +62,7 @@ implements IIntervalProcess<IShip, IShip>, ICapacityProcess<IShip, IShip>{
 	//Handle the throughput to the next node
 	@Override
 	protected void onHandleOutput(ITransformListener<IShip> listener, TransformEvent<IShip> event) {
+		this.blockOutput = !event.isAccept();
 		if( event.isAccept() )
 			removeInput(event.getOutput());
 		else{
@@ -69,7 +72,7 @@ implements IIntervalProcess<IShip, IShip>, ICapacityProcess<IShip, IShip>{
 	}
 
 	@Override
-	public int getReaminingCapacity() {
+	public int getRemainingCapacity() {
 		return Integer.MAX_VALUE - super.getInputSize();
 	}
 
@@ -119,7 +122,7 @@ implements IIntervalProcess<IShip, IShip>, ICapacityProcess<IShip, IShip>{
 
 		@Override
 		public boolean addInput(IShip input) {
-			if( input == null )
+			if(( input == null ) || ( blockOutput))
 				return false;
 			anchorTime.put( IntervalProcess.getSimulatedTime( interval ), input );
 			return super.addInput( input );

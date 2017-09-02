@@ -27,7 +27,7 @@ public interface ICapacityProcess<I, O extends Object> extends ITransformation<I
 	/**
 	 * Get the remaining capacity of the process
 	 */
-	public int getReaminingCapacity();
+	public int getRemainingCapacity();
 	
 	/**
 	 * Get the capacity of the transformation

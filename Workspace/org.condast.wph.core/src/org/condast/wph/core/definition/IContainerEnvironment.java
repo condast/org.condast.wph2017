@@ -47,6 +47,12 @@ public interface IContainerEnvironment {
 	public IStakeHolder<?, ?> getStakeHolder(ModelTypes type);
 
 	/**
+	 * Get the interval
+	 * @return
+	 */
+	public int getInterval();
+	
+	/**
 	 * Get the time that has passed in minutes
 	 * @return
 	 */

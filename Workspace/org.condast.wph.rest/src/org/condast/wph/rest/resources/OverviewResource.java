@@ -1,6 +1,6 @@
 package org.condast.wph.rest.resources;
 
-import java.util.Collection;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,8 +32,10 @@ public class OverviewResource{
 		Gson gson = new Gson();
 		SymbiotCollection symbiots = (SymbiotCollection) ce.getSymbiots();
 		Map<String, Float> stress = ( symbiots == null )? new HashMap<String, Float>(): symbiots.getCumultatedStress();
-		for( ISymbiot symbiot: symbiots )	
-			stress.put( symbiot.getId(), symbiot.getStress() );
+		if( symbiots != null ){
+			for( ISymbiot symbiot: symbiots )	
+				stress.put( symbiot.getId(), symbiot.getStress() );
+		}
 		return createResponse( gson.toJson( stress ));
 	}
 
@@ -57,9 +59,26 @@ public class OverviewResource{
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getThroughput() {
 		IContainerEnvironment ce = dispatcher.getEnvironment();
-		Collection<Integer> throughput = ce.getStatistics().getThroughput();
+		Integer[] throughput = new Integer[0];
+		if( ce.getStatistics() != null )
+			throughput = ce.getStatistics().getScaledThroughput( ce.getInterval());
 		Gson gson = new Gson();
 		return createResponse( gson.toJson(throughput));
+	}
+
+	// This method is called if TEXT_PLAIN is request
+	@GET
+	@Path("/departure")
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response getDeparture() {
+		IContainerEnvironment ce = dispatcher.getEnvironment();
+		float value = 0f;
+		if( ce.getStatistics() != null )
+			value = ce.getStatistics().getCostSavingShips( ce.getInterval());
+		NumberFormat formatter = NumberFormat.getCurrencyInstance();
+		String moneyString = formatter.format(value);
+
+		return createResponse( String.valueOf( moneyString ));
 	}
 
 	// This method is called if TEXT_PLAIN is request

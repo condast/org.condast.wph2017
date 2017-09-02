@@ -17,7 +17,7 @@ import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.environment.EnvironmentEvent;
 import org.condast.symbiotic.core.environment.IEnvironmentListener;
 import org.condast.wph.builder.design.Journey;
-import org.condast.wph.builder.design.ShipEntry;
+import org.condast.wph.builder.design.Passage;
 import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IContainerEnvironment;
 import org.condast.wph.core.definition.IJourney;
@@ -35,7 +35,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 	private Collection<IJourney> journeys;
 	private Collection<IEnvironmentListener> listeners;
 	private int counter;
-	private ShipEntry shipentry;
+	private Passage shipentry;
 	private int interval;
 	private Date startDate;
 	private SymbiotCollection symbiots;
@@ -59,6 +59,10 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		this.counter = 0;
 	}
 	
+	public int getInterval() {
+		return interval;
+	}
+
 	@Override
 	public Collection<ISymbiot> getSymbiots() {
 		return symbiots;
@@ -120,7 +124,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		*/
 		this.clear();
 		this.symbiots =new SymbiotCollection();
-		shipentry = new ShipEntry( environment, symbiots );
+		shipentry = new Passage( environment, symbiots );
 		notifyChangeEvent( new EnvironmentEvent( this ));
 		return true;
 	}

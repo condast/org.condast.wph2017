@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.condast.commons.latlng.LatLng;
 import org.condast.symbiotic.core.DefaultBehaviour;
@@ -35,7 +36,7 @@ import org.condast.wph.core.model.Statistics;
 import org.condast.wph.core.model.Terminal;
 import org.condast.wph.core.model.WaterWay;
 
-public class ShipEntry {
+public class Passage {
 	
 	public static final int DEFAULT_INTERVAL = 3*60*1000; //3 min
 	
@@ -60,7 +61,9 @@ public class ShipEntry {
 		}
 	};
 
-	public ShipEntry( Environment environment, SymbiotCollection symbiots) {
+	private Logger logger = Logger.getLogger( this.getClass().getName() );
+
+	public Passage( Environment environment, SymbiotCollection symbiots) {
 		this.symbiots = symbiots;
 		this.models = new HashMap<IStakeHolder<?,?>,IBehaviour>();
 		
@@ -81,7 +84,6 @@ public class ShipEntry {
 		IBehaviour behaviour = new DefaultBehaviour(5);
 
 		String name = "Hoek van Holland";
-		behaviour = new DefaultBehaviour(5);
 		IModel<IModel.ModelTypes> model = new Anchorage( name, new LatLng(4.2f, 51.8f), 3 );
 		tanch = new TAnchorage(( Anchorage )model, behaviour );
 		tanch.addTransformationListener(listener);	
@@ -99,6 +101,10 @@ public class ShipEntry {
 			protected void onChange(ITransformation<IShip, ?> transformation, TransformEvent<IShip> event) {
 				ICapacityProcess<IShip,IShip> outNode = (ICapacityProcess<IShip, IShip>) transformation;
 				boolean accept = event.isAccept()? true: outNode.addInput(event.getOutput()) ;
+				if( accept ){
+					long time = ( index * interval )/60000;
+					//logger.log( Level.parse("FLOW"), String.valueOf( time ) + "\tShip passing to waterway" );
+				}
 				event.setAccept( accept);
 			}			
 		};
@@ -117,6 +123,10 @@ public class ShipEntry {
 			protected void onChange(ITransformation<IShip, ?> transformation, TransformEvent<IShip> event) {
 				ICapacityProcess<IShip,IShip> outNode = (ICapacityProcess<IShip, IShip>) transformation;
 				boolean accept = event.isAccept()? true: outNode.addInput(event.getOutput()) ;
+				if( accept ){
+					long time = ( index * interval )/60000;
+					//logger.log( Level.parse("FLOW"), String.valueOf( time ) + "\tTerminal has unloaded containers" );
+				}
 				event.setAccept( accept);
 			}		
 		};
@@ -141,9 +151,10 @@ public class ShipEntry {
 				}else{
 					long time = index*interval;
 					ICapacityProcess<ICarrier,?> outNode = (ICapacityProcess<ICarrier,?>) transformation;
-					statistics.next(time, carrier);
+					if( carrier != null )
+						statistics.next(time, carrier);
 					accept = outNode.addInput(carrier);
-					carrier = new Carrier( "blah", transformation.getName());					
+					//logger.log( Level.parse("FLOW"), String.valueOf( time ) + "\tCarrier ready to depart" );
 				}
 				event.setAccept( accept );
 			}			
@@ -151,8 +162,7 @@ public class ShipEntry {
 		term.getTransformation().addTransformationListener( terminalNeighbourhood );
 
 		ILinkedNeighbourhood<ICarrier,Boolean> endNeighbourhood = new AbstractLinkedNeighbourhood<ICarrier, Boolean>(){
-	
-			
+		
 			@Override
 			protected void onChange(ITransformation<Boolean, ?> transformation, TransformEvent<ICarrier> event) {
 				ICapacityProcess<Boolean,?> outNode = (ICapacityProcess<Boolean,?>) transformation;
@@ -215,8 +225,9 @@ public class ShipEntry {
 	}
 	
 	public void next(){
+		//logger.log( Level.parse("FLOW"), "Next Log");
 		long time = index*interval;
-		boolean newShip = ( 10 * Math.random()) <=1;
+		boolean newShip = true;// ( 10 * Math.random()) <=1;
 		if( newShip )
 			tanch.addInput( new Ship( time ));
 		index++;

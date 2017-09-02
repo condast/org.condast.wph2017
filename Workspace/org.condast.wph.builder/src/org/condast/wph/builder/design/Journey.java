@@ -1,30 +1,16 @@
 package org.condast.wph.builder.design;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.condast.commons.latlng.LatLng;
 import org.condast.symbiotic.core.DefaultBehaviour;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
-import org.condast.symbiotic.core.def.ITransformation;
-import org.condast.symbiotic.core.def.ITransformer;
 import org.condast.symbiotic.core.environment.Environment;
-import org.condast.symbiotic.core.transformation.Transformation;
-import org.condast.symbiotic.core.utils.TimedNode;
 import org.condast.wph.core.def.IContainer;
-import org.condast.wph.core.def.IIntervalProcess;
-import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IJourney;
 import org.condast.wph.core.definition.IModel.ModelTypes;
-import org.condast.wph.core.design.TAnchorage;
-import org.condast.wph.core.design.TTerminal;
-import org.condast.wph.core.model.Anchorage;
-import org.condast.wph.core.model.Terminal;
 
 public class Journey implements IJourney {
 	

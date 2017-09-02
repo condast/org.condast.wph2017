@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
@@ -37,6 +38,7 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 	private Terminal terminal;
 	private ProcessTransformation process;
 	private MessageController mc;
+    private Logger logger = Logger.getLogger( this.getClass().getName());
 	
 	public TTerminal( Terminal terminal, IBehaviour behaviour ) {
 		super( ModelTypes.TERMINAL.toString() );
@@ -75,7 +77,7 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 	}
 
 	@Override
-	public int getReaminingCapacity() {
+	public int getRemainingCapacity() {
 		return process.getCapacity() - super.getInputSize();
 	}
 
@@ -89,7 +91,6 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 		if( event.accept ){
 			Collection<IShip> temp = new ArrayList<IShip>( super.getInput());
 			for( IShip input: temp ){
-				//for( )
 				super.removeInput( input );
 			}
 		}
@@ -120,6 +121,10 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 		public boolean allowNextShip(){
 			IBehaviour behaviour = super.getBehaviour();
 			int slack = behaviour.getValue() * 15;//minutes
+			//logger.log( Level.parse("FLOW"), "Behaviour: " + slack );
+			Date dueDate = process.getFirstDueDate();
+			if( dueDate == null )
+				return true;
 			long firstJob = process.getFirstDueDate().getTime() - Calendar.getInstance().getTimeInMillis();
 			return( firstJob < slack );
 		}
@@ -128,6 +133,9 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 		public boolean addInput(IShip input) {
 			if( input == null )
 				return false;
+			if( !allowNextShip())
+				return false;
+			
 			if( !buffer.containsKey(input)){
 				buffer.put(input, input.getNrOfContainers());
 				mc.sendMessage( Parties.BARGE, "transport");
@@ -166,7 +174,7 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 
 		@Override
 		protected void onUpdateStress(Iterator<IShip> inputs, ISymbiot symbiot) {
-			float stress = getReaminingCapacity()/getCapacity();
+			float stress = getRemainingCapacity()/getCapacity();
 			symbiot.setStress(stress);
 		}
 		

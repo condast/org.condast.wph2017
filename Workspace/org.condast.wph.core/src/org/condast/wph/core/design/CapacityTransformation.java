@@ -33,7 +33,7 @@ implements IIntervalProcess<I,I>, ICapacityProcess<I,I>
 	}
 	
 	private int getActiveJobs(){
-		return this.process.getJobSize() + super.getInputSize();
+		return this.process.getJobSize();
 	}
 
 	@Override
@@ -65,7 +65,7 @@ implements IIntervalProcess<I,I>, ICapacityProcess<I,I>
 	}
 
 	@Override
-	public int getReaminingCapacity() {
+	public int getRemainingCapacity() {
 		return Integer.MAX_VALUE - process.getJobSize();
 	}
 

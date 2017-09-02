@@ -13,7 +13,7 @@ import org.condast.commons.http.AbstractHttpRequest;
 
 public class MessageHandler {
 
-	public static final String WPH_CONTEXT = "http://www.condast.com/wph/";
+	public static final String WPH_CONTEXT = "http://www.condast.com:81/wph/";
 
 	public enum Parties{
 		PORTMASTER,
