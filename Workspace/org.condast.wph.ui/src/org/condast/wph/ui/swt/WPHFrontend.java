@@ -20,7 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.condast.commons.log.AbstractLogHandller;
+import org.condast.commons.log.AbstractLogHandler;
 import org.condast.commons.strings.StringStyler;
 import org.condast.commons.ui.player.PlayerImages;
 import org.condast.commons.ui.player.PlayerImages.Images;
@@ -406,7 +406,7 @@ public class WPHFrontend extends Composite {
 		}
 	}
 
-	private static class EventLoggerHandler extends AbstractLogHandller{
+	private static class EventLoggerHandler extends AbstractLogHandler{
 
 		public static final Level FLOW = new LogLevel("FLOW", Level.SEVERE.intValue() + 1);
 	    private Logger logger = Logger.getLogger("");
@@ -414,7 +414,7 @@ public class WPHFrontend extends Composite {
 		private RichTextEditor eventLogger;
 
 		public EventLoggerHandler(RichTextEditor eventLogger) {
-			super();
+			super( FLOW );
 			logger.addHandler(this);
 			super.setLevel(Level.parse("FLOW"));
 			this.eventLogger = eventLogger;
