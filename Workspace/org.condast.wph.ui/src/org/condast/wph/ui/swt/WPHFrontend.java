@@ -93,11 +93,11 @@ public class WPHFrontend extends Composite {
 		}
 	};
 	
-	private RefreshSession<IContainerEnvironment> session;
-	private ISessionListener<IContainerEnvironment> sessionListener = new ISessionListener<IContainerEnvironment>(){
+	private RefreshSession session;
+	private ISessionListener<Boolean> sessionListener = new ISessionListener<Boolean>(){
 
 		@Override
-		public void notifySessionChanged(SessionEvent<IContainerEnvironment> event) {
+		public void notifySessionChanged(SessionEvent<Boolean> event) {
 			journeyViewer.setInput( ce.getJourneys());
 			jc.setInput(ce);
 			setTime();	
@@ -115,7 +115,7 @@ public class WPHFrontend extends Composite {
 		setLayout(new GridLayout(1, false ));
 		listener = new EvaluationListener();
 		this.createComposite(parent, style);
-		session = new RefreshSession<IContainerEnvironment>();
+		session = new RefreshSession();
 		session.init(getDisplay());
 		session.addSessionListener(sessionListener);
 		logger.addHandler( new EventLoggerHandler( this.eventLogger));
