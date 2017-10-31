@@ -20,7 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.condast.commons.log.AbstractLogHandler;
+import org.condast.commons.log.BufferedLogHandler;
 import org.condast.commons.strings.StringStyler;
 import org.condast.commons.ui.player.PlayerImages;
 import org.condast.commons.ui.player.PlayerImages.Images;
@@ -93,11 +93,11 @@ public class WPHFrontend extends Composite {
 		}
 	};
 	
-	private RefreshSession<IContainerEnvironment> session;
-	private ISessionListener<IContainerEnvironment> sessionListener = new ISessionListener<IContainerEnvironment>(){
+	private RefreshSession session;
+	private ISessionListener<Boolean> sessionListener = new ISessionListener<Boolean>(){
 
 		@Override
-		public void notifySessionChanged(SessionEvent<IContainerEnvironment> event) {
+		public void notifySessionChanged(SessionEvent<Boolean> event) {
 			journeyViewer.setInput( ce.getJourneys());
 			jc.setInput(ce);
 			setTime();	
@@ -115,7 +115,7 @@ public class WPHFrontend extends Composite {
 		setLayout(new GridLayout(1, false ));
 		listener = new EvaluationListener();
 		this.createComposite(parent, style);
-		session = new RefreshSession<IContainerEnvironment>();
+		session = new RefreshSession();
 		session.init(getDisplay());
 		session.addSessionListener(sessionListener);
 		logger.addHandler( new EventLoggerHandler( this.eventLogger));
@@ -406,17 +406,12 @@ public class WPHFrontend extends Composite {
 		}
 	}
 
-	private static class EventLoggerHandler extends AbstractLogHandler{
-
-		public static final Level FLOW = new LogLevel("FLOW", Level.SEVERE.intValue() + 1);
-	    private Logger logger = Logger.getLogger("");
+	private static class EventLoggerHandler extends BufferedLogHandler{
 
 		private RichTextEditor eventLogger;
 
 		public EventLoggerHandler(RichTextEditor eventLogger) {
-			super( FLOW );
-			logger.addHandler(this);
-			super.setLevel(Level.parse("FLOW"));
+			super( "FLOW", Level.SEVERE, 1 );
 			this.eventLogger = eventLogger;
 		}
 
