@@ -145,7 +145,7 @@ public class MessageHandler {
 			}
 
 			@Override
-			protected void onHandleResponse(int responseCode, BufferedReader reader) throws IOException{
+			protected String onHandleResponse(int responseCode, BufferedReader reader) throws IOException{
 				String inputLine;
 				StringBuffer buffer = new StringBuffer();
 
@@ -154,6 +154,7 @@ public class MessageHandler {
 				}
 				response = buffer.toString();
 				System.out.println(response);	
+				return response;
 			}	
 		}
 	}
