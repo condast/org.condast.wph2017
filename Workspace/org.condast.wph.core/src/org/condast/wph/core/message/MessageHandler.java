@@ -3,6 +3,7 @@ package org.condast.wph.core.message;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -145,7 +146,7 @@ public class MessageHandler {
 			}
 
 			@Override
-			protected String onHandleResponse(int responseCode, BufferedReader reader) throws IOException{
+			protected String onHandleResponse(URL url, int responseCode, BufferedReader reader) throws IOException{
 				String inputLine;
 				StringBuffer buffer = new StringBuffer();
 
