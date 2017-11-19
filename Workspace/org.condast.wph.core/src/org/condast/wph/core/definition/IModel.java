@@ -1,6 +1,6 @@
 package org.condast.wph.core.definition;
 
-import org.condast.commons.latlng.LatLng;
+import org.condast.commons.data.latlng.LatLng;
 import org.condast.commons.strings.StringStyler;
 import org.google.geo.mapping.ui.images.IGoogleMapsImages;
 

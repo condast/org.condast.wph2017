@@ -1,6 +1,6 @@
 package org.condast.wph.core.def;
 
-import org.condast.commons.latlng.LatLng;
+import org.condast.commons.data.latlng.LatLng;
 import org.condast.symbiotic.core.def.ITransformation;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 

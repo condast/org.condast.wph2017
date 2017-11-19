@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.condast.wph.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Condast
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.condast.commons.latlng,
+Import-Package: org.condast.commons.data.latlng,
  org.condast.commons.log,
  org.condast.commons.number,
  org.condast.commons.strings,

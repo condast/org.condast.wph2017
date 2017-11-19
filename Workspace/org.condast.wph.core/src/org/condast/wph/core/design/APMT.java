@@ -1,6 +1,6 @@
 package org.condast.wph.core.design;
 
-import org.condast.commons.latlng.LatLng;
+import org.condast.commons.data.latlng.LatLng;
 import org.condast.wph.core.model.Terminal;
 
 public class APMT extends Terminal {
