@@ -2,7 +2,7 @@ package org.condast.wph.core.model;
 
 import java.util.Date;
 
-import org.condast.commons.latlng.LatLng;
+import org.condast.commons.data.latlng.LatLng;
 import org.condast.wph.core.def.IContainer;
 
 public class Container implements IContainer {

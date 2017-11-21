@@ -12,7 +12,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.EnumSet;
 
-import org.condast.commons.latlng.LatLng;
+import org.condast.commons.data.latlng.LatLng;
 import org.condast.commons.strings.StringStyler;
 import org.condast.commons.strings.StringUtils;
 import org.condast.commons.xml.AbstractXMLBuilder;

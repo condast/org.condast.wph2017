@@ -3,7 +3,7 @@ package org.condast.wph.core.model;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.condast.commons.latlng.LatLng;
+import org.condast.commons.data.latlng.LatLng;
 import org.condast.wph.core.def.IContainer;
 import org.condast.wph.core.def.IEventLocation;
 
