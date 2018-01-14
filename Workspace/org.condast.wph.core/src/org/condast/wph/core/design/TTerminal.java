@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
@@ -38,7 +37,7 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 	private Terminal terminal;
 	private ProcessTransformation process;
 	private MessageController mc;
-    private Logger logger = Logger.getLogger( this.getClass().getName());
+    //private Logger logger = Logger.getLogger( this.getClass().getName());
 	
 	public TTerminal( Terminal terminal, IBehaviour behaviour ) {
 		super( ModelTypes.TERMINAL.toString() );
