@@ -16,25 +16,25 @@ public class Journey implements IJourney {
 	
 	private SymbiotCollection symbiots;
 	
-	private Environment environment;
-	private ISymbiot transport;
+	//private Environment environment;
+	//private ISymbiot transport;
 	private IContainer container;
 	private List<ISymbiot> chain;
 	private int index;
 	
-	private static ModelProvider provider = ModelProvider.getInstance();
+	//private static ModelProvider provider = ModelProvider.getInstance();
 
 	public Journey( IContainer container, Environment environment) {
 		this.symbiots = new SymbiotCollection();
 		this.container = container;
-		this.environment = environment;
+		//this.environment = environment;
 		chain = new ArrayList<ISymbiot>();
 		this.index = 0;
 		createDependencies();
 	}
 	
 	private void createDependencies(){
-		int index = 0;
+		//int index = 0;
 		IBehaviour behaviour = new DefaultBehaviour(5);
 		ModelTypes type = ModelTypes.ANCHORAGE;
 		String name = "Hoek van Holland";
@@ -116,7 +116,7 @@ public class Journey implements IJourney {
 		return this.index >= chain.size();
 	}
 	
-	private int getIndex( boolean direction, int current ){
+	public int getIndex( boolean direction, int current ){
 		return direction? current++: current--;
 	}
 }

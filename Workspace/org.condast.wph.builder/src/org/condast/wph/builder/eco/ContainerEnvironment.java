@@ -33,7 +33,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 	private Environment environment;
 	private Lock lock;
 	private Collection<IJourney> journeys;
-	private Collection<IEnvironmentListener> listeners;
+	private Collection<IEnvironmentListener<Object>> listeners;
 	private int counter;
 	private Passage shipentry;
 	private int interval;
@@ -48,7 +48,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		this.environment = new Environment();
 		journeys = new ArrayList<IJourney>();
 		lock = new ReentrantLock();
-		this.listeners = new ArrayList<IEnvironmentListener>();
+		this.listeners = new ArrayList<IEnvironmentListener<Object>>();
 		this.interval = interval;
 	}
 
@@ -94,17 +94,17 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 	
 
 	@Override
-	public void addListener( IEnvironmentListener listener ){
+	public void addListener( IEnvironmentListener<Object> listener ){
 		this.listeners.add( listener );
 	}
 
 	@Override
-	public void removeListener( IEnvironmentListener listener ){
+	public void removeListener( IEnvironmentListener<Object> listener ){
 		this.listeners.remove( listener );
 	}
 	
-	protected void notifyChangeEvent( EnvironmentEvent event ){
-		for( IEnvironmentListener listener: listeners)
+	protected void notifyChangeEvent( EnvironmentEvent<Object> event ){
+		for( IEnvironmentListener<Object> listener: listeners)
 			listener.notifyEnvironmentChanged(event);
 	}
 
@@ -125,7 +125,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		this.clear();
 		this.symbiots =new SymbiotCollection();
 		shipentry = new Passage( environment, symbiots );
-		notifyChangeEvent( new EnvironmentEvent( this ));
+		notifyChangeEvent( new EnvironmentEvent<Object>( this ));
 		return true;
 	}
 
@@ -149,7 +149,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 			shipentry.next();
 
 			counter++;
-			notifyChangeEvent( new EnvironmentEvent( this ));
+			notifyChangeEvent( new EnvironmentEvent<Object>( this ));
 		}
 		finally{
 			lock.unlock();

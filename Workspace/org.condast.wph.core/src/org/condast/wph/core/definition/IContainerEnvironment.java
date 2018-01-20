@@ -13,9 +13,9 @@ import org.condast.wph.core.model.Statistics;
 
 public interface IContainerEnvironment {
 
-	void addListener(IEnvironmentListener listener);
+	void addListener(IEnvironmentListener<Object> listener);
 
-	void removeListener(IEnvironmentListener listener);
+	void removeListener(IEnvironmentListener<Object> listener);
 	
 	public void start();
 	
