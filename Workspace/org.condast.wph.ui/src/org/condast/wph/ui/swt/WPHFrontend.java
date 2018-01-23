@@ -85,19 +85,19 @@ public class WPHFrontend extends Composite {
 	private IContainerEnvironment ce;
     private Logger logger = Logger.getLogger( this.getClass().getName());
 	
-	private IEnvironmentListener elistener = new IEnvironmentListener() {
+	private IEnvironmentListener<Object> elistener = new IEnvironmentListener<Object>() {
 		
 		@Override
-		public void notifyEnvironmentChanged(EnvironmentEvent event) {
+		public void notifyEnvironmentChanged(EnvironmentEvent<Object> event) {
 			session.addData( event );
 		}
 	};
 	
-	private RefreshSession<EnvironmentEvent> session;
-	private ISessionListener<EnvironmentEvent> sessionListener = new ISessionListener<EnvironmentEvent>(){
+	private RefreshSession<EnvironmentEvent<Object>> session;
+	private ISessionListener<EnvironmentEvent<Object>> sessionListener = new ISessionListener<EnvironmentEvent<Object>>(){
 
 		@Override
-		public void notifySessionChanged(SessionEvent<EnvironmentEvent> event) {
+		public void notifySessionChanged(SessionEvent<EnvironmentEvent<Object>> event) {
 			journeyViewer.setInput( ce.getJourneys());
 			jc.setInput(ce);
 			setTime();	
@@ -115,7 +115,7 @@ public class WPHFrontend extends Composite {
 		setLayout(new GridLayout(1, false ));
 		listener = new EvaluationListener();
 		this.createComposite(parent, style);
-		session = new RefreshSession<EnvironmentEvent>();
+		session = new RefreshSession<EnvironmentEvent<Object>>();
 		session.init(getDisplay());
 		session.addSessionListener(sessionListener);
 		logger.addHandler( new EventLoggerHandler( this.eventLogger));

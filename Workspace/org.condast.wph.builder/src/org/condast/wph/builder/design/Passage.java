@@ -103,7 +103,7 @@ public class Passage {
 				boolean accept = event.isAccept()? true: outNode.addInput(event.getOutput()) ;
 				if( accept ){
 					long time = ( index * interval )/60000;
-					//logger.log( Level.parse("FLOW"), String.valueOf( time ) + "\tShip passing to waterway" );
+					logger.fine( /*Level.parse("FLOW"),*/ String.valueOf( time ) + "\tShip passing to waterway" );
 				}
 				event.setAccept( accept);
 			}			
@@ -125,7 +125,7 @@ public class Passage {
 				boolean accept = event.isAccept()? true: outNode.addInput(event.getOutput()) ;
 				if( accept ){
 					long time = ( index * interval )/60000;
-					//logger.log( Level.parse("FLOW"), String.valueOf( time ) + "\tTerminal has unloaded containers" );
+					logger.fine( /*Level.parse("FLOW"),*/ String.valueOf( time ) + "\tTerminal has unloaded containers" );
 				}
 				event.setAccept( accept);
 			}		
@@ -165,7 +165,7 @@ public class Passage {
 		
 			@Override
 			protected void onChange(ITransformation<Boolean, ?> transformation, TransformEvent<ICarrier> event) {
-				ICapacityProcess<Boolean,?> outNode = (ICapacityProcess<Boolean,?>) transformation;
+				//ICapacityProcess<Boolean,?> outNode = (ICapacityProcess<Boolean,?>) transformation;
 				boolean accept = true;// event.isAccept()? true: outNode.addInput(event.getOutput()) ;
 				event.setAccept( accept);
 			}			
@@ -175,8 +175,8 @@ public class Passage {
 		behaviour = new DefaultBehaviour(5);
 		model =  new Modality( name, ModelTypes.TRUCK, new LatLng(4.5f, 51.8f));
 		CapacityTransformation<ICarrier> ct = new CapacityTransformation( name, 1, 20, behaviour );//20 containers per hour
-		IStakeHolder<IContainer, ICarrier> mod = (IStakeHolder<IContainer, ICarrier>) 
-				setupTransformation( model, behaviour, ct);
+		//IStakeHolder<IContainer, ICarrier> mod = (IStakeHolder<IContainer, ICarrier>) 
+		//		setupTransformation( model, behaviour, ct);
 		terminalNeighbourhood.addTransformation(ct);
 		ct.addTransformationListener( endNeighbourhood );
 
@@ -184,7 +184,7 @@ public class Passage {
 		behaviour = new DefaultBehaviour(5);
 		model =  new Modality( name, ModelTypes.BARGE, new LatLng(4.5f, 51.8f));
 		ct = new CapacityTransformation( name, 1, 40, behaviour );//40 containers per hour
-		mod = (IStakeHolder<IContainer, ICarrier>) 
+		//mod = (IStakeHolder<IContainer, ICarrier>) 
 				setupTransformation( model, behaviour, ct);
 		terminalNeighbourhood.addTransformation(ct);
 		ct.addTransformationListener( endNeighbourhood );
@@ -193,8 +193,8 @@ public class Passage {
 		behaviour = new DefaultBehaviour(5);
 		model =  new Modality( name, ModelTypes.TRAIN, new LatLng(4.5f, 51.8f));
 		ct = new CapacityTransformation( name, 1, 200, behaviour ); //200 containersv per hour
-		mod = (IStakeHolder<IContainer, ICarrier>) 
-				setupTransformation( model, behaviour, ct);
+		//mod = (IStakeHolder<IContainer, ICarrier>) 
+		//		setupTransformation( model, behaviour, ct);
 		terminalNeighbourhood.addTransformation(ct);
 		ct.addTransformationListener( endNeighbourhood );
 	}

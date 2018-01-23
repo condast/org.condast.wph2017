@@ -4,7 +4,7 @@ import javax.servlet.Servlet;
 import javax.ws.rs.ApplicationPath;
 
 import org.condast.commons.http.AbstractServletWrapper;
-import org.condast.wph.rest.config.Config;
+//import org.condast.wph.rest.config.Config;
 import org.condast.wph.rest.resources.AnchorageResource;
 import org.condast.wph.rest.resources.ControlResource;
 import org.condast.wph.rest.resources.OverviewResource;
@@ -16,7 +16,7 @@ public class RestServlet extends AbstractServletWrapper {
 
 	public static final String S_CONTEXT_PATH = "wph";
 	
-	private Config config = Config.getInstance();
+	//private Config config = Config.getInstance();
 	
 	public RestServlet() {
 		super( S_CONTEXT_PATH );
