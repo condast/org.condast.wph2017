@@ -20,6 +20,8 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import org.condast.commons.autonomy.env.EnvironmentEvent;
+import org.condast.commons.autonomy.env.IEnvironmentListener;
 import org.condast.commons.log.BufferedLogHandler;
 import org.condast.commons.strings.StringStyler;
 import org.condast.commons.ui.player.PlayerImages;
@@ -32,8 +34,6 @@ import org.condast.commons.ui.widgets.AbstractButtonBar;
 import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
 import org.condast.symbiotic.core.def.IBehaviour;
-import org.condast.symbiotic.core.environment.EnvironmentEvent;
-import org.condast.symbiotic.core.environment.IEnvironmentListener;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IContainerEnvironment;
