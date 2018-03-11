@@ -190,4 +190,16 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 			lock.unlock();
 		}
 	}
+
+	@Override
+	public int getTimer() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setTimer(int timer) {
+		// TODO Auto-generated method stub
+		
+	}
 }
