@@ -39,3 +39,4 @@ Import-Package: org.condast.commons.autonomy.env,
  org.google.geo.mapping.ui.controller,
  org.google.geo.mapping.ui.model
 Export-Package: org.condast.wph.ui.swt
+Automatic-Module-Name: org.condast.wph.ui

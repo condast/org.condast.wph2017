@@ -19,3 +19,4 @@ Import-Package: org.condast.commons.project,
  org.osgi.service.component.annotations;version="1.2.0"
 Service-Component: OSGI-INF/contribution.xml,
  OSGI-INF/org.condast.wph.service.EnvironmentService.xml
+Automatic-Module-Name: org.condast.wph

@@ -3,7 +3,7 @@ package org.condast.wph.rest;
 import javax.servlet.Servlet;
 import javax.ws.rs.ApplicationPath;
 
-import org.condast.commons.http.AbstractServletWrapper;
+import org.condast.commons.messaging.http.AbstractServletWrapper;
 //import org.condast.wph.rest.config.Config;
 import org.condast.wph.rest.resources.AnchorageResource;
 import org.condast.wph.rest.resources.ControlResource;
