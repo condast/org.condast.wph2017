@@ -155,7 +155,7 @@ implements IIntervalProcess<IShip, IShip>, ICapacityProcess<IShip, IShip>{
 			else{
 				float quotient = 60 * anchorage.getMaxWaitingTime();//hours
 				float longest = (float)getLongestWaitingTime( interval );
-				symbiot.setStress(NumberUtils.clip(1, longest/quotient));
+				symbiot.setStress((float) NumberUtils.clip(1, longest/quotient));
 			}
 		}
 
