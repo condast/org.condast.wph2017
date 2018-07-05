@@ -133,7 +133,7 @@ public class MessageHandler {
 			return null;
 		}
 
-		private class HttpMessages extends AbstractHttpRequest{
+		private class HttpMessages extends AbstractHttpRequest<Parties>{
 
 			private String response;
 			
@@ -141,6 +141,14 @@ public class MessageHandler {
 				super(path + party.getPath());
 			}
 
+			public void sendGet() {
+				try {
+					super.sendGet();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			private String getResponse() {
 				return response;
 			}
