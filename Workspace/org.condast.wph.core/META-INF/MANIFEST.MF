@@ -6,9 +6,10 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Condast
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.condast.commons,
+ org.condast.commons.autonomy.env,
  org.condast.commons.data.latlng,
- org.condast.commons.http,
  org.condast.commons.i18n,
+ org.condast.commons.messaging.http,
  org.condast.commons.number,
  org.condast.commons.strings,
  org.condast.commons.xml,
@@ -29,3 +30,4 @@ Export-Package: org.condast.wph.core.def,
  org.condast.wph.core.xml
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.condast.wph.core.Activator
+Automatic-Module-Name: org.condast.wph.core

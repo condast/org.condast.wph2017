@@ -9,13 +9,13 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.condast.commons.autonomy.env.EnvironmentEvent;
+import org.condast.commons.autonomy.env.IEnvironmentListener;
 import org.condast.commons.thread.AbstractExecuteThread;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.environment.Environment;
-import org.condast.symbiotic.core.environment.EnvironmentEvent;
-import org.condast.symbiotic.core.environment.IEnvironmentListener;
 import org.condast.wph.builder.design.Journey;
 import org.condast.wph.builder.design.Passage;
 import org.condast.wph.core.def.IStakeHolder;
@@ -189,5 +189,17 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		finally{
 			lock.unlock();
 		}
+	}
+
+	@Override
+	public int getTimer() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setTimer(int timer) {
+		// TODO Auto-generated method stub
+		
 	}
 }

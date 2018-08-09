@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
+import org.condast.commons.autonomy.env.IEnvironmentListener;
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
-import org.condast.symbiotic.core.environment.IEnvironmentListener;
 import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.model.Statistics;

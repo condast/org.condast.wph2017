@@ -93,7 +93,7 @@ implements IIntervalProcess<I,I>, ICapacityProcess<I,I>
 			}else if( !isAcceptOutput() ){
 				symbiot.increaseStress();
 			}else{
-				float stress = NumberUtils.clip(1f, getActiveJobs()/( getCapacity()));
+				float stress = (float) NumberUtils.clip(1f, getActiveJobs()/( getCapacity()));
 				symbiot.setStress( stress );
 			}
 		}
