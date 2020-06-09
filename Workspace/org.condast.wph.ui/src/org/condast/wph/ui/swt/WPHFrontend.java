@@ -70,7 +70,7 @@ public class WPHFrontend extends Composite {
 		}
 	}
 
-	private IEvaluationListener<Object[]> listener;
+	private IEvaluationListener<Object> listener;
 	private ModelTableViewer modelViewer;
 	private JourneyTableViewer journeyViewer;
 	private Browser browser;
@@ -271,10 +271,10 @@ public class WPHFrontend extends Composite {
 		session.removeSessionListener(sessionListener);
 	}
 		
-	private class EvaluationListener implements IEvaluationListener<Object[]>{
+	private class EvaluationListener implements IEvaluationListener<Object>{
 
 		@Override
-		public void notifyEvaluation(EvaluationEvent<Object[]> event) {
+		public void notifyEvaluation(EvaluationEvent<Object> event) {
 			switch( event.getEvaluationEvent() ){
 			case INITIALISED:
 				setupFrontEnd();

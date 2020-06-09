@@ -1,9 +1,7 @@
 package org.condast.wph.core.message;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -11,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.condast.commons.messaging.http.AbstractHttpRequest;
+import org.condast.commons.messaging.http.ResponseEvent;
 
 public class MessageHandler {
 
@@ -133,7 +132,7 @@ public class MessageHandler {
 			return null;
 		}
 
-		private class HttpMessages extends AbstractHttpRequest<Parties>{
+		private class HttpMessages extends AbstractHttpRequest<Parties, String>{
 
 			private String response;
 			
@@ -152,18 +151,10 @@ public class MessageHandler {
 			private String getResponse() {
 				return response;
 			}
-
+		
 			@Override
-			protected String onHandleResponse(URL url, int responseCode, BufferedReader reader) throws IOException{
-				String inputLine;
-				StringBuffer buffer = new StringBuffer();
-
-				while ((inputLine = reader.readLine()) != null) {
-					buffer.append(inputLine);
-				}
-				response = buffer.toString();
-				System.out.println(response);	
-				return response;
+			protected String onHandleResponse(ResponseEvent<Parties, String> event, String data) throws IOException {
+				return data;
 			}	
 		}
 	}

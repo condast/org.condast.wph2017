@@ -3,6 +3,7 @@ target/
 tmp/
 features/
 plugins/
+.metadata/
 
 *.class
 *.tmp
