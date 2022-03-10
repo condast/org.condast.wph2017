@@ -8,7 +8,7 @@
 package org.condast.wph.core.xml;
 
 import java.io.File;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.EnumSet;
 
@@ -71,7 +71,7 @@ public class XMLFactoryBuilder extends AbstractXMLBuilder<IModel<IModel.ModelTyp
 	}
 
 	public XMLFactoryBuilder( Class<?> clss ) {
-		this( clss.getResource( S_DEFAULT_FOLDER + File.separator + S_DEFAULT_DESIGN_FILE) );
+		this( clss.getResourceAsStream( S_DEFAULT_FOLDER + File.separator + S_DEFAULT_DESIGN_FILE) );
 	}
 
 	/**
@@ -81,8 +81,8 @@ public class XMLFactoryBuilder extends AbstractXMLBuilder<IModel<IModel.ModelTyp
 	 * @param location
 	 * @param builder
 	 */
-	public XMLFactoryBuilder( URL url ) {
-		super( new XMLHandler(), url);
+	public XMLFactoryBuilder( InputStream inp ) {
+		super( new XMLHandler(), inp);
 	}
 
 	public static String getLocation( String defaultLocation ){
