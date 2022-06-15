@@ -132,7 +132,7 @@ public class MessageHandler {
 			return null;
 		}
 
-		private class HttpMessages extends AbstractHttpRequest<Parties, String>{
+		private class HttpMessages extends AbstractHttpRequest<Parties>{
 
 			private String response;
 			
@@ -153,8 +153,8 @@ public class MessageHandler {
 			}
 		
 			@Override
-			protected String onHandleResponse(ResponseEvent<Parties, String> event, String data) throws IOException {
-				return data;
+			protected String onHandleResponse(ResponseEvent<Parties> event) throws IOException {
+				return event.getResponse();
 			}	
 		}
 	}

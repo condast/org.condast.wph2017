@@ -89,15 +89,15 @@ public class WPHFrontend extends Composite {
 		
 		@Override
 		public void notifyEnvironmentChanged(EnvironmentEvent<Object> event) {
-			session.addData( event );
+			session.activate();
 		}
 	};
 	
-	private RefreshSession<EnvironmentEvent<Object>> session;
-	private ISessionListener<EnvironmentEvent<Object>> sessionListener = new ISessionListener<EnvironmentEvent<Object>>(){
+	private RefreshSession session;
+	private ISessionListener<Object> sessionListener = new ISessionListener<Object>(){
 
 		@Override
-		public void notifySessionChanged(SessionEvent<EnvironmentEvent<Object>> event) {
+		public void notifySessionChanged(SessionEvent<Object> event) {
 			journeyViewer.setInput( ce.getJourneys());
 			jc.setInput(ce);
 			setTime();	
@@ -115,7 +115,7 @@ public class WPHFrontend extends Composite {
 		setLayout(new GridLayout(1, false ));
 		listener = new EvaluationListener();
 		this.createComposite(parent, style);
-		session = new RefreshSession<EnvironmentEvent<Object>>();
+		session = new RefreshSession();
 		session.init(getDisplay());
 		session.addSessionListener(sessionListener);
 		logger.addHandler( new EventLoggerHandler( this.eventLogger));
@@ -351,7 +351,7 @@ public class WPHFrontend extends Composite {
 					
 				}		
 			});
-			button.setImage( PlayerImages.getInstance().getImage(type));
+			button.setImage( PlayerImages.getImage(type));
 			return button;
 		}
 	}

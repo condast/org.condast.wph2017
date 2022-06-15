@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -192,14 +193,8 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 	}
 
 	@Override
-	public int getTimer() {
+	public ExecutorService onCreateService() {
 		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void setTimer(int timer) {
-		// TODO Auto-generated method stub
-		
+		return null;
 	}
 }
