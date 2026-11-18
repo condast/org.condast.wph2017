@@ -14,8 +14,9 @@ import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.transformation.ITransformListener;
 import org.condast.symbiotic.core.transformation.TransformEvent;
 import org.condast.symbiotic.core.transformation.Transformation;
-import org.condast.symbiotic.core.transformer.AbstractBehavedTransformer;
+import org.condast.wph.core.behaviour.AbstractBehavedTransformer;
 import org.condast.wph.core.def.ICapacityProcess;
+import org.condast.wph.core.def.IContainer;
 import org.condast.wph.core.def.IIntervalProcess;
 import org.condast.wph.core.def.IShip;
 import org.condast.wph.core.definition.IModel.ModelTypes;
@@ -155,7 +156,7 @@ implements IIntervalProcess<IShip, IShip>, ICapacityProcess<IShip, IShip>{
 			else{
 				float quotient = 60 * anchorage.getMaxWaitingTime();//hours
 				float longest = (float)getLongestWaitingTime( interval );
-				symbiot.setStress((float) NumberUtils.clip(1, longest/quotient));
+				//symbiot.setStress((float) NumberUtils.clip(1, longest/quotient));
 			}
 		}
 

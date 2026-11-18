@@ -13,8 +13,8 @@ import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.transformation.ITransformListener;
 import org.condast.symbiotic.core.transformation.TransformEvent;
 import org.condast.symbiotic.core.transformation.Transformation;
-import org.condast.symbiotic.core.transformer.AbstractBehavedTransformerWrapper;
-import org.condast.symbiotic.core.transformer.AbstractProcessWrapper;
+import org.condast.wph.core.behaviour.AbstractBehavedTransformer;
+import org.condast.wph.core.behaviour.AbstractProcessWrapper;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IContainer;
 import org.condast.wph.core.def.IIntervalProcess;
@@ -44,7 +44,7 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 		this.terminal = terminal;
 		this.process = new ProcessTransformation( terminal.getId(), this.terminal.getMaxDocks() );
 		mc = new MessageController( behaviour );
-		super.setTransformer( new TRTerminal( terminal, behaviour));
+		//super.setTransformer( new TRTerminal( terminal, behaviour));
 	}
 
 	public Terminal getModel() {
@@ -102,7 +102,7 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 		super.transform();
 	}
 
-	public class TRTerminal extends AbstractBehavedTransformerWrapper<IShip, IContainer>{
+	public class TRTerminal extends AbstractBehavedTransformer<IShip, IContainer>{
 
 		private Terminal terminal;
 		private Map<IShip, Integer> buffer;
@@ -151,7 +151,7 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 		}
 		
 		@Override
-		protected IContainer onTransform(Iterator<IShip> inputs, IContainer output) {
+		protected IContainer onTransform(Iterator<IShip> inputs) {
 			if( inputs == null )
 				return null;
 			IShip ship = null;
@@ -172,9 +172,15 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 		}
 
 		@Override
+		public Collection<IShip> getInputs() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
 		protected void onUpdateStress(Iterator<IShip> inputs, ISymbiot symbiot) {
 			float stress = getRemainingCapacity()/getCapacity();
-			symbiot.setStress(stress);
+			//symbiot.setStress(stress);
 		}
 		
 		protected Date getJobCompletion( IShip ship ){
@@ -226,7 +232,17 @@ public class TTerminal extends Transformation<IShip, IContainer> implements ICap
 			// TODO Auto-generated method stub
 			return null;
 		}
-		
-	}
 
+		@Override
+		public String getName() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		protected void onUpdateStress(Iterator<IShip> inputs, ISymbiot symbiot) {
+			// TODO Auto-generated method stub
+			
+		}
+	}
 }

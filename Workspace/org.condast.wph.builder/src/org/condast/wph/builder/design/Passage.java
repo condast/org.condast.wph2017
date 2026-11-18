@@ -7,15 +7,15 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.condast.commons.data.latlng.LatLng;
-import org.condast.symbiotic.core.DefaultBehaviour;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ITransformation;
-import org.condast.symbiotic.core.ecosystem.AbstractLinkedNeighbourhood;
-import org.condast.symbiotic.core.ecosystem.ILinkedNeighbourhood;
-import org.condast.symbiotic.core.environment.Environment;
 import org.condast.symbiotic.core.transformation.ITransformListener;
 import org.condast.symbiotic.core.transformation.TransformEvent;
+import org.condast.symbiotic.ecosystem.environment.Environment;
+import org.condast.symbiotic.ecosystem.neighbourhood.AbstractLinkedNeighbourhood;
+import org.condast.symbiotic.ecosystem.neighbourhood.ILinkedNeighbourhood;
+import org.condast.wph.core.behaviour.DefaultBehaviour;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IContainer;
 import org.condast.wph.core.def.IIntervalProcess;
@@ -29,7 +29,6 @@ import org.condast.wph.core.design.TAnchorage;
 import org.condast.wph.core.design.TTerminal;
 import org.condast.wph.core.model.Anchorage;
 import org.condast.wph.core.model.Carrier;
-import org.condast.wph.core.model.Modality;
 import org.condast.wph.core.model.Ship;
 import org.condast.wph.core.model.StakeHolder;
 import org.condast.wph.core.model.Statistics;
@@ -78,7 +77,7 @@ public class Passage {
 		return statistics;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	private void createDependencies(){
 		
 		IBehaviour behaviour = new DefaultBehaviour(5);
@@ -171,6 +170,7 @@ public class Passage {
 			}			
 		};
 
+		/*
 		name = "DB Schenker";
 		behaviour = new DefaultBehaviour(5);
 		model =  new Modality( name, ModelTypes.TRUCK, new LatLng(4.5f, 51.8f));
@@ -197,11 +197,12 @@ public class Passage {
 		//		setupTransformation( model, behaviour, ct);
 		terminalNeighbourhood.addTransformation(ct);
 		ct.addTransformationListener( endNeighbourhood );
+		*/
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private IStakeHolder<?, ?> setupTransformation( IModel model, IBehaviour behaviour, IIntervalProcess<?,?> transformation ){
-		symbiots.add( ModelTypes.getAbbreviation( (ModelTypes) model.getType() ), behaviour);
+		symbiots.add( behaviour);
 		IStakeHolder<?, ?> term = new StakeHolder(  transformation, (ModelTypes) model.getType(), model.getLnglat() );
 		models.put(term, behaviour );
 		return term;

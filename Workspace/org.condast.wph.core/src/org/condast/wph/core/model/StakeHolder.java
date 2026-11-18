@@ -50,5 +50,4 @@ public class StakeHolder<I,O extends Object> implements IStakeHolder<I, O> {
 		ITransformation<I, O> trf = (ITransformation<I, O>) process;
 		return trf;
 	}
-
 }

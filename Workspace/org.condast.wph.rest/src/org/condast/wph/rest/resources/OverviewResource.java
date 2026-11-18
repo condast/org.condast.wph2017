@@ -31,7 +31,7 @@ public class OverviewResource{
 		IContainerEnvironment ce = dispatcher.getEnvironment();
 		Gson gson = new Gson();
 		SymbiotCollection symbiots = (SymbiotCollection) ce.getSymbiots();
-		Map<String, Float> stress = ( symbiots == null )? new HashMap<String, Float>(): symbiots.getCumultatedStress();
+		Map<String, Double> stress = ( symbiots == null )? new HashMap<String, Double>(): symbiots.getCumultatedStress();
 		if( symbiots != null ){
 			for( ISymbiot symbiot: symbiots )	
 				stress.put( symbiot.getId(), symbiot.getStress() );
@@ -47,7 +47,7 @@ public class OverviewResource{
 		IContainerEnvironment ce = dispatcher.getEnvironment();
 		Gson gson = new Gson();
 		SymbiotCollection symbiots = (SymbiotCollection) ce.getSymbiots();
-		Map<String, Float> weights = ( symbiots == null )? new HashMap<String, Float>(): symbiots.getCumultatedStress();
+		Map<String, Double> weights = ( symbiots == null )? new HashMap<String, Double>(): symbiots.getCumultatedStress();
 		for( ISymbiot symbiot: symbiots )	
 			weights.put( symbiot.getId(), symbiot.getStress() );
 		return createResponse( gson.toJson( weights ));
@@ -88,7 +88,7 @@ public class OverviewResource{
 	public Response getAllStress() {
 		IContainerEnvironment ce = dispatcher.getEnvironment();
 		SymbiotCollection sc = (SymbiotCollection) ce.getSymbiots();
-		Map<String, Map<String,Float>> allStress = sc.getStress();
+		Map<String, Map<String,Double>> allStress = sc.getStress();
 		Gson gson = new Gson();
 		return createResponse( gson.toJson(allStress) );
 	}

@@ -1,6 +1,6 @@
 package org.condast.wph.core.def;
 
-public interface IIntervalProcess<I,O extends Object>{
+public interface IIntervalProcess<I,O extends Object> {
 
 	public String getName();
 	

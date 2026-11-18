@@ -34,4 +34,6 @@ public interface ICapacityProcess<I, O extends Object> extends ITransformation<I
 	 * @return
 	 */
 	public int getCapacity();
+
+	public boolean addInput(I input);
 }

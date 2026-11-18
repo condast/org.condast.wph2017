@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.condast.commons.Utils;
-import org.condast.symbiotic.core.transformer.AbstractTransformer;
+import org.condast.wph.core.behaviour.AbstractTransformer;
 import org.condast.wph.core.def.IIntervalProcess;
 
 public class IntervalProcess<I extends Object> extends AbstractTransformer<I,I> implements IIntervalProcess<I, I>{
@@ -27,6 +27,7 @@ public class IntervalProcess<I extends Object> extends AbstractTransformer<I,I> 
 	}
 	
 	public IntervalProcess( String name, int capacity ) {
+		super();
 		jobs = new LinkedHashMap<Date,I>();
 		this.capacity = capacity;
 		this.name = name;

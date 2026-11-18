@@ -4,19 +4,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
-import org.condast.commons.autonomy.env.IEnvironmentListener;
+import org.condast.commons.autonomy.env.IEnvironment;
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.wph.core.def.IStakeHolder;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.model.Statistics;
 
-public interface IContainerEnvironment {
+public interface IContainerEnvironment<O extends Object> extends IEnvironment<O>{
 
-	void addListener(IEnvironmentListener<Object> listener);
-
-	void removeListener(IEnvironmentListener<Object> listener);
-	
 	public void start();
 	
 	public void stop();
@@ -59,11 +55,6 @@ public interface IContainerEnvironment {
 	public long getElapsedTime();
 
 	Date getStartDate();
-
-	/**
-	 * Clear the date and interval
-	 */
-	public void clear();
 
 	/**
 	 * Convenience method displays the simulated time

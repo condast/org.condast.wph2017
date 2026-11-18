@@ -1,8 +1,9 @@
 package org.condast.wph.ui.swt;
 
-import org.condast.commons.ui.date.DateUtils;
+import org.condast.commons.date.DateUtils;
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.IStressListener;
+import org.condast.symbiotic.core.def.ITransformation;
 import org.condast.symbiotic.core.def.StressEvent;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.eclipse.swt.SWT;
@@ -10,7 +11,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-public class CapacityTransformationGroup<I,O extends Object> extends AbstractTransformationGroup<I,O, ICapacityProcess<I,O>> {
+public class CapacityTransformationGroup<I,O extends Object> extends AbstractTransformationGroup<I,O, ITransformation<I,O>> {
 	private static final long serialVersionUID = 1L;
 	
 	private SymbiotGroup sg;
@@ -81,28 +82,23 @@ public class CapacityTransformationGroup<I,O extends Object> extends AbstractTra
 		this.behaviour = behaviour;
 		behaviour.addStressListener(listener);
 		sg.setInput( behaviour);		
-	}
-	
-	@Override
-	protected void onSetInput( ICapacityProcess<I,O> input) {
 		jobSize.setText( String.valueOf( input.getJobSize()));
 		capacity.setText( String.valueOf( input.getCapacity()));
 		
 		String datestr = ( input.getFirstDueJob() == null )? "": 
 			DateUtils.getFormatted( DateUtils.S_DEFAULT_TIME_FORMAT, input.getFirstDueJob() );
 		dueDate.setText( datestr );
-		super.onSetInput(input);
 	}
-
+	
 	@Override
-	protected Integer[] onPlotValues( ICapacityProcess<I,O> input) {
+	protected Integer[] onPlotValues(ITransformation<I, O> input) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	protected void onRefresh() {
-		ICapacityProcess<I,O> input = super.getInput();
+		ICapacityProcess<I,O> input = (ICapacityProcess<I, O>) super.getInput();
 		jobSize.setText( String.valueOf( input.getJobSize()));
 		capacity.setText( String.valueOf( input.getCapacity()));
 		

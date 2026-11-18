@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.condast.wph.builder
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.condast.wph.builder.Activator
 Bundle-Vendor: Condast
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.condast.commons.autonomy.env,
  org.condast.commons.data.latlng,
  org.condast.commons.thread,
@@ -13,12 +13,13 @@ Import-Package: org.condast.commons.autonomy.env,
  org.condast.symbiotic.core,
  org.condast.symbiotic.core.collection,
  org.condast.symbiotic.core.def,
- org.condast.symbiotic.core.ecosystem,
- org.condast.symbiotic.core.environment,
  org.condast.symbiotic.core.filter,
  org.condast.symbiotic.core.transformation,
- org.condast.symbiotic.core.transformer,
  org.condast.symbiotic.core.utils,
+ org.condast.symbiotic.ecosystem.environment,
+ org.condast.symbiotic.ecosystem.neighbourhood,
+ org.condast.symbiotic.ecosystem.organism,
+ org.condast.wph.core.behaviour,
  org.condast.wph.core.def,
  org.condast.wph.core.definition,
  org.condast.wph.core.design,

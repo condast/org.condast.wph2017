@@ -38,7 +38,7 @@ public class Config {
 	private static Config config = new Config();
 	
 	private Config() {
-		props = ProjectFolderUtils.getConfiguration();
+		props = ProjectFolderUtils.getConfiguration(true);
 		if( props.isEmpty() ){
 			props.setProperty( Fields.ENVIRONMENT.name(), Environment.PRODUCTION.toString() );
 			props.setProperty( Fields.PORT.name(), S_PRODUCTION_PORT );

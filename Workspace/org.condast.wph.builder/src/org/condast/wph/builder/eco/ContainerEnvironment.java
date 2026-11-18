@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -15,7 +16,7 @@ import org.condast.commons.thread.AbstractExecuteThread;
 import org.condast.symbiotic.core.collection.SymbiotCollection;
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
-import org.condast.symbiotic.core.environment.Environment;
+import org.condast.symbiotic.ecosystem.environment.Environment;
 import org.condast.wph.builder.design.Journey;
 import org.condast.wph.builder.design.Passage;
 import org.condast.wph.core.def.IStakeHolder;
@@ -24,8 +25,10 @@ import org.condast.wph.core.definition.IJourney;
 import org.condast.wph.core.definition.IModel.ModelTypes;
 import org.condast.wph.core.model.Statistics;
 
-public class ContainerEnvironment extends AbstractExecuteThread implements IContainerEnvironment {
+public class ContainerEnvironment extends AbstractExecuteThread implements IContainerEnvironment<Object> {
 
+	public static final String S_CONTAINER_ENVIRONMENT = "Container environment";
+	
 	public static final int DAY_TIME = 30*24*60*60*1000;
 	public static final int 	 DAY = 24*60*60*1000;
 	public static final int INTERVAL = 3*60*1000;//3 min
@@ -51,6 +54,44 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		this.listeners = new ArrayList<IEnvironmentListener<Object>>();
 		this.interval = interval;
 	}
+
+	
+	@Override
+	public boolean isActive() {
+		return true;
+	}
+
+	@Override
+	public String getName() {
+		return this.S_CONTAINER_ENVIRONMENT;
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+	}
+
+	@Override
+	public ExecutorService onCreateService() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addListener( IEnvironmentListener<Object> listener ){
+		this.listeners.add( listener );
+	}
+
+	@Override
+	public void removeListener( IEnvironmentListener<Object> listener ){
+		this.listeners.remove( listener );
+	}
+	
+	protected void notifyChangeEvent( EnvironmentEvent<Object> event ){
+		for( IEnvironmentListener<Object> listener: listeners)
+			listener.notifyEnvironmentChanged(event);
+	}
+
 
 	@Override
 	public void clear(){
@@ -90,23 +131,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 	@Override
 	public Date getStartDate() {
 		return startDate;
-	}
-	
-
-	@Override
-	public void addListener( IEnvironmentListener<Object> listener ){
-		this.listeners.add( listener );
-	}
-
-	@Override
-	public void removeListener( IEnvironmentListener<Object> listener ){
-		this.listeners.remove( listener );
-	}
-	
-	protected void notifyChangeEvent( EnvironmentEvent<Object> event ){
-		for( IEnvironmentListener<Object> listener: listeners)
-			listener.notifyEnvironmentChanged(event);
-	}
+	}	
 
 	@Override
 	public boolean onInitialise() {
@@ -125,7 +150,7 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		this.clear();
 		this.symbiots =new SymbiotCollection();
 		shipentry = new Passage( environment, symbiots );
-		notifyChangeEvent( new EnvironmentEvent<Object>( this ));
+		notifyChangeEvent( new EnvironmentEvent<Object>( this, shipentry ));
 		return true;
 	}
 
@@ -189,17 +214,5 @@ public class ContainerEnvironment extends AbstractExecuteThread implements ICont
 		finally{
 			lock.unlock();
 		}
-	}
-
-	@Override
-	public int getTimer() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void setTimer(int timer) {
-		// TODO Auto-generated method stub
-		
 	}
 }

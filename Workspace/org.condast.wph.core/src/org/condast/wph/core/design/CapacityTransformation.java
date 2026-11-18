@@ -3,11 +3,10 @@ package org.condast.wph.core.design;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.condast.commons.number.NumberUtils;
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.symbiotic.core.def.ISymbiot;
 import org.condast.symbiotic.core.transformation.Transformation;
-import org.condast.symbiotic.core.transformer.AbstractBehavedTransformerWrapper;
+import org.condast.wph.core.behaviour.AbstractBehavedTransformer;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IIntervalProcess;
 import org.condast.wph.core.model.IntervalProcess;
@@ -80,7 +79,7 @@ implements IIntervalProcess<I,I>, ICapacityProcess<I,I>
 		return process.getCapacity();
 	}
 
-	private class TRCapacity extends AbstractBehavedTransformerWrapper<I, I>{
+	private class TRCapacity extends AbstractBehavedTransformer<I, I>{
 
 		protected TRCapacity( IBehaviour behaviour) {
 			super(process, behaviour);
@@ -90,23 +89,24 @@ implements IIntervalProcess<I,I>, ICapacityProcess<I,I>
 		protected void onUpdateStress(Iterator<I> inputs, ISymbiot symbiot) {
 			if( isEmpty()){
 				symbiot.clearStress();
-			}else if( !isAcceptOutput() ){
-				symbiot.increaseStress();
-			}else{
-				float stress = (float) NumberUtils.clip(1f, getActiveJobs()/( getCapacity()));
-				symbiot.setStress( stress );
-			}
+			}//else if( !isAcceptOutput() ){
+			//	symbiot.increaseStress();
+			//}else{
+			//	float stress = (float) NumberUtils.clip(1f, getActiveJobs()/( getCapacity()));
+			//	symbiot.setStress( stress );
+			//}
 		}
 
+		
 		@Override
-		protected I onTransform(Iterator<I> inputs, I selected) {
+		protected I onTransform(Iterator<I> inputs) {
 			if( inputs == null )
 				return null;
 			if( getActiveJobs() < process.getCapacity() ){
-				removeInput( selected );
-				return selected;
+				//removeInput( selected );
+				return null;//selected;
 			}
-			return selected;
+			return null;
 		}
 	}
 }

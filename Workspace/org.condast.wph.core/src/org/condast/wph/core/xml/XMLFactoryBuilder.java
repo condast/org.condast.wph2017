@@ -13,10 +13,10 @@ import java.util.Collection;
 import java.util.EnumSet;
 
 import org.condast.commons.data.latlng.LatLng;
+import org.condast.commons.preferences.xml.AbstractXMLBuilder;
+import org.condast.commons.preferences.xml.AbstractXmlHandler;
 import org.condast.commons.strings.StringStyler;
 import org.condast.commons.strings.StringUtils;
-import org.condast.commons.xml.AbstractXMLBuilder;
-import org.condast.commons.xml.AbstractXmlHandler;
 import org.condast.wph.core.definition.IModel;
 import org.condast.wph.core.lang.WPHLanguage;
 import org.condast.wph.core.model.Model;
@@ -82,7 +82,7 @@ public class XMLFactoryBuilder extends AbstractXMLBuilder<IModel<IModel.ModelTyp
 	 * @param builder
 	 */
 	public XMLFactoryBuilder( URL url ) {
-		super( new XMLHandler(), url);
+		super( new XMLHandler());
 	}
 
 	public static String getLocation( String defaultLocation ){

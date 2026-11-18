@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.condast.commons.messaging.http.AbstractHttpRequest;
+import org.condast.commons.jpa.messaging.AbstractHttpRequest;
+import org.condast.commons.jpa.messaging.ResponseEvent;
 
 public class MessageHandler {
 
@@ -154,17 +154,18 @@ public class MessageHandler {
 			}
 
 			@Override
-			protected String onHandleResponse(URL url, int responseCode, BufferedReader reader) throws IOException{
+			protected String onHandleResponse(ResponseEvent<Parties> event) throws IOException {
 				String inputLine;
 				StringBuffer buffer = new StringBuffer();
+				buffer.append( event.getResponse());
 
-				while ((inputLine = reader.readLine()) != null) {
-					buffer.append(inputLine);
-				}
+				//while ((inputLine = reader.readLine()) != null) {
+				//	buffer.append(inputLine);
+				//}
 				response = buffer.toString();
 				System.out.println(response);	
 				return response;
-			}	
+			}
 		}
 	}
 }

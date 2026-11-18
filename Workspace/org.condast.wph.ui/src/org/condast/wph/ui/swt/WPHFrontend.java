@@ -26,13 +26,12 @@ import org.condast.commons.log.BufferedLogHandler;
 import org.condast.commons.strings.StringStyler;
 import org.condast.commons.ui.player.PlayerImages;
 import org.condast.commons.ui.player.PlayerImages.Images;
-import org.condast.commons.ui.session.ISessionListener;
-import org.condast.commons.ui.session.RefreshSession;
-import org.condast.commons.ui.session.SessionEvent;
 import org.condast.commons.ui.swt.AbstractAxis;
-import org.condast.commons.ui.widgets.AbstractButtonBar;
+import org.condast.commons.ui.wtk.AbstractButtonBar;
 import org.condast.js.commons.eval.EvaluationEvent;
 import org.condast.js.commons.eval.IEvaluationListener;
+import org.condast.js.commons.session.AbstractSessionHandler;
+import org.condast.js.commons.session.SessionEvent;
 import org.condast.symbiotic.core.def.IBehaviour;
 import org.condast.wph.core.def.ICapacityProcess;
 import org.condast.wph.core.def.IStakeHolder;
@@ -70,7 +69,7 @@ public class WPHFrontend extends Composite {
 		}
 	}
 
-	private IEvaluationListener<Object[]> listener;
+	private IEvaluationListener<Object> listener;
 	private ModelTableViewer modelViewer;
 	private JourneyTableViewer journeyViewer;
 	private Browser browser;
@@ -81,6 +80,7 @@ public class WPHFrontend extends Composite {
 	private Composite body;
 	private JourneyComposite jc;
 	private RichTextEditor eventLogger;
+	private RefreshSession session;
 		
 	private IContainerEnvironment ce;
     private Logger logger = Logger.getLogger( this.getClass().getName());
@@ -90,18 +90,6 @@ public class WPHFrontend extends Composite {
 		@Override
 		public void notifyEnvironmentChanged(EnvironmentEvent<Object> event) {
 			session.addData( event );
-		}
-	};
-	
-	private RefreshSession<EnvironmentEvent<Object>> session;
-	private ISessionListener<EnvironmentEvent<Object>> sessionListener = new ISessionListener<EnvironmentEvent<Object>>(){
-
-		@Override
-		public void notifySessionChanged(SessionEvent<EnvironmentEvent<Object>> event) {
-			journeyViewer.setInput( ce.getJourneys());
-			jc.setInput(ce);
-			setTime();	
-			layout();
 		}
 	};
 
@@ -115,9 +103,7 @@ public class WPHFrontend extends Composite {
 		setLayout(new GridLayout(1, false ));
 		listener = new EvaluationListener();
 		this.createComposite(parent, style);
-		session = new RefreshSession<EnvironmentEvent<Object>>();
-		session.init(getDisplay());
-		session.addSessionListener(sessionListener);
+		session = new RefreshSession( parent.getDisplay());
 		logger.addHandler( new EventLoggerHandler( this.eventLogger));
 	}
 	
@@ -225,7 +211,6 @@ public class WPHFrontend extends Composite {
 		ce.addListener( elistener);
 		buttonbar.setInput( ce );
 		setTime();
-		session.start();
 	}
 		
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -266,15 +251,13 @@ public class WPHFrontend extends Composite {
 	@Override
 	public void dispose(){
 		logger.warning( S_WRN_DISPOSE);
-		ce.removeListener( elistener);
-		session.stop();
-		session.removeSessionListener(sessionListener);
+		session.dispose();
 	}
 		
-	private class EvaluationListener implements IEvaluationListener<Object[]>{
+	private class EvaluationListener implements IEvaluationListener<Object>{
 
 		@Override
-		public void notifyEvaluation(EvaluationEvent<Object[]> event) {
+		public void notifyEvaluation(EvaluationEvent<Object> event) {
 			switch( event.getEvaluationEvent() ){
 			case INITIALISED:
 				setupFrontEnd();
@@ -309,7 +292,7 @@ public class WPHFrontend extends Composite {
 		}
 
 		@Override
-		protected Control createButton(PlayerImages.Images type) {
+		protected Control createButton(PlayerImages.Images type, int args) {
 			Button button = new Button( this, SWT.FLAT );
 			switch( type ){
 			case STOP:
@@ -351,7 +334,7 @@ public class WPHFrontend extends Composite {
 					
 				}		
 			});
-			button.setImage( PlayerImages.getInstance().getImage(type));
+			button.setImage( PlayerImages.getImage(type));
 			return button;
 		}
 	}
@@ -442,4 +425,20 @@ public class WPHFrontend extends Composite {
 			// TODO Auto-generated method stub	
 		}		
 	}
+	
+	private class RefreshSession extends AbstractSessionHandler<EnvironmentEvent<Object>>{
+
+		protected RefreshSession(Display display) {
+			super(display);
+		}
+
+		@Override
+		protected void onHandleSession(SessionEvent<EnvironmentEvent<Object>> sevent) {
+			journeyViewer.setInput( ce.getJourneys());
+			jc.setInput(ce);
+			setTime();	
+
+		}
+	}
+
 }
