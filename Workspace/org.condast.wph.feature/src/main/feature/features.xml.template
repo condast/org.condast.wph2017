@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><features name="${project.groupId}-${major.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.4.0">
+    <feature name="org.condast.wph" version="${project.version}">
+        <bundle>mvn:${project.groupId}/org.condast.wph/${project.version}</bundle>
+        <bundle>mvn:${project.groupId}/org.condast.wph.core/${project.version}</bundle>
+        <bundle>mvn:${project.groupId}/org.condast.wph.ui/${project.version}</bundle>
+        <bundle>mvn:${project.groupId}/org.condast.wph.builder/${project.version}</bundle>
+        <bundle>mvn:${project.groupId}/org.condast.wph.rest/${project.version}</bundle>
+    </feature>
+</features>
